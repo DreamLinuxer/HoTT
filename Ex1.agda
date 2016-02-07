@@ -132,7 +132,10 @@ module Ex1-8 where
   indℕ C z f (suc n) = f n (indℕ C z f n)
 
   Isringℕ : IsSemiring _≡_ _+_ _*_ zero (suc zero)
-  Isringℕ = record {isSemiringWithoutAnnihilatingZero = {!!}
+  Isringℕ = record {isSemiringWithoutAnnihilatingZero = record {
+                                                        +-isCommutativeMonoid = {!!}
+                                                      ; *-isMonoid = {!!}
+                                                      ; distrib = {!!} }
                    ;zero = (λ n → refl) , indℕ (λ n → n * zero ≡ zero) refl (λ n p → p)}
 
   ringℕ : Semiring _ _
@@ -213,9 +216,41 @@ module Ex1-13 where
 
 
 -- Ex1.14
+module Ex1-14 where
+  open import Relation.Binary.PropositionalEquality using (_≡_; refl)
+
+  ind≡ : {A : Set} (C : (x y : A) (p : x ≡ y) → Set) → ((x : A) → C x x refl) → ((x y : A) (p : x ≡ y) → C x y p)
+  ind≡ C c x .x refl = c x
+{-
+  f : {A : Set} (x : A) (p : x ≡ x) → p ≡ refl
+  f x p = ind≡ (λ x y p → p ≡ refl) (λ y → refl) x x p
+-}
 
 -- Ex1.15
+module Ex1-15 where
+  open import Relation.Binary.PropositionalEquality using (_≡_; refl)
+
+  ind≡ : {A : Set} (C : (x y : A) (p : x ≡ y) → Set) → ((x : A) → C x x refl) → ((x y : A) (p : x ≡ y) → C x y p)
+  ind≡ C c x .x refl = c x
+
+  indis : {A : Set} (C : A → Set) →  (x y : A) → (p : x ≡ y) → C x → C y
+  indis C = ind≡ (λ x y p → C x → C y) (λ x Cx → Cx)
 
 -- Ex1.16
+module Ex1-16 where
+  open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; trans)
+  open import Data.Nat
 
-  
+  indℕ : ∀ {ℓ} → (C : ℕ → Set ℓ) → C 0 → ((n : ℕ) → C n → C (suc n)) → (n : ℕ) → C n
+  indℕ C z f 0 = z
+  indℕ C z f (suc n) = f n (indℕ C z f n)
+
+  suc≡ : (i j : ℕ) → i + suc j ≡ suc (i + j)
+  suc≡ = indℕ (λ i → (j : ℕ) → i + suc j ≡ suc (i + j))
+              (λ j → refl)
+              (λ i p j → cong suc (p j))
+
+  commℕ : (i j : ℕ) → i + j ≡ j + i
+  commℕ i j = indℕ ((λ n m → n + m ≡ m + n) i)
+                   (indℕ (λ n → n + 0 ≡ n) refl (λ n p → cong suc p) i)
+                   (λ n p → trans (suc≡ i n) (cong suc p)) j
