@@ -179,3 +179,43 @@ module Ex1-10 where
 
   ackmn : (n m : ℕ) → ack (suc m) (suc n) ≡ ack m (ack (suc m) n)
   ackmn n m = refl
+
+-- Ex 1.11
+module Ex1-11 where
+  open import Relation.Nullary
+  
+  ¬¬¬A→¬A : {A : Set} → ¬ ¬ ¬ A → ¬ A
+  ¬¬¬A→¬A ¬¬¬A A = ¬¬¬A (λ ¬A → ¬A A)
+
+-- Ex 1.12
+module Ex1-12 where
+  open import Relation.Nullary
+  open import Data.Product
+  open import Data.Sum
+  
+  IfAthen[IfBthenA] : {A B : Set} → A → (B → A)
+  IfAthen[IfBthenA] = λ a b → a
+
+  IfAthen[notnotA] : {A : Set} → A → ¬ ¬ A
+  IfAthen[notnotA] = λ A ¬A → ¬A A
+
+  If[[notA]or[notB]]then[not[AandB]] : {A B : Set} → ((¬ A) ⊎ (¬ B)) → ¬ (A × B)
+  If[[notA]or[notB]]then[not[AandB]] (inj₁ a) A×B = a (proj₁ A×B)
+  If[[notA]or[notB]]then[not[AandB]] (inj₂ b) A×B = b (proj₂ A×B)
+
+-- Ex1.13
+module Ex1-13 where
+  open import Relation.Nullary
+  open import Data.Sum
+
+  not[not[Por[notP]]] : {P : Set} → ¬ (¬ (P ⊎ (¬ P)))
+  not[not[Por[notP]]] ¬[P⊎[¬P]] = ¬[P⊎[¬P]] (inj₂ (λ p → ¬[P⊎[¬P]] (inj₁ p)))
+
+
+-- Ex1.14
+
+-- Ex1.15
+
+-- Ex1.16
+
+  
