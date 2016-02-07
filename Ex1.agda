@@ -130,21 +130,22 @@ module Ex1-8 where
   indℕ C z f zero = z
   indℕ C z f (suc n) = f n (indℕ C z f n)
 
-  Isringℕ : IsSemiring _≡_ _+_ _*_ zero (suc zero)
-  Isringℕ = record {isSemiringWithoutAnnihilatingZero = record {
-                                                        +-isCommutativeMonoid = {!!}
-                                                      ; *-isMonoid = {!!}
-                                                      ; distrib = {!!} }
-                   ;zero = (λ n → refl) , indℕ (λ n → n * zero ≡ zero) refl (λ n p → p)}
+  IsSemiringℕ : IsSemiring _≡_ _+_ _*_ zero (suc zero)
+  IsSemiringℕ = record {isSemiringWithoutAnnihilatingZero =
+                       record {
+                       +-isCommutativeMonoid = {!!} ;
+                       *-isMonoid = {!!} ;
+                       distrib = {!!} , {!!}} ;
+                       zero = (λ n → refl) , indℕ (λ n → n * zero ≡ zero) refl (λ n p → p)}
 
-  ringℕ : Semiring _ _
-  ringℕ = record {Carrier = ℕ
-                 ;_≈_ = _≡_
-                 ;_+_ = _+_
-                 ;_*_ = _*_
-                 ;0# = zero
-                 ;1# = suc zero
-                 ;isSemiring = Isringℕ}
+  Semiringℕ : Semiring _ _
+  Semiringℕ = record {Carrier = ℕ
+                     ;_≈_ = _≡_
+                     ;_+_ = _+_
+                     ;_*_ = _*_
+                     ;0# = zero
+                     ;1# = suc zero
+                     ;isSemiring = IsSemiringℕ}
 
 -- Ex 1.9
 module Ex1-9 where
