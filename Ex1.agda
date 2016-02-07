@@ -49,12 +49,11 @@ module Ex1-4 where
 
   recℕ≡0 : ∀ {ℓ} (C : Set ℓ) → (c₀ : C) → (cs : (ℕ → C → C)) → recℕ C c₀ cs 0 ≡ c₀
   recℕ≡0 C c₀ cs = refl
-{-
+
   recℕ≡sucn : ∀ {ℓ} (C : Set ℓ) → (c₀ : C) → (cs : (ℕ → C → C)) → (n : ℕ) → recℕ C c₀ cs (suc n) ≡ cs n (recℕ C c₀ cs n)
   recℕ≡sucn C c₀ cs = indℕ (λ n → recℕ C c₀ cs (suc n) ≡ cs n (recℕ C c₀ cs n))
                            refl
                            (λ n p → {!!})
--}
 
 -- Ex 1.5
 module Ex1-5 where
