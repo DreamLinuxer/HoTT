@@ -29,6 +29,28 @@ module Ex1-2 where
 
 -- Ex 1.3
 -- require concepts from chapter 2.
+module Ex1-3 where
+  open import Relation.Binary.PropositionalEquality using (_≡_; refl; subst)
+  open import Data.Product using (_×_; _,_; Σ; Σ-syntax; proj₁; proj₂)
+  open import Data.Sum
+
+  uniqA×B : {A B : Set} (x : A × B) → (proj₁ x , proj₂ x) ≡ x
+  uniqA×B x = refl
+
+  indA×B : {A B : Set} (C : A × B → Set) → ((x : A) (y : B) → C (x , y)) → (p : A × B) → C p
+  indA×B C f p = subst C (uniqA×B p) (f (proj₁ p) (proj₂ p))
+
+  indA×B≡ : {A B : Set} (C : A × B → Set) → (g : (a : A) (b : B) → C (a , b)) → (a : A) (b : B)  → indA×B C g (a , b) ≡ g a b
+  indA×B≡ C g a b = refl
+
+  uniqΣAB : {A : Set} {B : A → Set} (u : Σ A B) → (proj₁ u , proj₂ u) ≡ u
+  uniqΣAB (a , b) = refl
+
+  indΣAB : {A : Set} {B : A → Set} → (C : Σ A B → Set) → ((a : A) (b : B a) → C (a , b)) → (p : Σ A B) → C p
+  indΣAB C g p = subst C (uniqΣAB p) (g (proj₁ p) (proj₂ p))
+
+  indΣAB≡ : {A : Set} {B : A → Set} → (C : Σ A B → Set) → (g : (a : A) (b : B a) → C (a , b)) → (a : A) (b : B a) → indΣAB C g (a , b) ≡ g a b
+  indΣAB≡ C g a b = refl
 
 -- Ex 1.4
 module Ex1-4 where
