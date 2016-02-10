@@ -54,7 +54,7 @@ module Ex1-3 where
 
 -- Ex 1.4
 module Ex1-4 where
-  open import Relation.Binary.PropositionalEquality using (_≡_; refl)
+  open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; subst; trans)
   open import Data.Product using (_×_; _,_; Σ; Σ-syntax; proj₁; proj₂)
   open import Data.Nat
 
@@ -69,13 +69,25 @@ module Ex1-4 where
   recℕ : ∀ {ℓ} (C : Set ℓ) → C → (ℕ → C → C) → ℕ → C
   recℕ C c₀ cs n = proj₁ (iter (C × ℕ) (c₀ , 0) (λ p → cs (proj₂ p) (proj₁ p) , suc (proj₂ p)) n)
 
+  recℕ' : ∀ {ℓ} (C : Set ℓ) → C → (ℕ → C → C) → ℕ → C × ℕ
+  recℕ' C c₀ cs n = iter (C × ℕ) (c₀ , 0) (λ p → cs (proj₂ p) (proj₁ p) , suc (proj₂ p)) n
+
+  recℕ≡ind : ∀ {ℓ} (C : Set ℓ) → (c₀ : C) → (cs : ℕ → C → C) → (n : ℕ) →
+            recℕ' C c₀ cs (suc n) ≡ (cs n (proj₁ (recℕ' C c₀ cs n)) , suc n) →
+            recℕ' C c₀ cs (suc (suc n)) ≡ (cs (suc n) (proj₁ (recℕ' C c₀ cs (suc n))) , suc (suc n))
+  recℕ≡ind C c₀ cs n eq = {!!}
+
+  recℕ≡' : ∀ {ℓ} (C : Set ℓ) → (c₀ : C) → (cs : ℕ → C → C) → (n : ℕ) →
+           recℕ' C c₀ cs (suc n) ≡ (cs n (proj₁ (recℕ' C c₀ cs n)) , suc n)
+  recℕ≡' C c₀ cs = indℕ (λ n → recℕ' C c₀ cs (suc n) ≡ (cs n (proj₁ (recℕ' C c₀ cs n)) , suc n))
+                        refl
+                        (λ n → recℕ≡ind C c₀ cs n)
+
   recℕ≡0 : ∀ {ℓ} (C : Set ℓ) → (c₀ : C) → (cs : (ℕ → C → C)) → recℕ C c₀ cs 0 ≡ c₀
   recℕ≡0 C c₀ cs = refl
 
   recℕ≡sucn : ∀ {ℓ} (C : Set ℓ) → (c₀ : C) → (cs : (ℕ → C → C)) → (n : ℕ) → recℕ C c₀ cs (suc n) ≡ cs n (recℕ C c₀ cs n)
-  recℕ≡sucn C c₀ cs = indℕ (λ n → recℕ C c₀ cs (suc n) ≡ cs n (recℕ C c₀ cs n))
-                           refl
-                           (λ n p → {!!})
+  recℕ≡sucn C c₀ cs n = cong proj₁ (recℕ≡' C c₀ cs n)
 
 -- Ex 1.5
 module Ex1-5 where
@@ -180,9 +192,10 @@ module Ex1-8 where
                         (λ m p → trans (suc≡ n m) (cong suc p))
 
   IsCommutativeMonoidℕ : IsCommutativeMonoid _≡_ _+_ zero
-  IsCommutativeMonoidℕ = record { isSemigroup = IsSemigroupℕ+
-                                ; identityˡ = (λ n → refl)
-                                ; comm = Commutativeℕ }
+  IsCommutativeMonoidℕ = record {
+    isSemigroup = IsSemigroupℕ+ ;
+    identityˡ = (λ n → refl) ;
+    comm = Commutativeℕ }
 
 
   DistributesOverℕ*ˡ : (_≡_ DistributesOverˡ _*_) _+_
@@ -191,17 +204,24 @@ module Ex1-8 where
          (λ y z → refl)
          (λ x eq y z →
          trans
-         ( subst (λ n → (y + z) + (x * (y + z)) ≡ (y + z) + n) (eq y z) refl )
+         ( subst (λ n → (y + z) + (x * (y + z)) ≡ (y + z) + n)
+                 (eq y z) refl )
          ( trans
-         ( subst (λ n → (y + z) + ((x * y) + (x * z)) ≡ n) (Associativeℕ+ y z ((x * y) + (x * z))) refl)
+         ( subst (λ n → (y + z) + ((x * y) + (x * z)) ≡ n)
+                 (Associativeℕ+ y z ((x * y) + (x * z))) refl)
          ( trans
-         ( subst (λ n → y + (z + ((x * y) + (x * z))) ≡ y + n) (Associativeℕ+ z (x * y) (x * z)) (cong (λ n → y + n) (sym (Associativeℕ+ z (x * y) (x * z)))))
+         ( subst (λ n → y + (z + ((x * y) + (x * z))) ≡ y + n)
+                 (Associativeℕ+ z (x * y) (x * z))
+                 (cong (λ n → y + n) (sym (Associativeℕ+ z (x * y) (x * z)))))
          ( trans
-         ( subst (λ n → y + (z + ((x * y) + (x * z))) ≡ y + n) (sym (Associativeℕ+ z (x * y) (x * z))) refl)
+         ( subst (λ n → y + (z + ((x * y) + (x * z))) ≡ y + n)
+                 (sym (Associativeℕ+ z (x * y) (x * z))) refl)
          ( trans
-         ( subst (λ n → y + ((z + (x * y)) + (x * z)) ≡ y + (n + (x * z))) (Commutativeℕ z (x * y)) refl)
+         ( subst (λ n → y + ((z + (x * y)) + (x * z)) ≡ y + (n + (x * z)))
+                 (Commutativeℕ z (x * y)) refl)
          ( trans
-         ( subst (λ n → y + (((x * y) + z) + (x * z)) ≡ y + n) (Associativeℕ+ (x * y) z (x * z)) refl)
+         ( subst (λ n → y + (((x * y) + z) + (x * z)) ≡ y + n)
+                 (Associativeℕ+ (x * y) z (x * z)) refl)
          ( sym   (Associativeℕ+ y (x * y) (z + (x * z))))))))))
 
   DistributesOverℕ*ʳ : (_≡_ DistributesOverʳ _*_) _+_
@@ -241,17 +261,18 @@ module Ex1-8 where
       record {
         +-isCommutativeMonoid = IsCommutativeMonoidℕ ;
         *-isMonoid = IsMonoidℕ ;
-        distrib = DistributesOverℕ*ˡ , DistributesOverℕ*ʳ } ;
+        distrib = (DistributesOverℕ*ˡ , DistributesOverℕ*ʳ) } ;
         zero = (λ n → refl) , indℕ (λ n → n * zero ≡ zero) refl (λ n p → p)}
 
   Semiringℕ : Semiring _ _
-  Semiringℕ = record {Carrier = ℕ
-                     ;_≈_ = _≡_
-                     ;_+_ = _+_
-                     ;_*_ = _*_
-                     ;0# = zero
-                     ;1# = suc zero
-                     ;isSemiring = IsSemiringℕ}
+  Semiringℕ = record {
+    Carrier = ℕ ;
+    _≈_ = _≡_ ;
+    _+_ = _+_ ;
+    _*_ = _*_ ;
+    0# = zero ;
+    1# = suc zero ;
+    isSemiring = IsSemiringℕ }
 
 -- Ex 1.9
 module Ex1-9 where
