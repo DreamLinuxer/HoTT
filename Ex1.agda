@@ -165,13 +165,14 @@ module Ex1-8 where
                        (λ x eq y z → cong suc (eq y z))
 
   IsSemigroupℕ+ : IsSemigroup _≡_ _+_
-  IsSemigroupℕ+ = record { isEquivalence = record {
-                                           refl = refl
-                                         ; sym = λ eq → sym eq
-                                         ; trans = (λ eq1 eq2 → trans eq1 eq2) }
-                         ; assoc = Associativeℕ+
-                         ; ∙-cong = λ {x y u v} x≡y u≡v → trans (subst (λ n → x + u ≡ n + u) x≡y refl)
-                                                                (subst (λ n → y + u ≡ y + n) u≡v refl)}
+  IsSemigroupℕ+ = record {
+    isEquivalence = record {
+      refl = refl
+    ; sym = λ eq → sym eq
+    ; trans = (λ eq1 eq2 → trans eq1 eq2) }
+    ; assoc = Associativeℕ+
+    ; ∙-cong = λ {x y u v} x≡y u≡v → trans (subst (λ n → x + u ≡ n + u) x≡y refl)
+                                           (subst (λ n → y + u ≡ y + n) u≡v refl)}
 
   Commutativeℕ : Commutative _≡_ _+_
   Commutativeℕ n = indℕ ((λ n m → n + m ≡ m + n) n)
@@ -183,17 +184,48 @@ module Ex1-8 where
                                 ; identityˡ = (λ n → refl)
                                 ; comm = Commutativeℕ }
 
+
+  DistributesOverℕ*ˡ : (_≡_ DistributesOverˡ _*_) _+_
+  DistributesOverℕ*ˡ =
+    indℕ (λ x → (y z : ℕ) → x * (y + z) ≡ (x * y) + (x * z))
+         (λ y z → refl)
+         (λ x eq y z →
+         trans
+         ( subst (λ n → (y + z) + (x * (y + z)) ≡ (y + z) + n) (eq y z) refl )
+         ( trans
+         ( subst (λ n → (y + z) + ((x * y) + (x * z)) ≡ n) (Associativeℕ+ y z ((x * y) + (x * z))) refl)
+         ( trans
+         ( subst (λ n → y + (z + ((x * y) + (x * z))) ≡ y + n) (Associativeℕ+ z (x * y) (x * z)) (cong (λ n → y + n) (sym (Associativeℕ+ z (x * y) (x * z)))))
+         ( trans
+         ( subst (λ n → y + (z + ((x * y) + (x * z))) ≡ y + n) (sym (Associativeℕ+ z (x * y) (x * z))) refl)
+         ( trans
+         ( subst (λ n → y + ((z + (x * y)) + (x * z)) ≡ y + (n + (x * z))) (Commutativeℕ z (x * y)) refl)
+         ( trans
+         ( subst (λ n → y + (((x * y) + z) + (x * z)) ≡ y + n) (Associativeℕ+ (x * y) z (x * z)) refl)
+         ( sym   (Associativeℕ+ y (x * y) (z + (x * z))))))))))
+
+  DistributesOverℕ*ʳ : (_≡_ DistributesOverʳ _*_) _+_
+  DistributesOverℕ*ʳ z x y =
+    indℕ (λ x → (y z : ℕ) → (x + y) * z ≡ (x * z) + (y * z))
+         (λ y z → refl)
+         (λ x eq y z → trans (subst (λ n → z + ((x + y) * z) ≡ z + n) (eq y z) refl)
+                             (sym (Associativeℕ+ z (x * z) (y * z)))) x y z
+
   Associativeℕ* : Associative _≡_ _*_
-  Associativeℕ* x y z = {!!}
+  Associativeℕ* = indℕ (λ x → (y z : ℕ) → (x * y) * z ≡ x * (y * z))
+                       (λ y z → refl)
+                       (λ x eq y z → trans (DistributesOverℕ*ʳ z y (x * y))
+                                           (cong (λ n → (y * z) + n) (eq y z)))
 
   IsSemigroupℕ* : IsSemigroup _≡_ _*_
-  IsSemigroupℕ* = record { isEquivalence = record {
-                                           refl = refl
-                                         ; sym = λ eq → sym eq
-                                         ; trans = (λ eq1 eq2 → trans eq1 eq2) }
-                         ; assoc = Associativeℕ*
-                         ; ∙-cong = λ {x y u v} x≡y u≡v → trans (subst (λ n → x * u ≡ n * u) x≡y refl)
-                                                                (subst (λ n → y * u ≡ y * n) u≡v refl)}
+  IsSemigroupℕ* = record {
+    isEquivalence = record {
+      refl = refl
+    ; sym = λ eq → sym eq
+    ; trans = (λ eq1 eq2 → trans eq1 eq2) }
+    ; assoc = Associativeℕ*
+    ; ∙-cong = λ {x y u v} x≡y u≡v → trans (subst (λ n → x * u ≡ n * u) x≡y refl)
+                                           (subst (λ n → y * u ≡ y * n) u≡v refl)}
 
   Identityℕ* : Identity _≡_ (suc zero) _*_
   Identityℕ* = ( indℕ (λ n → n + zero ≡ n) refl (λ n eq → cong suc eq)
@@ -203,29 +235,14 @@ module Ex1-8 where
   IsMonoidℕ = record { isSemigroup = IsSemigroupℕ*
                      ; identity = Identityℕ* }
 
-  DistributesOverℕ* : (_≡_ DistributesOver _*_) _+_
-  DistributesOverℕ* = ( indℕ (λ x → (y z : ℕ) → x * (y + z) ≡ (x * y) + (x * z))
-                             (λ y z → refl)
-                             (λ x eq y z → trans
-                                         ( subst (λ n → (y + z) + (x * (y + z)) ≡ (y + z) + n) (eq y z) refl )
-                                         ( trans
-                                         ( subst (λ n → (y + z) + ((x * y) + (x * z)) ≡ n) (Associativeℕ+ y z ((x * y) + (x * z))) refl)
-                                         ( trans
-                                         ( subst (λ n → y + (z + ((x * y) + (x * z))) ≡ y + n) (Associativeℕ+ z (x * y) (x * z)) (cong (λ n → y + n) (sym (Associativeℕ+ z (x * y) (x * z)))))
-                                         ( trans
-                                           {!subst (λ n → y + (z + ((x * y) + (x * z))) ≡ y + (n + (x * z)))  ? ?!}
-                                           {!!})) ))
-                      , indℕ (λ x → (y z : ℕ) → (y + z) * x ≡ (y * x) + (z * x))
-                             (λ y z → {!!})
-                             {!!})
-
   IsSemiringℕ : IsSemiring _≡_ _+_ _*_ zero (suc zero)
-  IsSemiringℕ = record {isSemiringWithoutAnnihilatingZero =
-                       record {
-                       +-isCommutativeMonoid = IsCommutativeMonoidℕ ;
-                       *-isMonoid = IsMonoidℕ ;
-                       distrib = DistributesOverℕ* } ;
-                       zero = (λ n → refl) , indℕ (λ n → n * zero ≡ zero) refl (λ n p → p)}
+  IsSemiringℕ = record {
+    isSemiringWithoutAnnihilatingZero =
+      record {
+        +-isCommutativeMonoid = IsCommutativeMonoidℕ ;
+        *-isMonoid = IsMonoidℕ ;
+        distrib = DistributesOverℕ*ˡ , DistributesOverℕ*ʳ } ;
+        zero = (λ n → refl) , indℕ (λ n → n * zero ≡ zero) refl (λ n p → p)}
 
   Semiringℕ : Semiring _ _
   Semiringℕ = record {Carrier = ℕ
