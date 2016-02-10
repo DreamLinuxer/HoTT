@@ -127,7 +127,9 @@ module Ex1-5 where
 
 -- Ex 1.8
 module Ex1-8 where
-  open import Relation.Binary.PropositionalEquality using (_≡_; refl)
+  open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; trans; subst; sym)
+  open import Algebra.FunctionProperties
+  open import Relation.Binary.Core
   open import Data.Product
   open import Algebra.Structures
   open import Algebra
@@ -152,12 +154,52 @@ module Ex1-8 where
   indℕ C z f zero = z
   indℕ C z f (suc n) = f n (indℕ C z f n)
 
+  suc≡ : (i j : ℕ) → i + suc j ≡ suc (i + j)
+  suc≡ = indℕ (λ i → (j : ℕ) → i + suc j ≡ suc (i + j))
+              (λ j → refl)
+              (λ i p j → cong suc (p j))
+
+  IsSemigroupℕ+ : IsSemigroup _≡_ _+_
+  IsSemigroupℕ+ = record { isEquivalence = record {
+                                           refl = refl
+                                         ; sym = λ eq → sym eq
+                                         ; trans = (λ eq1 eq2 → trans eq1 eq2) }
+                         ; assoc = indℕ (λ x → (y z : ℕ) → (x + y) + z ≡ x + (y + z))
+                                        (λ y z → refl)
+                                        (λ x eq y z → cong suc (eq y z))
+                         ; ∙-cong = λ {x y u v} x≡y u≡v → trans (subst (λ n → x + u ≡ n + u) x≡y refl)
+                                                                (subst (λ n → y + u ≡ y + n) u≡v refl)}
+
+  Commutativeℕ : Commutative _≡_ _+_
+  Commutativeℕ n = indℕ ((λ n m → n + m ≡ m + n) n)
+                        (indℕ (λ n → n + zero ≡ n) refl (λ n p → cong suc p) n)
+                        (λ m p → trans (suc≡ n m) (cong suc p))
+
+  IsCommutativeMonoidℕ : IsCommutativeMonoid _≡_ _+_ zero
+  IsCommutativeMonoidℕ = record { isSemigroup = IsSemigroupℕ+
+                                ; identityˡ = (λ n → refl)
+                                ; comm = Commutativeℕ }
+
+  IsSemigroupℕ* : IsSemigroup _≡_ _*_
+  IsSemigroupℕ* = record { isEquivalence = record {
+                                           refl = refl
+                                         ; sym = λ eq → sym eq
+                                         ; trans = (λ eq1 eq2 → trans eq1 eq2) }
+                         ; assoc = {!!}
+                         ; ∙-cong = λ {x y u v} x≡y u≡v → trans (subst (λ n → x * u ≡ n * u) x≡y refl)
+                                                                (subst (λ n → y * u ≡ y * n) u≡v refl)}
+
+
+  IsMonoidℕ : IsMonoid _≡_ _*_ (suc zero)
+  IsMonoidℕ = record { isSemigroup = IsSemigroupℕ*
+                     ; identity = {!!} }
+
   IsSemiringℕ : IsSemiring _≡_ _+_ _*_ zero (suc zero)
   IsSemiringℕ = record {isSemiringWithoutAnnihilatingZero =
                        record {
-                       +-isCommutativeMonoid = {!!} ;
-                       *-isMonoid = {!!} ;
-                       distrib = {!!} , {!!}} ;
+                       +-isCommutativeMonoid = IsCommutativeMonoidℕ ;
+                       *-isMonoid = IsMonoidℕ ;
+                       distrib = {!!} } ;
                        zero = (λ n → refl) , indℕ (λ n → n * zero ≡ zero) refl (λ n p → p)}
 
   Semiringℕ : Semiring _ _
@@ -273,6 +315,6 @@ module Ex1-16 where
               (λ i p j → cong suc (p j))
 
   commℕ : (i j : ℕ) → i + j ≡ j + i
-  commℕ i j = indℕ ((λ n m → n + m ≡ m + n) i)
-                   (indℕ (λ n → n + 0 ≡ n) refl (λ n p → cong suc p) i)
-                   (λ n p → trans (suc≡ i n) (cong suc p)) j
+  commℕ i = indℕ ((λ n m → n + m ≡ m + n) i)
+                 (indℕ (λ n → n + 0 ≡ n) refl (λ n p → cong suc p) i)
+                 (λ n p → trans (suc≡ i n) (cong suc p))
