@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K #-}
 
-module Ex1 where
+module Exercise1 where
 
 -- Ex 1.1
 module Ex1-1 where
@@ -54,7 +54,7 @@ module Ex1-3 where
 
 -- Ex 1.4
 module Ex1-4 where
-  open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; subst; trans)
+  open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; subst)
   open import Data.Product using (_×_; _,_; Σ; Σ-syntax; proj₁; proj₂)
   open import Data.Nat
 
@@ -72,16 +72,17 @@ module Ex1-4 where
   recℕ' : ∀ {ℓ} (C : Set ℓ) → C → (ℕ → C → C) → ℕ → C × ℕ
   recℕ' C c₀ cs n = iter (C × ℕ) (c₀ , 0) (λ p → cs (proj₂ p) (proj₁ p) , suc (proj₂ p)) n
 
-  recℕ≡ind : ∀ {ℓ} (C : Set ℓ) → (c₀ : C) → (cs : ℕ → C → C) → (n : ℕ) →
-            recℕ' C c₀ cs (suc n) ≡ (cs n (proj₁ (recℕ' C c₀ cs n)) , suc n) →
-            recℕ' C c₀ cs (suc (suc n)) ≡ (cs (suc n) (proj₁ (recℕ' C c₀ cs (suc n))) , suc (suc n))
-  recℕ≡ind C c₀ cs n eq = {!!}
-
   recℕ≡' : ∀ {ℓ} (C : Set ℓ) → (c₀ : C) → (cs : ℕ → C → C) → (n : ℕ) →
            recℕ' C c₀ cs (suc n) ≡ (cs n (proj₁ (recℕ' C c₀ cs n)) , suc n)
-  recℕ≡' C c₀ cs = indℕ (λ n → recℕ' C c₀ cs (suc n) ≡ (cs n (proj₁ (recℕ' C c₀ cs n)) , suc n))
-                        refl
-                        (λ n → recℕ≡ind C c₀ cs n)
+  recℕ≡' C c₀ cs =
+    indℕ (λ n → recℕ' C c₀ cs (suc n) ≡ (cs n (proj₁ (recℕ' C c₀ cs n)) , suc n))
+         refl
+         (λ n eq → subst (λ p →
+                     ( cs (proj₂ (recℕ' C c₀ cs (suc n))) (proj₁ (recℕ' C c₀ cs (suc n)))
+                     , suc (proj₂ (recℕ' C c₀ cs (suc n))))
+                   ≡ ( cs p (proj₁ (recℕ' C c₀ cs (suc n)))
+                     , suc p))
+                   (cong proj₂ eq) refl)
 
   recℕ≡0 : ∀ {ℓ} (C : Set ℓ) → (c₀ : C) → (cs : (ℕ → C → C)) → recℕ C c₀ cs 0 ≡ c₀
   recℕ≡0 C c₀ cs = refl
