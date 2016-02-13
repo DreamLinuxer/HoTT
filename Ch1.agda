@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K #-}
 
-module Exercise1 where
+module Ch1 where
 
 -- Ex 1.1
 module Ex1-1 where
@@ -352,6 +352,8 @@ module Ex1-14 where
 {-
   f : {A : Set} (x : A) (p : x ≡ x) → p ≡ refl
   f x p = ind≡ (λ x y p → p ≡ refl) (λ y → refl) x x p
+
+This does not work because there might be more than one path from x to x.
 -}
 
 -- Ex1.15
