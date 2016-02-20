@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K #-}
 
-module Ch1 where
+module Ex1 where
 
 -- Ex 1.1
 module Ex1-1 where
