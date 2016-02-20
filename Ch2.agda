@@ -61,6 +61,65 @@ p▪[q▪r]≡[p▪q]▪r {A} {x} {y} {z} {w} p q r =
 2-path : {A : Set} {x y : A} → {p q : x ≡ y} → Set
 2-path {A} {x} {y} {p} {q}= p ≡ q
 
-3-path : {A : Set} {x y : A} → {p q : x ≡ y} → {α γ : p ≡ q} → Set
-3-path {A} {x} {y} {p} {q} {α} {γ} = α ≡ γ
+3-path : {A : Set} {x y : A} → {p q : x ≡ y} → {α β : p ≡ q} → Set
+3-path {A} {x} {y} {p} {q} {α} {β} = α ≡ β
 
+Ω² : {A : Set} {a : A}  → Set
+Ω² {A} {a} = 2-path {A} {a} {a} {refl a} {refl a}
+
+infixr 2 _≡⟨_⟩_
+_≡⟨_⟩_ : {A : Set} {y z : A} → (x : A) → x ≡ y → y ≡ z → x ≡ z
+x ≡⟨ α ⟩ β = α ▪ β 
+
+infix 2 _∎
+_∎ : {A : Set} (p : A) → p ≡ p
+p ∎ = refl p
+
+--Theorem 2.1.6
+_▪r_ : {A : Set} {a b c : A}
+       {p q : 1-path {A} {a} {b}}
+       (α : 2-path {A} {a} {b} {p} {q})
+       (r : 1-path {A} {b} {c}) →
+       p ▪ r ≡ q ▪ r
+_▪r_ {A} {a} {b} {c} {p} {q} α r =
+  ind≡ (λ b c r → (p q : a ≡ b) → (α : p ≡ q) → p ▪ r ≡ q ▪ r)
+       (λ b p q α → p ▪ refl b ≡⟨ p≡p▪reflx p ⁻¹ ⟩
+                    p          ≡⟨ α ⟩
+                    q ≡⟨ p≡p▪reflx q ⟩
+                    q ▪ refl b ∎)
+       b c r p q α
+
+_▪l_ : {A : Set} {a b c : A}
+       {r s : 1-path {A} {b} {c}}
+       (q : 1-path {A} {a} {b})
+       (β : 2-path {A} {b} {c} {r} {s}) →
+       q ▪ r ≡ q ▪ s
+_▪l_ {A} {a} {b} {c} {r} {s} q β =
+  ind≡ (λ a b q → (r s : b ≡ c) → (β : r ≡ s) → q ▪ r ≡ q ▪ s)
+       (λ b r s β → refl b ▪ r ≡⟨ (p≡refly▪p r) ⁻¹ ⟩
+                    r          ≡⟨ β ⟩
+                    s          ≡⟨ p≡refly▪p s ⟩
+                    (refl b ▪ s ∎))
+       a b q r s β
+
+_★_ : {A : Set} {a b c : A}
+      {p q : 1-path {A} {a} {b}}
+      {r s : 1-path {A} {b} {c}}
+      (α : 2-path {A} {a} {b} {p} {q})
+      (β : 2-path {A} {b} {c} {r} {s}) →
+      p ▪ r ≡ q ▪ s
+_★_ {A} {a} {b} {c} {p} {q} {r} {s} α β = (α ▪r r) ▪ (q ▪l β)
+
+_★'_ : {A : Set} {a b c : A}
+       {p q : 1-path {A} {a} {b}}
+       {r s : 1-path {A} {b} {c}}
+       (α : 2-path {A} {a} {b} {p} {q})
+       (β : 2-path {A} {b} {c} {r} {s}) →
+       p ▪ r ≡ q ▪ s
+_★'_ {A} {a} {b} {c} {p} {q} {r} {s} α β = (p ▪l β) ▪ (α ▪r s)
+
+
+Eckerman-Hilton : {A : Set} {a : A} →
+                  (α β : Ω² {A} {a}) →
+                  α ▪ β ≡ β ▪ α
+Eckerman-Hilton = {!!}
