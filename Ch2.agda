@@ -10,9 +10,6 @@ ind≡ : {A : Set} (C : (x y : A) (p : x ≡ y) → Set) →
        ((x y : A) (p : x ≡ y) → C x y p)
 ind≡ C c x .x (refl .x) = c x
 
-cong : {A B : Set} (f : A → B) {x y : A} → x ≡ y → f x ≡ f y
-cong {A} {B} f {x} {y} = ind≡ (λ x y p → f x ≡ f y) (λ x → refl (f x)) x y
-
 -- 2.1
 --Lemma 2.1.1
 infix 20 _⁻¹
@@ -149,9 +146,11 @@ refl▪lβ≡β {A} {a} β =
             α ★ β
         ≡⟨ refl _ ⟩
            (α ▪r refl a) ▪ (refl a ▪l β)
-        ≡⟨ cong (λ p → p ▪ refl a ▪l β) (α▪rrefl≡α α) ⟩
+        ≡⟨ ind≡ (λ p q γ → p ▪ (refl a ▪l β) ≡ q ▪ (refl a ▪l β))
+                (λ p → refl _) (α ▪r refl a) α (α▪rrefl≡α α) ⟩
            α ▪ (refl a ▪l β)
-        ≡⟨ cong (λ p → α ▪ p) (refl▪lβ≡β β) ⟩
+        ≡⟨ ind≡ (λ p q γ → α ▪ p ≡ α ▪ q)
+                (λ p → refl _) (refl a ▪l β) β (refl▪lβ≡β β) ⟩
            α ▪ β ∎
 
 α★'β≡β▪α : {A : Set} {a : A}
@@ -161,9 +160,11 @@ refl▪lβ≡β {A} {a} β =
              α ★' β
           ≡⟨ refl _ ⟩
              refl a ▪l β ▪ α ▪r refl a
-          ≡⟨ cong (λ p → p ▪ α ▪r refl a) (refl▪lβ≡β β) ⟩
+          ≡⟨ ind≡ (λ p q γ → p ▪ α ▪r refl a ≡ q ▪ α ▪r refl a)
+                  (λ p → refl _) (refl a ▪l β) β (refl▪lβ≡β β) ⟩
              β ▪ α ▪r refl a
-          ≡⟨ cong (λ p → β ▪ p) (α▪rrefl≡α α) ⟩
+          ≡⟨ ind≡ (λ p q γ → β ▪ p ≡ β ▪ q)
+                  (λ p → refl _) (α ▪r refl a) α (α▪rrefl≡α α) ⟩
              β ▪ α ∎
 
 α★β≡α★'β' : {A : Set} {a b c : A}
