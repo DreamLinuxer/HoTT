@@ -10,7 +10,13 @@ ind≡ : {A : Set} (C : (x y : A) (p : x ≡ y) → Set) →
        ((x y : A) (p : x ≡ y) → C x y p)
 ind≡ C c x .x (refl .x) = c x
 
--- 2.1
+_∘_ : {A B C : Set} (g : B → C) → (f : A → B) → (A → C)
+_∘_ g f = (λ x → g (f x))
+
+id : {A : Set} → A → A
+id a = a
+
+--2.1
 --Lemma 2.1.1
 infix 20 _⁻¹
 _⁻¹ : {A : Set} {x y : A} → x ≡ y → y ≡ x
@@ -199,3 +205,42 @@ Eckerman-Hilton {A} {a} α β =
                     α ★' β
                  ≡⟨ α★'β≡β▪α {α = α} {β = β} ⟩
                     β ▪ α ∎
+
+--2.2
+--Lemma 2.2.1
+ap : {A B : Set} (f : A → B) → {x y : A} → x ≡ y → f x ≡ f y
+ap {A} {B} f {x} {y} p = ind≡ (λ x y p → f x ≡ f y) (λ x → refl (f x)) x y p
+
+--Lemma 2.2.2
+ap▪ : {A B : Set} (f : A → B) (x y z : A) →
+      (p : x ≡ y) → (q : y ≡ z) →
+      ap f (p ▪ q) ≡ ap f p ▪ ap f q
+ap▪ {A} {B} f x y z p q =
+    ind≡ (λ x y p → (z : A) → (q : y ≡ z) → ap f (p ▪ q) ≡ ap f p ▪ ap f q)
+         (λ x z q → ind≡ (λ x z q → ap f (refl x ▪ q) ≡ ap f (refl x) ▪ ap f q)
+                         (λ x → refl (refl (f x)))
+                         x z q)
+         x y p z q
+
+ap⁻¹ : {A B : Set} (f : A → B) (x y : A) →
+      (p : x ≡ y) → ap f (p ⁻¹) ≡ (ap f p) ⁻¹
+ap⁻¹ {A} {B} f x y p =
+     ind≡ (λ x y p → ap f (p ⁻¹) ≡ (ap f p) ⁻¹)
+          (λ x → refl (refl (f x)))
+          x y p
+
+ap∘ : {A B C : Set} (f : A → B) (g : B → C)
+      (x y : A) → (p : x ≡ y) →
+      ap g (ap f p) ≡ ap (g ∘ f) p
+ap∘ {A} {B} {C} f g x y p =
+    ind≡ (λ x y p → ap g (ap f p) ≡ ap (g ∘ f) p)
+         (λ x → refl (refl (g (f x))))
+         x y p
+
+apid : {A B : Set} (x y : A) → (p : x ≡ y) →
+       ap id p ≡ p
+apid {A} {B} x y p =
+     ind≡ (λ x y p → ap id p ≡ p)
+          (λ x → refl (refl x))
+          x y p
+
