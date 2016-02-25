@@ -16,6 +16,12 @@ _∘_ g f = (λ x → g (f x))
 id : {A : Set} → A → A
 id a = a
 
+record Σ (A : Set) (B : A → Set) : Set where
+  constructor _,_
+  field
+   proj₁ : A
+   proj₂ : B proj₁
+
 --2.1
 --Lemma 2.1.1
 infix 20 _⁻¹
@@ -244,3 +250,13 @@ apid {A} {B} x y p =
           (λ x → refl (refl x))
           x y p
 
+--2.3
+--Lemma 2.3.1
+transport : {A : Set} (P : A → Set) (x y : A) (p : x ≡ y) → P x → P y
+transport {A} P = ind≡ (λ x y p → P x → P y)
+                       (λ x → id)
+
+lift : {A : Set} (P : A → Set) (x y : A) (u : P x) (p : x ≡ y) → (x , u) ≡ (y , transport P x y p u)
+lift {A} P x y u p = ind≡ (λ x y p → (u : P x) → (x , u) ≡ (y , transport P x y p u))
+                          (λ x u → refl (x , u))
+                          x y p u
