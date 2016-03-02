@@ -1,3 +1,5 @@
+{-# OPTIONS --without-K #-}
+
 module Ch2 where
 
 data _≡_ {A : Set} : (x y : A) → Set where
@@ -10,7 +12,7 @@ ind≡ : {A : Set} (C : (x y : A) (p : x ≡ y) → Set) →
        ((x y : A) (p : x ≡ y) → C x y p)
 ind≡ C c x .x (refl .x) = c x
 
-_∘_ : {A B C : Set} (g : B → C) → (f : A → B) → (A → C)
+_∘_ : ∀ {ℓ₁ ℓ₂ ℓ₃} {A : Set ℓ₁} {B : Set ℓ₂} {C : Set ℓ₃} (g : B → C) → (f : A → B) → (A → C)
 _∘_ g f = (λ x → g (f x))
 
 id : {A : Set} → A → A
@@ -252,11 +254,70 @@ apid {A} {B} x y p =
 
 --2.3
 --Lemma 2.3.1
-transport : {A : Set} (P : A → Set) (x y : A) (p : x ≡ y) → P x → P y
-transport {A} P = ind≡ (λ x y p → P x → P y)
-                       (λ x → id)
+transport : {A : Set} (P : A → Set) {x y : A} (p : x ≡ y) → P x → P y
+transport {A} P {x} {y} = ind≡ (λ x y p → P x → P y)
+                          (λ x → id)
+                          x y
 
-lift : {A : Set} (P : A → Set) (x y : A) (u : P x) (p : x ≡ y) → (x , u) ≡ (y , transport P x y p u)
-lift {A} P x y u p = ind≡ (λ x y p → (u : P x) → (x , u) ≡ (y , transport P x y p u))
+_* : {A : Set} {P : A → Set} {x y : A} (p : x ≡ y) → P x → P y
+_* {A} {P} {x} {y} p = transport P p
+
+--Lemma 2.3.2
+lift : {A : Set} (P : A → Set) {x y : A} (u : P x) (p : x ≡ y) → (x , u) ≡ (y , (p *) u)
+lift {A} P {x} {y} u p = ind≡ (λ x y p → (u : P x) → (x , u) ≡ (y , (_* {P = P} p) u))
                           (λ x u → refl (x , u))
                           x y p u
+
+--Lemma 2.3.4
+apd : {A : Set} (P : A → Set) (f : (x : A) → P x) {x y : A} (p : x ≡ y) →
+      ((p *) (f x) ≡ f y)
+apd {A} P f {x} {y} = ind≡ (λ x y p → (p *) (f x) ≡ f y)
+                      (λ x → refl (f x))
+                      x y
+
+--Lemma 2.3.5
+transportconst : {A B : Set} {x y : A} (p : x ≡ y) →
+                 (b : B) → transport (λ x → B) p b ≡ b
+transportconst {A} {B} {x} {y} = ind≡ (λ x y p → (b : B) → transport (λ x → B) p b ≡ b)
+                                 (λ x b → refl b)
+                                 x y
+
+--Lemma 2.3.8
+apd≡transportconst▪ap : {A B : Set} (f : A → B) {x y : A} (p : x ≡ y) →
+                        apd (λ x → B) f p ≡ transportconst p (f x) ▪ ap f p
+apd≡transportconst▪ap {A} {B} f {x} {y} =
+                      ind≡ (λ x y p → apd (λ x → B) f p ≡ transportconst p (f x) ▪ ap f p)
+                           (λ x → refl (refl (f x)))
+                           x y
+
+--Lemma 2.3.9
+q*[p*[u]]≡[[p▪q]*][u] : {A : Set} (P : A → Set) {x y z : A} (p : x ≡ y) (q : y ≡ z) →
+                        (u : P x) → (q *) ((p *) u) ≡ ((p ▪ q) *) u
+q*[p*[u]]≡[[p▪q]*][u] {A} P {x} {y} {z} p q u =
+                      ind≡ (λ x y p → (z : A) → (q : y ≡ z) → (u : P x) →
+                                      (q *) ((p *) u) ≡ (_* {P = P} (p ▪ q)) u)
+                           (λ x z q u →
+                              ind≡ (λ x z q → (u : P x) →
+                                      (q *) ((_* {P = P} (refl x)) u) ≡ ((refl x ▪ q) *) u)
+                                   (λ x u → refl u)
+                                   x z q u)
+                           x y p z q u
+
+--Lemma 2.3.10
+transport[P∘f,p,u]≡transport[P,ap[f,p],u] : {A B : Set} (f : A → B) (P : B → Set) {x y : A} (p : x ≡ y) (u : P (f x)) →
+                                             transport (P ∘ f) p u ≡ transport P (ap f p) u
+transport[P∘f,p,u]≡transport[P,ap[f,p],u] {A} {B} f P {x} {y} p u =
+                                          ind≡ (λ x y p → (u : P (f x))
+                                                  → transport (P ∘ f) p u ≡ transport P (ap f p) u)
+                                               (λ x u → refl u)
+                                               x y p u
+
+--Lemma 2.3.11
+transport[Q,p,f[x,u]]≡f[y,transport[P,p,u]] : {A : Set} (P Q : A → Set) (f : (x : A) → P x → Q x) →
+                                              {x y : A} (p : x ≡ y) (u : P x) →
+                                              transport Q p (f x u) ≡ f y (transport P p u)
+transport[Q,p,f[x,u]]≡f[y,transport[P,p,u]] {A} P Q f {x} {y} p u =
+                                            ind≡ (λ x y p → (u : P x)
+                                                    → transport Q p (f x u) ≡ f y (transport P p u))
+                                                 (λ x u → refl (f x u))
+                                                 x y p u
