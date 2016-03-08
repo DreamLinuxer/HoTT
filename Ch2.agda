@@ -245,9 +245,9 @@ ap∘ {A} {B} {C} f g x y p =
          (λ x → refl (refl (g (f x))))
          x y p
 
-apid : {A B : Set} (x y : A) → (p : x ≡ y) →
+apid : {A : Set} (x y : A) → (p : x ≡ y) →
        ap id p ≡ p
-apid {A} {B} x y p =
+apid {A} x y p =
      ind≡ (λ x y p → ap id p ≡ p)
           (λ x → refl (refl x))
           x y p
@@ -321,3 +321,50 @@ transport[Q,p,f[x,u]]≡f[y,transport[P,p,u]] {A} P Q f {x} {y} p u =
                                                     → transport Q p (f x u) ≡ f y (transport P p u))
                                                  (λ x u → refl (f x u))
                                                  x y p u
+
+--2.4
+_~_ : {A : Set} {P : A → Set} (f g : (x : A) → P x) → Set
+_~_ {A = A} f g = (x : A) → f x ≡ g x
+
+--Lemma 2.4.2
+ref~ : {A B : Set} (f : A → B) → f ~ f
+ref~ f = λ x → ap f (refl x)
+
+sym~ : {A B : Set} (f g : A → B) → f ~ g → g ~ f
+sym~ f g f~g = λ x → (f~g x) ⁻¹
+
+tran~ : {A B : Set} (f g h : A → B) → f ~ g → g ~ h → f ~ h
+tran~ f g h f~g g~h = λ x → (f~g x) ▪ (g~h x)
+
+--Lemma 2.4.3
+ntran~ : {A B : Set} (f g : A → B) (H : f ~ g) {x y : A} (p : x ≡ y) →
+        H x ▪ ap g p ≡ ap f p ▪ H y
+ntran~ {A} {B} f g H {x} {y} p = ind≡ (λ x y p → H x ▪ ap g p ≡ ap f p ▪ H y)
+                                      (λ x → ((unit-right (H x)) ⁻¹) ▪ (unit-left (H x)))
+                                      x y p
+--Corollary 2.4.4
+comm~' : {A : Set} (f : A → A) (H : f ~ id) (x : A) →
+         H (f x) ▪ H x ≡ ap f (H x) ▪ H x
+comm~' {A} f H x = (H (f x) ▪ H x)
+                 ≡⟨ ap (λ p → H (f x) ▪ p) (apid (f x) x (H x) ⁻¹) ⟩
+                   H (f x) ▪ ap id (H x)
+                 ≡⟨ ntran~ f id H (H x) ⟩
+                   (ap f (H x) ▪ H x ∎)
+
+comm~ : {A : Set} (f : A → A) (H : f ~ id) (x : A) →
+        H (f x) ≡ ap f (H x)
+comm~ {A} f H x = H (f x)
+                ≡⟨ unit-right (H (f x)) ⟩
+                  H (f x) ▪ refl (f x)
+                ≡⟨ ap (λ p → H (f x) ▪ p) (p▪p⁻¹≡reflx (H x)) ⁻¹ ⟩
+                   H (f x) ▪ (H x ▪ H x ⁻¹)
+                ≡⟨ assoc▪ {A} {f (f x)} {f x} {x} {f x} {H (f x)} {H x} {H x ⁻¹}⟩
+                  H (f x) ▪ H x ▪ H x ⁻¹
+                ≡⟨ ap (λ p → p ▪ H x ⁻¹) (comm~' f H x) ⟩
+                  ap f (H x) ▪ H x ▪ H x ⁻¹
+                ≡⟨ assoc▪ {A} {f (f x)} {f x} {x} {f x} {ap f (H x)} {H x} {H x ⁻¹} ⁻¹ ⟩
+                  ap f (H x) ▪ (H x ▪ H x ⁻¹)
+                ≡⟨ ap (λ p → ap f (H x) ▪ p) (p▪p⁻¹≡reflx (H x)) ⟩
+                  ap f (H x) ▪ refl (f x)
+                ≡⟨ unit-right (ap f (H x)) ⁻¹ ⟩
+                  ap f (H x) ∎
