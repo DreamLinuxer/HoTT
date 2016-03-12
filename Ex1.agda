@@ -354,6 +354,8 @@ module Ex1-14 where
   f x p = ind≡ (λ x y p → p ≡ refl) (λ y → refl) x x p
 
 This does not work because there might be more than one path from x to x.
+
+Excellent. 1.14 fails because we can't prove anything a particular path between two given points, only about the family.   by Amr
 -}
 
 -- Ex1.15
