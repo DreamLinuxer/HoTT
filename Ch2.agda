@@ -4,44 +4,45 @@ module Ch2 where
 open import Level using (_⊔_)
 open import Ch1
 
+infixr 20 _∘_
 _∘_ : ∀ {ℓ₁ ℓ₂ ℓ₃} {A : Set ℓ₁} {B : Set ℓ₂} {C : Set ℓ₃} (g : B → C) → (f : A → B) → (A → C)
 _∘_ g f = (λ x → g (f x))
 
 --2.1
 --Lemma 2.1.1
 infix 20 _⁻¹
-_⁻¹ : {A : Set} {x y : A} → x ≡ y → y ≡ x
-_⁻¹ {A} {x} {y} = ind≡ (λ x y x≡y → y ≡ x) (λ x → refl x) x y
+_⁻¹ : ∀ {ℓ} {A : Set ℓ} {x y : A} → x ≡ y → y ≡ x
+_⁻¹ {ℓ} {A} {x} {y} = ind≡ (λ x y x≡y → y ≡ x) (λ x → refl x) x y
 
 --Lemma 2.1.2
 infixl 10 _▪_
-_▪_ : {A : Set} {x y z : A} → x ≡ y → y ≡ z → x ≡ z
-_▪_ {A} {x} {y} {z} x≡y y≡z = ind≡ (λ x y x≡y → (z : A) → (y≡z : y ≡ z) → x ≡ z)
-                                   (ind≡ (λ x z x≡z → x ≡ z) (λ x → refl x))
-                                   x y x≡y z y≡z
+_▪_ : ∀ {ℓ} {A : Set ℓ} {x y z : A} → x ≡ y → y ≡ z → x ≡ z
+_▪_ {ℓ} {A} {x} {y} {z} x≡y y≡z = ind≡ (λ x y x≡y → (z : A) → (y≡z : y ≡ z) → x ≡ z)
+                                       (ind≡ (λ x z x≡z → x ≡ z) (λ x → refl x))
+                                       x y x≡y z y≡z
 
 --Lemma 2.1.4
-unit-right : {A : Set} {x y : A} (p : x ≡ y) → p ≡ p ▪ (refl y)
-unit-right {A} {x} {y} = ind≡ (λ x y p → p ≡ p ▪ refl y) (λ x → refl (refl x)) x y
+unit-right : ∀ {ℓ} {A : Set ℓ} {x y : A} (p : x ≡ y) → p ≡ p ▪ (refl y)
+unit-right {ℓ} {A} {x} {y} = ind≡ (λ x y p → p ≡ p ▪ refl y) (λ x → refl (refl x)) x y
 
-unit-left : {A : Set} {x y : A} (p : x ≡ y) → p ≡ (refl x) ▪ p
-unit-left {A} {x} {y} = ind≡ (λ x y p → p ≡ (refl x) ▪ p)
+unit-left : ∀ {ℓ} {A : Set ℓ} {x y : A} (p : x ≡ y) → p ≡ (refl x) ▪ p
+unit-left {ℓ} {A} {x} {y} = ind≡ (λ x y p → p ≡ (refl x) ▪ p)
                              (λ x → refl (refl x)) x y
 
-p⁻¹▪p≡refly : {A : Set} {x y : A} (p : x ≡ y) → p ⁻¹ ▪ p ≡ refl y
-p⁻¹▪p≡refly {A} {x} {y} = ind≡ (λ x y p → p ⁻¹ ▪ p ≡ refl y)
+p⁻¹▪p≡refly : ∀ {ℓ} {A : Set ℓ} {x y : A} (p : x ≡ y) → p ⁻¹ ▪ p ≡ refl y
+p⁻¹▪p≡refly {ℓ} {A} {x} {y} = ind≡ (λ x y p → p ⁻¹ ▪ p ≡ refl y)
+                                   (λ x → refl (refl x)) x y
+
+p▪p⁻¹≡reflx : ∀ {ℓ} {A : Set ℓ} {x y : A} (p : x ≡ y) → p ▪ p ⁻¹ ≡ refl x
+p▪p⁻¹≡reflx {ℓ} {A} {x} {y} = ind≡ (λ x y p → p ▪ p ⁻¹ ≡ refl x)
+                                   (λ x → refl (refl x)) x y
+
+p⁻¹⁻¹≡p : ∀ {ℓ} {A : Set ℓ} {x y : A} (p : x ≡ y) → p ⁻¹ ⁻¹ ≡ p
+p⁻¹⁻¹≡p {ℓ} {A} {x} {y} = ind≡ (λ x y p → p ⁻¹ ⁻¹ ≡ p)
                                (λ x → refl (refl x)) x y
 
-p▪p⁻¹≡reflx : {A : Set} {x y : A} (p : x ≡ y) → p ▪ p ⁻¹ ≡ refl x
-p▪p⁻¹≡reflx {A} {x} {y} = ind≡ (λ x y p → p ▪ p ⁻¹ ≡ refl x)
-                               (λ x → refl (refl x)) x y
-
-p⁻¹⁻¹≡p : {A : Set} {x y : A} (p : x ≡ y) → p ⁻¹ ⁻¹ ≡ p
-p⁻¹⁻¹≡p {A} {x} {y} = ind≡ (λ x y p → p ⁻¹ ⁻¹ ≡ p)
-                           (λ x → refl (refl x)) x y
-
-assoc▪ : {A : Set} {x y z w : A} (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) → p ▪ (q ▪ r) ≡ (p ▪ q) ▪ r
-assoc▪ {A} {x} {y} {z} {w} p q r =
+assoc▪ : ∀ {ℓ} {A : Set ℓ} {x y z w : A} (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) → p ▪ (q ▪ r) ≡ (p ▪ q) ▪ r
+assoc▪ {ℓ} {A} {x} {y} {z} {w} p q r =
   ind≡ (λ x y p → (z w : A) → (q : y ≡ z) → (r : z ≡ w) → p ▪ (q ▪ r) ≡ (p ▪ q) ▪ r)
        (λ x z w q r →
          ind≡ (λ x z q → (w : A) → (r : z ≡ w) → refl x ▪ (q ▪ r) ≡ (refl x ▪ q) ▪ r)
@@ -68,11 +69,11 @@ assoc▪ {A} {x} {y} {z} {w} p q r =
 Ω² {A} {a} = 2-path {A} {a} {a} {refl a} {refl a}
 
 infixr 2 _≡⟨_⟩_
-_≡⟨_⟩_ : {A : Set} {y z : A} → (x : A) → x ≡ y → y ≡ z → x ≡ z
-x ≡⟨ α ⟩ β = α ▪ β 
+_≡⟨_⟩_ : ∀ {ℓ} {A : Set ℓ} {y z : A} → (x : A) → x ≡ y → y ≡ z → x ≡ z
+x ≡⟨ α ⟩ β = α ▪ β
 
 infix 2 _∎
-_∎ : {A : Set} (p : A) → p ≡ p
+_∎ : ∀ {ℓ} {A : Set ℓ} (p : A) → p ≡ p
 p ∎ = refl p
 
 --Theorem 2.1.6
@@ -199,71 +200,72 @@ Eckerman-Hilton {A} {a} α β =
 
 --2.2
 --Lemma 2.2.1
-ap : {A B : Set} (f : A → B) → {x y : A} → x ≡ y → f x ≡ f y
-ap {A} {B} f {x} {y} p = ind≡ (λ x y p → f x ≡ f y) (λ x → refl (f x)) x y p
+ap : ∀ {ℓ} {ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) → {x y : A} → x ≡ y → f x ≡ f y
+ap {ℓ} {ℓ'} {A} {B} f {x} {y} p = ind≡ (λ x y p → f x ≡ f y) (λ x → refl (f x)) x y p
 
 --Lemma 2.2.2
-ap▪ : {A B : Set} (f : A → B) (x y z : A) →
+ap▪ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (x y z : A) →
       (p : x ≡ y) → (q : y ≡ z) →
       ap f (p ▪ q) ≡ ap f p ▪ ap f q
-ap▪ {A} {B} f x y z p q =
+ap▪ {ℓ} {ℓ'} {A} {B} f x y z p q =
     ind≡ (λ x y p → (z : A) → (q : y ≡ z) → ap f (p ▪ q) ≡ ap f p ▪ ap f q)
          (λ x z q → ind≡ (λ x z q → ap f (refl x ▪ q) ≡ ap f (refl x) ▪ ap f q)
                          (λ x → refl (refl (f x)))
                          x z q)
          x y p z q
 
-ap⁻¹ : {A B : Set} (f : A → B) (x y : A) →
+ap⁻¹ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (x y : A) →
       (p : x ≡ y) → ap f (p ⁻¹) ≡ (ap f p) ⁻¹
-ap⁻¹ {A} {B} f x y p =
+ap⁻¹ {ℓ} {ℓ'} {A} {B} f x y p =
      ind≡ (λ x y p → ap f (p ⁻¹) ≡ (ap f p) ⁻¹)
           (λ x → refl (refl (f x)))
           x y p
 
-ap∘ : {A B C : Set} (f : A → B) (g : B → C)
-      (x y : A) → (p : x ≡ y) →
+ap∘ : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : Set ℓ'} {C : Set ℓ''}
+      (f : A → B) (g : B → C) (x y : A) → (p : x ≡ y) →
       ap g (ap f p) ≡ ap (g ∘ f) p
-ap∘ {A} {B} {C} f g x y p =
+ap∘ {ℓ} {ℓ'} {ℓ''} {A} {B} {C} f g x y p =
     ind≡ (λ x y p → ap g (ap f p) ≡ ap (g ∘ f) p)
          (λ x → refl (refl (g (f x))))
          x y p
 
-apid : {A : Set} (x y : A) → (p : x ≡ y) →
+apid : ∀ {ℓ} {A : Set ℓ} (x y : A) → (p : x ≡ y) →
        ap id p ≡ p
-apid {A} x y p =
+apid {ℓ} {A} x y p =
      ind≡ (λ x y p → ap id p ≡ p)
           (λ x → refl (refl x))
           x y p
 
 --2.3
 --Lemma 2.3.1
-transport : {A : Set} (P : A → Set) {x y : A} (p : x ≡ y) → P x → P y
-transport {A} P {x} {y} = ind≡ (λ x y p → P x → P y)
-                          (λ x → id)
-                          x y
+transport : ∀ {ℓ ℓ'} {A : Set ℓ} (P : A → Set ℓ') {x y : A} (p : x ≡ y) → P x → P y
+transport {ℓ} {ℓ'} {A} P {x} {y} = ind≡ (λ x y p → P x → P y)
+                                   (λ x → id)
+                                   x y
 
-_* : {A : Set} {P : A → Set} {x y : A} (p : x ≡ y) → P x → P y
-_* {A} {P} {x} {y} p = transport P p
+_* : ∀ {ℓ ℓ'} {A : Set ℓ} {P : A → Set ℓ'} {x y : A} (p : x ≡ y) → P x → P y
+_* {ℓ} {ℓ'} {A} {P} {x} {y} p = transport P p
 
 --Lemma 2.3.2
-lift : {A : Set} (P : A → Set) {x y : A} (u : P x) (p : x ≡ y) → (x , u) ≡ (y , (p *) u)
-lift {A} P {x} {y} u p = ind≡ (λ x y p → (u : P x) → (x , u) ≡ (y , (_* {P = P} p) u))
-                          (λ x u → refl (x , u))
-                          x y p u
+lift : ∀ {ℓ ℓ'} {A : Set ℓ} (P : A → Set ℓ') {x y : A} (u : P x) (p : x ≡ y) → (x , u) ≡ (y , (p *) u)
+lift {ℓ} {ℓ'} {A} P {x} {y} u p = ind≡ (λ x y p → (u : P x) → (x , u) ≡ (y , (_* {P = P} p) u))
+                                       (λ x u → refl (x , u))
+                                       x y p u
 
 --Lemma 2.3.4
-apd : {A : Set} {P : A → Set} (f : (x : A) → P x) {x y : A} (p : x ≡ y) →
-      (p *) (f x) ≡ f y
-apd {A} {P} f {x} {y} = ind≡ (λ x y p → (p *) (f x) ≡ f y)
-                        (λ x → refl (f x))
-                        x y
+apd : ∀ {ℓ ℓ'} {A : Set ℓ} {P : A → Set ℓ'} (f : (x : A) → P x)
+      {x y : A} (p : x ≡ y) → (p *) (f x) ≡ f y
+apd {ℓ} {ℓ'} {A} {P} f {x} {y} = ind≡ (λ x y p → (p *) (f x) ≡ f y)
+                                      (λ x → refl (f x))
+                                      x y
 
 --Lemma 2.3.5
-transportconst : {A : Set} (B : Set) {x y : A} (p : x ≡ y) →
+transportconst : ∀ {ℓ} {ℓ'} {A : Set ℓ} (B : Set ℓ') {x y : A} (p : x ≡ y) →
                  (b : B) → transport (λ x → B) p b ≡ b
-transportconst {A} B {x} {y} = ind≡ (λ x y p → (b : B) → transport (λ x → B) p b ≡ b)
-                                 (λ x b → refl b)
-                                 x y
+transportconst {ℓ} {ℓ'} {A} B {x} {y} =
+               ind≡ (λ x y p → (b : B) → transport (λ x → B) p b ≡ b)
+                    (λ x b → refl b)
+                    x y
 
 --Lemma 2.3.8
 apd≡transportconst▪ap : {A B : Set} (f : A → B) {x y : A} (p : x ≡ y) →
@@ -312,48 +314,48 @@ _~_ : ∀ {ℓ ℓ'} {A : Set ℓ} {P : A → Set ℓ'} (f g : (x : A) → P x) 
 _~_ {A = A} f g = (x : A) → f x ≡ g x
 
 --Lemma 2.4.2
-ref~ : {A B : Set} (f : A → B) → f ~ f
+ref~ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) → f ~ f
 ref~ f = λ x → ap f (refl x)
 
-sym~ : {A B : Set} (f g : A → B) → f ~ g → g ~ f
-sym~ f g f~g = λ x → (f~g x) ⁻¹
+sym~ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f g : A → B} → f ~ g → g ~ f
+sym~ {ℓ} {ℓ'} {A} {B} {f} {g} f~g = λ x → (f~g x) ⁻¹
 
-tran~ : {A B : Set} (f g h : A → B) → f ~ g → g ~ h → f ~ h
-tran~ f g h f~g g~h = λ x → (f~g x) ▪ (g~h x)
+tran~ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f g h : A → B} → f ~ g → g ~ h → f ~ h
+tran~ {ℓ} {ℓ'} {A} {B} {f} {g} {h} f~g g~h = λ x → (f~g x) ▪ (g~h x)
 
 --Lemma 2.4.3
-ntran~ : {A B : Set} (f g : A → B) (H : f ~ g) {x y : A} (p : x ≡ y) →
-        H x ▪ ap g p ≡ ap f p ▪ H y
-ntran~ {A} {B} f g H {x} {y} p = ind≡ (λ x y p → H x ▪ ap g p ≡ ap f p ▪ H y)
-                                      (λ x → ((unit-right (H x)) ⁻¹) ▪ (unit-left (H x)))
-                                      x y p
-                                      
---Corollary 2.4.4
-comm~' : {A : Set} (f : A → A) (H : f ~ id) (x : A) →
-         H (f x) ▪ H x ≡ ap f (H x) ▪ H x
-comm~' {A} f H x = (H (f x) ▪ H x)
-                 ≡⟨ ap (λ p → H (f x) ▪ p) (apid (f x) x (H x) ⁻¹) ⟩
-                   H (f x) ▪ ap id (H x)
-                 ≡⟨ ntran~ f id H (H x) ⟩
-                   (ap f (H x) ▪ H x ∎)
+ntran~ : ∀ {ℓ} {ℓ'} {A : Set ℓ} {B : Set ℓ'} (f g : A → B) (H : f ~ g) {x y : A} (p : x ≡ y) →
+         H x ▪ ap g p ≡ ap f p ▪ H y
+ntran~ {ℓ} {ℓ'} {A} {B} f g H {x} {y} p = ind≡ (λ x y p → H x ▪ ap g p ≡ ap f p ▪ H y)
+                                               (λ x → ((unit-right (H x)) ⁻¹) ▪ (unit-left (H x)))
+                                               x y p
 
-comm~ : {A : Set} (f : A → A) (H : f ~ id) (x : A) →
+--Corollary 2.4.4
+comm~' : ∀ {ℓ} {A : Set ℓ} (f : A → A) (H : f ~ id) (x : A) →
+         H (f x) ▪ H x ≡ ap f (H x) ▪ H x
+comm~' {ℓ} {A} f H x = (H (f x) ▪ H x)
+                     ≡⟨ ap (λ p → H (f x) ▪ p) (apid (f x) x (H x) ⁻¹) ⟩
+                       H (f x) ▪ ap id (H x)
+                     ≡⟨ ntran~ f id H (H x) ⟩
+                       (ap f (H x) ▪ H x ∎)
+
+comm~ : ∀ {ℓ} {A : Set ℓ} (f : A → A) (H : f ~ id) (x : A) →
         H (f x) ≡ ap f (H x)
-comm~ {A} f H x = H (f x)
-                ≡⟨ unit-right (H (f x)) ⟩
-                  H (f x) ▪ refl (f x)
-                ≡⟨ ap (λ p → H (f x) ▪ p) (p▪p⁻¹≡reflx (H x)) ⁻¹ ⟩
-                   H (f x) ▪ (H x ▪ H x ⁻¹)
-                ≡⟨ assoc▪ {A} (H (f x)) (H x) (H x ⁻¹)⟩
-                  H (f x) ▪ H x ▪ H x ⁻¹
-                ≡⟨ ap (λ p → p ▪ H x ⁻¹) (comm~' f H x) ⟩
-                  ap f (H x) ▪ H x ▪ H x ⁻¹
-                ≡⟨ assoc▪ (ap f (H x)) (H x) (H x ⁻¹) ⁻¹ ⟩
-                  ap f (H x) ▪ (H x ▪ H x ⁻¹)
-                ≡⟨ ap (λ p → ap f (H x) ▪ p) (p▪p⁻¹≡reflx (H x)) ⟩
-                  ap f (H x) ▪ refl (f x)
-                ≡⟨ unit-right (ap f (H x)) ⁻¹ ⟩
-                  ap f (H x) ∎
+comm~ {ℓ} {A} f H x = H (f x)
+                    ≡⟨ unit-right (H (f x)) ⟩
+                      H (f x) ▪ refl (f x)
+                    ≡⟨ ap (λ p → H (f x) ▪ p) (p▪p⁻¹≡reflx (H x)) ⁻¹ ⟩
+                      H (f x) ▪ (H x ▪ H x ⁻¹)
+                    ≡⟨ assoc▪ (H (f x)) (H x) (H x ⁻¹)⟩
+                      H (f x) ▪ H x ▪ H x ⁻¹
+                    ≡⟨ ap (λ p → p ▪ H x ⁻¹) (comm~' f H x) ⟩
+                      ap f (H x) ▪ H x ▪ H x ⁻¹
+                    ≡⟨ assoc▪ (ap f (H x)) (H x) (H x ⁻¹) ⁻¹ ⟩
+                      ap f (H x) ▪ (H x ▪ H x ⁻¹)
+                    ≡⟨ ap (λ p → ap f (H x) ▪ p) (p▪p⁻¹≡reflx (H x)) ⟩
+                      ap f (H x) ▪ refl (f x)
+                    ≡⟨ unit-right (ap f (H x)) ⁻¹ ⟩
+                      ap f (H x) ∎
 
 --Definition 2.4.6
 qinv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) → Set (ℓ ⊔ ℓ')
@@ -397,3 +399,57 @@ qinv≡₂ {A} {x} {y} p z = (λ q → q ▪ p ⁻¹)
                                    q ▪ refl x
                                 ≡⟨ (unit-right q) ⁻¹ ⟩
                                    q ∎))
+
+qinv≡₃ : {A : Set} {x y : A} (P : A → Set) (p : x ≡ y) →
+         qinv {A = P x} {B = P y} (transport P p)
+qinv≡₃ {A} {x} {y} P p = (transport P (p ⁻¹))
+                       , ((λ z → (p *) ((p ⁻¹ *) z)
+                               ≡⟨ q*[p*[u]]≡[[p▪q]*][u] P (p ⁻¹) p z ⟩
+                                 ((p ⁻¹ ▪ p) *) z
+                               ≡⟨ ap (λ p → (p *) z) (p⁻¹▪p≡refly p) ⟩
+                                 z ∎)
+                       ,  (λ z → ((p ⁻¹) *) ((p *) z)
+                               ≡⟨ q*[p*[u]]≡[[p▪q]*][u] P p (p ⁻¹) z ⟩
+                                 ((p ▪ p ⁻¹) *) z
+                               ≡⟨ ap (λ p → (p *) z) (p▪p⁻¹≡reflx p) ⟩
+                                 z ∎))
+
+isequiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) → Set (ℓ ⊔ ℓ')
+isequiv {ℓ} {ℓ'} {A} {B} f = (Σ[ g ∈ (B → A) ] (f ∘ g ~ id) ) × (Σ[ h ∈ (B → A) ] (h ∘ f ~ id) )
+
+qinv→isequiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B} →
+               qinv f → isequiv f
+qinv→isequiv (g , (α , β))= (g , α) , (g , β)
+
+isequiv→qinv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B} →
+               isequiv f → qinv f
+isequiv→qinv {f = f} ((g , α) , (h , β)) =
+             let γ : g ~ h
+                 γ x = (β (g x) ⁻¹) ▪ (ap h (α x))
+             in  g , (α , (λ x → (γ (f x)) ▪ (β x)))
+
+_≃_ : ∀ {ℓ} {ℓ'} (A : Set ℓ) (B : Set ℓ') → Set (ℓ ⊔ ℓ')
+A ≃ B = Σ[ f ∈ (A → B) ] (isequiv f)
+
+ref≃ : ∀ {ℓ} {A : Set ℓ} → A ≃ A
+ref≃ = id , ((id , refl) , (id , refl))
+
+sym≃ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → A ≃ B → B ≃ A
+sym≃ (f , eq) with (isequiv→qinv eq)
+sym≃ (f , eq) | (f⁻¹ , (α , β)) = f⁻¹ , ((f , β) , (f , α))
+
+tran≃ : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : Set ℓ'} {C : Set ℓ''} →
+        A ≃ B → B ≃ C → A ≃ C
+tran≃ (f , eq1) (g , eq2) with (isequiv→qinv eq1)
+tran≃ (f , eq1) (g , eq2) | (f⁻¹ , (α1 , β1)) with (isequiv→qinv eq2)
+tran≃ (f , eq1) (g , eq2) | (f⁻¹ , (α1 , β1)) | (g⁻¹ , (α2 , β2)) =
+      (g ∘ f) , ((f⁻¹ ∘ g⁻¹ , (λ x → g (f (f⁻¹ (g⁻¹ x)))
+                                   ≡⟨ ap (λ y → g y) (α1 (g⁻¹ x)) ⟩
+                                     g (g⁻¹ x)
+                                   ≡⟨ α2 x ⟩
+                                     x ∎))
+              ,  (f⁻¹ ∘ g⁻¹ , (λ x → f⁻¹ (g⁻¹ (g (f x)))
+                                   ≡⟨ ap (λ y → f⁻¹ y) (β2 (f x)) ⟩
+                                     f⁻¹ (f x)
+                                   ≡⟨ β1 x ⟩
+                                     x ∎)))
