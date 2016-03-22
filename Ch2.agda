@@ -631,12 +631,35 @@ liftΣ {ℓ} {ℓ'} {ℓ''} {A} {P} {Q} {x} {y} p u z =
 --Theorem 2.8.1
 𝟙≃ : {x y : 𝟙} → (x ≡ y) ≃ 𝟙
 𝟙≃ {x} {y} = 𝟙≡⁻¹ , qinv→isequiv (𝟙≡ , ( (λ u → ind𝟙 (λ u → (𝟙≡⁻¹ {x = x} {y = y} ∘ 𝟙≡) u ≡ u)
-                                                     (refl ⊤)
-                                                     u)
-                                       , (λ p → ind≡ (λ x y p → (𝟙≡ ∘ 𝟙≡⁻¹) p ≡ p)
-                                                     (ind𝟙 (λ x → (𝟙≡ ∘ 𝟙≡⁻¹) (refl x) ≡ refl x)
-                                                           (refl (refl ⊤)))
-                                                     x y p)))
+                                                    (refl ⊤)
+                                                    u)
+                                      , (λ p → ind≡ (λ x y p → (𝟙≡ ∘ 𝟙≡⁻¹) p ≡ p)
+                                                    (ind𝟙 (λ x → (𝟙≡ ∘ 𝟙≡⁻¹) (refl x) ≡ refl x)
+                                                          (refl (refl ⊤)))
+                                                    x y p)))
                                                      
 uppt𝟙 : (u : 𝟙) → u ≡ ⊤
 uppt𝟙 = ind𝟙 (λ u → u ≡ ⊤) (refl ⊤)
+
+--2.9
+happly : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
+         f ≡ g → ((x : A) → f x ≡ g x)
+happly {ℓ} {ℓ'} {A} {B} {f} {g} p =
+       ind≡ (λ f g p → (x : A) → f x ≡ g x)
+            (λ f x → refl (f x))
+            f g p
+
+--Axiom 2.9.3
+postulate
+  funextentionality : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
+                      isequiv (happly {f = f} {g = g})
+
+funext : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
+         ((x : A) → f x ≡ g x) → f ≡ g
+funext {ℓ} {ℓ'} {A} {B} {f} {g} with (isequiv→qinv (funextentionality {f = f} {g = g}))
+funext | f , (α , β) = f
+
+computationΠ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
+               (h : (x : A) → f x ≡ g x) → happly (funext h) ≡ h 
+computationΠ {ℓ} {ℓ'} {A} {B} {f} {g} h with (isequiv→qinv (funextentionality {f = f} {g = g}))
+computationΠ h | f , (α , β) = α h
