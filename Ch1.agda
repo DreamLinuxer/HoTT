@@ -1,5 +1,5 @@
 module Ch1 where
-open import Level
+open import Level using (_⊔_; suc)
 
 id : ∀ {ℓ} {A : Set ℓ} → A → A
 id a = a
@@ -61,8 +61,8 @@ pr₁ {A = A} = rec× A (λ a b → a)
 pr₂ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → A × B → B
 pr₂ {B = B} = rec× B (λ a b → b)
 -}
-uppt : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → (x : A × B) → ((pr₁ x , pr₂ x) ≡ x)
-uppt (a , b) = refl (a , b)
+uniq× : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → (x : A × B) → ((pr₁ x , pr₂ x) ≡ x)
+uniq× (a , b) = refl (a , b)
 
 data 𝟙 : Set where
   ⊤ : 𝟙

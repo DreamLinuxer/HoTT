@@ -500,8 +500,8 @@ pair×≡ {ℓ} {ℓ'} {A} {B} {a , b} {a' , b'} = pair×≡' {ℓ} {ℓ'} {A} {
                               x)
                   x y r)))
 
-uppt× : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → (z : A × B) → ((pr₁ z , pr₂ z) ≡ z)
-uppt× z = pair×≡ ((refl (pr₁ z)) , (refl (pr₂ z)))
+uniq×₁ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → (z : A × B) → ((pr₁ z , pr₂ z) ≡ z)
+uniq×₁ z = pair×≡ ((refl (pr₁ z)) , (refl (pr₂ z)))
 
 --Theorem 2.6.4
 transport× : ∀ {ℓ ℓ' ℓ''} {Z : Set ℓ} {A : Z → Set ℓ'} {B : Z → Set ℓ''}
@@ -510,7 +510,7 @@ transport× : ∀ {ℓ ℓ' ℓ''} {Z : Set ℓ} {A : Z → Set ℓ'} {B : Z →
 transport× {ℓ} {ℓ'} {ℓ''} {Z} {A} {B} {z} {w} p x =
            ind≡ (λ z w p → (x : A z × B z) →
                            transport (λ z → A z × B z) p x ≡ transport (λ z → A z) p (pr₁ x) , transport (λ z → B z) p (pr₂ x))
-                (λ z x → (uppt× x) ⁻¹)
+                (λ z x → (uniq×₁ x) ⁻¹)
                 z w p x
 
 --Theorem 2.6.5
@@ -590,9 +590,9 @@ ap× {ℓ₁} {ℓ₂} {ℓ₃} {ℓ₄} {A} {B} {A'} {B'} g h (a , b) (a' , b')
     in  f , qinv→isequiv (g , (f∘g~id {w} {w'} , g∘f~id))
 
 --Corollary 2.7.3
-upptΣ : ∀ {ℓ ℓ'} {A : Set ℓ} {P : A → Set ℓ'} → (z : Σ[ x ∈ A ] P x) → z ≡ (pr₁ z , pr₂ z)
-upptΣ {ℓ} {ℓ'} {A} {P} z with Σ≃ {w = z} {w' = (pr₁ z , pr₂ z)}
-upptΣ z | f , ((g , α) , (h , β)) = g (refl (pr₁ z) , refl (pr₂ z))
+uniqΣ : ∀ {ℓ ℓ'} {A : Set ℓ} {P : A → Set ℓ'} → (z : Σ[ x ∈ A ] P x) → z ≡ (pr₁ z , pr₂ z)
+uniqΣ {ℓ} {ℓ'} {A} {P} z with Σ≃ {w = z} {w' = (pr₁ z , pr₂ z)}
+uniqΣ z | f , ((g , α) , (h , β)) = g (refl (pr₁ z) , refl (pr₂ z))
 
 pairΣ≡⁻¹ : ∀ {ℓ ℓ'} {A : Set ℓ} {P : A → Set ℓ'} {w w' : Σ[ x ∈ A ] P x} →
            (w ≡ w') → (Σ[ p ∈ (pr₁ w ≡ pr₁ w') ] ((_* {P = P} p) (pr₂ w) ≡ (pr₂ w')))
@@ -638,8 +638,8 @@ liftΣ {ℓ} {ℓ'} {ℓ''} {A} {P} {Q} {x} {y} p u z =
                                                           (refl (refl ⊤)))
                                                     x y p)))
                                                      
-uppt𝟙 : (u : 𝟙) → u ≡ ⊤
-uppt𝟙 = ind𝟙 (λ u → u ≡ ⊤) (refl ⊤)
+uniq𝟙 : (u : 𝟙) → u ≡ ⊤
+uniq𝟙 = ind𝟙 (λ u → u ≡ ⊤) (refl ⊤)
 
 --2.9
 happly : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
@@ -657,9 +657,48 @@ postulate
 funext : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
          ((x : A) → f x ≡ g x) → f ≡ g
 funext {ℓ} {ℓ'} {A} {B} {f} {g} with (isequiv→qinv (funextentionality {f = f} {g = g}))
-funext | f , (α , β) = f
+funext | happly⁻¹ , (α , β) = happly⁻¹
 
 computationΠ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
-               (h : (x : A) → f x ≡ g x) → happly (funext h) ≡ h 
-computationΠ {ℓ} {ℓ'} {A} {B} {f} {g} h with (isequiv→qinv (funextentionality {f = f} {g = g}))
-computationΠ h | f , (α , β) = α h
+               (h : (x : A) → f x ≡ g x) → (x : A) → happly (funext h) x ≡ h x
+computationΠ {ℓ} {ℓ'} {A} {B} {f} {g} h x with (isequiv→qinv (funextentionality {f = f} {g = g}))
+computationΠ h x | happly⁻¹ , (α , β) = ap (λ f → f x) (α h)
+
+uniqΠ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
+        (p : f ≡ g) → p ≡ funext (λ x → happly p x)
+uniqΠ {ℓ} {ℓ'} {A} {B} {f} {g} p with (isequiv→qinv (funextentionality {f = f} {g = g}))
+uniqΠ p | happly⁻¹ , (α , β)= β p ⁻¹
+
+refΠ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} (f : (x : A) → B x) →
+       refl f ≡ funext (λ x → refl (f x))
+refΠ f = refl f
+       ≡⟨ uniqΠ (refl f) ⟩
+         funext (happly (refl f))
+       ≡⟨ ap funext (refl (λ x → refl (f x))) ⟩
+         funext (λ x → refl (f x)) ∎
+
+Π⁻¹ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
+      (α : f ≡ g) → α ⁻¹ ≡ funext (λ x → (happly α x) ⁻¹)
+Π⁻¹ {ℓ} {ℓ'} {A} {B} {f} {g} α =
+    ind≡ (λ f g α → α ⁻¹ ≡ funext (λ x → happly α x ⁻¹))
+         (λ f → refl f ⁻¹
+              ≡⟨ uniqΠ (refl f ⁻¹) ⟩
+                funext (λ x → happly (refl f ⁻¹) x)
+              ≡⟨ ap funext (refl (λ x → refl (f x))) ⟩
+                funext (λ x → happly (refl f) x ⁻¹) ∎)
+         f g α
+
+▪Π : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g h : (x : A) → B x} →
+     (α : f ≡ g) (β : g ≡ h) → α ▪ β ≡ funext (λ x → happly α x ▪ happly β x)
+▪Π {ℓ} {ℓ'} {A} {B} {f} {g} {h} α β =
+   ind≡ (λ f g α → (h : (x : A) → B x) → (β : g ≡ h)
+                 → α ▪ β ≡ funext (λ x → happly α x ▪ happly β x))
+        (λ f h β →
+           ind≡ (λ f h β → refl f ▪ β ≡ funext (λ x → happly (refl f) x ▪ happly β x))
+                (λ f → refl f ▪ refl f
+                     ≡⟨ uniqΠ (refl f ▪ refl f) ⟩
+                       funext (λ x → happly (refl f ▪ refl f) x)
+                     ≡⟨ ap funext (refl (λ x → refl (f x))) ⟩
+                       funext (λ x → happly (refl f) x ▪ happly (refl f) x) ∎)
+                f h β)
+        f g α h β
