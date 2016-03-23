@@ -702,3 +702,33 @@ refΠ f = refl f
                        funext (λ x → happly (refl f) x ▪ happly (refl f) x) ∎)
                 f h β)
         f g α h β
+
+transport→ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : X → Set ℓ''} {x₁ x₂ : X} →
+             (p : x₁ ≡ x₂) (f : A x₁ → B x₁) → transport (λ x → A x → B x) p f ≡ (λ x → transport B p (f (transport A (p ⁻¹) x)))
+transport→ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x₁} {x₂} p f =
+           ind≡ (λ x₁ x₂ p → (f : A x₁ → B x₁)
+                           → transport (λ x → A x → B x) p f ≡ (λ x → transport B p (f (transport A (p ⁻¹) x))))
+                (λ x f → refl f)
+                x₁ x₂ p f
+
+transportΠ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : (x : X) → A x → Set ℓ''} {x₁ x₂ : X} →
+             (p : x₁ ≡ x₂) (f : (a : A x₁) → B x₁ a) (a : A x₂) →
+             transport (λ x → (a : A x) → B x a) p f a
+             ≡
+             transport (λ w → B (pr₁ w) (pr₂ w)) ((pairΣ≡ {w = x₂ , a} {w' = x₁ , ((p ⁻¹) *) a} (p ⁻¹ , refl (((p ⁻¹) *) a))) ⁻¹)  (f (transport A (p ⁻¹) a))
+transportΠ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x₁} {x₂} p f a =
+           ind≡ (λ x₁ x₂ p → (f : (a : A x₁) → B x₁ a) (a : A x₂)
+                           → transport (λ x → (a : A x) → B x a) p f a
+                           ≡ transport (λ w → B (pr₁ w) (pr₂ w)) ((pairΣ≡ {w = x₂ , a} {w' = x₁ , ((p ⁻¹) *) a} (p ⁻¹ , refl (((p ⁻¹) *) a))) ⁻¹)  (f (transport A (p ⁻¹) a)))
+                (λ x f a → refl (f a))
+                x₁ x₂ p f a
+
+eqΠ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : X → Set ℓ''} {x y : X} →
+      (p : x ≡ y) (f : A x → B x) (g : A y → B y) →
+      ((p *) f ≡ g) ≃ ((a : A x) → (p *) (f a) ≡ g ((p *) a))
+eqΠ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} p f g with (isequiv→qinv (funextentionality {f = happly} {g = funext}))
+eqΠ {A = A} {B = B} {x = x} {y = y} p f g | happly⁻¹ , (α , β) = 
+    ind≡ (λ x y p → (f : A x → B x) (g : A y → B y)
+                  → ((p *) f ≡ g) ≃ ((a : A x) → (p *) (f a) ≡ g ((p *) a)))
+         (λ x f g → happly , qinv→isequiv (funext , ((λ x → {!!}) , {!!})))
+         x y p f g
