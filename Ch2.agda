@@ -215,7 +215,7 @@ ap▪ {ℓ} {ℓ'} {A} {B} f x y z p q =
          x y p z q
 
 ap⁻¹ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (x y : A) →
-      (p : x ≡ y) → ap f (p ⁻¹) ≡ (ap f p) ⁻¹
+       (p : x ≡ y) → ap f (p ⁻¹) ≡ (ap f p) ⁻¹
 ap⁻¹ {ℓ} {ℓ'} {A} {B} f x y p =
      ind≡ (λ x y p → ap f (p ⁻¹) ≡ (ap f p) ⁻¹)
           (λ x → refl (refl (f x)))
@@ -775,3 +775,9 @@ eqΠ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} p f g =
                   → transport (B^ {B = B}) (pairΣ≡ {w = x , a} {w' = y , (p *) a} (p , refl ((p *) a))) (f a) ≡ g ((p *) a)))
          (λ x f g → happly , funextentionality)
          x y p f g
+{-
+compΠ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : (x : X) → A x → Set ℓ''} {x y : X} →
+        (p : x ≡ y) (f : (a : A x) → B x a) (g : (a : A y) → B y a) →
+        (h : (a : A x) → ((p *) (f a) ≡ g ((p *) a))) → (a : A x) → happly (funext h) a ≡ h a
+compΠ = {!!}
+-}
