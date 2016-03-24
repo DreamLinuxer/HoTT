@@ -732,24 +732,24 @@ transportΠ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x₁} {x₂} p f a =
                 x₁ x₂ p f a
 
 --Lemma 2.9.6
-eqΠ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : X → Set ℓ''} {x y : X} →
+eq→ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : X → Set ℓ''} {x y : X} →
       (p : x ≡ y) (f : A x → B x) (g : A y → B y) →
       ((p *) f ≡ g) ≃ ((a : A x) → (p *) (f a) ≡ g ((p *) a))
-eqΠ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} p f g =
+eq→ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} p f g =
     ind≡ (λ x y p → (f : A x → B x) (g : A y → B y)
                   → ((p *) f ≡ g) ≃ ((a : A x) → (p *) (f a) ≡ g ((p *) a)))
          (λ x f g → happly , funextentionality)
          x y p f g
-^Π : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : X → Set ℓ''} {x y : X} →
+^→ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : X → Set ℓ''} {x y : X} →
      {p : x ≡ y} {f : A x → B x} {g : A y → B y} → (q : (p *) f ≡ g) →
      ((a : A x) → (p *) (f a) ≡ g ((p *) a))
-^Π {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} {p} {f} {g} with eqΠ p f g
-^Π | happly , _ = happly
+^→ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} {p} {f} {g} with eq→ p f g
+^→ | happly , _ = happly
 
-pathΠ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : X → Set ℓ''} {x y : X} →
+path→ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : X → Set ℓ''} {x y : X} →
         {p : x ≡ y} {f : A x → B x} {g : A y → B y} {q : (p *) f ≡ g} (a : A x) →
         (_* {P = λ x → A x → B x} p f) ((p *) a) ≡ g ((p *) a)
-pathΠ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} {p} {f} {g} {q} a =
+path→ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} {p} {f} {g} {q} a =
       (_* {P = λ x → A x → B x} p f) ((p *) a)
    ≡⟨ ap (λ h → h ((p *) a)) (transport→ p f) ⟩
       (p *) (f ((_* {P = A} (p ⁻¹)) ((p *) a)))
@@ -757,10 +757,21 @@ pathΠ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} {p} {f} {g} {q} a =
       (p *) (f (_* {P = A} (p ▪ p ⁻¹) a))
    ≡⟨ ap (λ r → (p *) (f (_* {P = A} r a))) (p▪p⁻¹≡reflx p) ⟩
       (p *) (f a)
-   ≡⟨ ^Π {p = p} q a ⟩
+   ≡⟨ ^→ {p = p} q a ⟩
       g ((p *) a) ∎
 
-eqΠ₁ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : X → Set ℓ''} {x y : X} →
+eq→₁ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : X → Set ℓ''} {x y : X} →
        {p : x ≡ y} {f : A x → B x} {g : A y → B y} {q : (p *) f ≡ g} (a : A x) →
-       happly q ((p *) a) ≡ pathΠ {p = p} {q = q} a
-eqΠ₁ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} {p} {f} {g} {q} a = {!!}
+       happly q ((p *) a) ≡ path→ {p = p} {q = q} a
+eq→₁ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} {p} {f} {g} {q} a = {!!}
+
+--Lemma 2.9.7
+eqΠ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : (x : X) → A x → Set ℓ''} {x y : X} →
+      (p : x ≡ y) (f : (a : A x) → B x a) (g : (a : A y) → B y a) →
+      ((p *) f ≡ g) ≃ ((a : A x) → transport (B^ {B = B}) (pairΣ≡ {w = x , a} {w' = y , (p *) a} (p , refl ((p *) a))) (f a) ≡ g ((p *) a))
+eqΠ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} p f g =
+    ind≡ (λ x y p → (f : (a : A x) → B x a) → (g : (a : A y) → B y a)
+                  → ((p *) f ≡ g) ≃ ((a : A x)
+                  → transport (B^ {B = B}) (pairΣ≡ {w = x , a} {w' = y , (p *) a} (p , refl ((p *) a))) (f a) ≡ g ((p *) a)))
+         (λ x f g → happly , funextentionality)
+         x y p f g
