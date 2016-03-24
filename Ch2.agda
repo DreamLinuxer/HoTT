@@ -778,6 +778,7 @@ eqΠ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} p f g =
 {-
 compΠ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : (x : X) → A x → Set ℓ''} {x y : X} →
         (p : x ≡ y) (f : (a : A x) → B x a) (g : (a : A y) → B y a) →
-        (h : (a : A x) → ((p *) (f a) ≡ g ((p *) a))) → (a : A x) → happly (funext h) a ≡ h a
+        (h : (a : A x) → (((p *) (f a)) ≡ (g ((p *) a)))) →
+        (a : A x) → happly (funext h) a ≡ h a
 compΠ = {!!}
 -}
