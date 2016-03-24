@@ -268,17 +268,17 @@ transportconst {ℓ} {ℓ'} {A} B {x} {y} =
                     x y
 
 --Lemma 2.3.8
-apd≡transportconst▪ap : {A B : Set} (f : A → B) {x y : A} (p : x ≡ y) →
+apd≡transportconst▪ap : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) {x y : A} (p : x ≡ y) →
                         apd f p ≡ transportconst B p (f x) ▪ ap f p
-apd≡transportconst▪ap {A} {B} f {x} {y} =
+apd≡transportconst▪ap {ℓ} {ℓ'} {A} {B} f {x} {y} =
                       ind≡ (λ x y p → apd f p ≡ transportconst B p (f x) ▪ ap f p)
                            (λ x → refl (refl (f x)))
                            x y
 
 --Lemma 2.3.9
-q*[p*[u]]≡[[p▪q]*][u] : {A : Set} (P : A → Set) {x y z : A} (p : x ≡ y) (q : y ≡ z) →
+q*[p*[u]]≡[[p▪q]*][u] : ∀ {ℓ ℓ'} {A : Set ℓ} (P : A → Set ℓ') {x y z : A} (p : x ≡ y) (q : y ≡ z) →
                         (u : P x) → (q *) ((p *) u) ≡ ((p ▪ q) *) u
-q*[p*[u]]≡[[p▪q]*][u] {A} P {x} {y} {z} p q u =
+q*[p*[u]]≡[[p▪q]*][u] {ℓ} {ℓ'} {A} P {x} {y} {z} p q u =
                       ind≡ (λ x y p → (z : A) → (q : y ≡ z) → (u : P x) →
                                       (q *) ((p *) u) ≡ (_* {P = P} (p ▪ q)) u)
                            (λ x z q u →
@@ -289,19 +289,21 @@ q*[p*[u]]≡[[p▪q]*][u] {A} P {x} {y} {z} p q u =
                            x y p z q u
 
 --Lemma 2.3.10
-transport[P∘f,p,u]≡transport[P,ap[f,p],u] : {A B : Set} (f : A → B) (P : B → Set) {x y : A} (p : x ≡ y) (u : P (f x)) →
-                                             transport (P ∘ f) p u ≡ transport P (ap f p) u
-transport[P∘f,p,u]≡transport[P,ap[f,p],u] {A} {B} f P {x} {y} p u =
+transport[P∘f,p,u]≡transport[P,ap[f,p],u] : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (P : B → Set)
+                                            {x y : A} (p : x ≡ y) (u : P (f x)) →
+                                            transport (P ∘ f) p u ≡ transport P (ap f p) u
+transport[P∘f,p,u]≡transport[P,ap[f,p],u] {ℓ} {ℓ'} {A} {B} f P {x} {y} p u =
                                           ind≡ (λ x y p → (u : P (f x))
                                                   → transport (P ∘ f) p u ≡ transport P (ap f p) u)
                                                (λ x u → refl u)
                                                x y p u
 
 --Lemma 2.3.11
-transport[Q,p,f[x,u]]≡f[y,transport[P,p,u]] : {A : Set} (P Q : A → Set) (f : (x : A) → P x → Q x) →
+transport[Q,p,f[x,u]]≡f[y,transport[P,p,u]] : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} (P : A → Set ℓ') (Q : A → Set ℓ'') →
+                                              (f : (x : A) → P x → Q x) →
                                               {x y : A} (p : x ≡ y) (u : P x) →
                                               transport Q p (f x u) ≡ f y (transport P p u)
-transport[Q,p,f[x,u]]≡f[y,transport[P,p,u]] {A} P Q f {x} {y} p u =
+transport[Q,p,f[x,u]]≡f[y,transport[P,p,u]] {ℓ} {ℓ'} {ℓ''} {A} P Q f {x} {y} p u =
                                             ind≡ (λ x y p → (u : P x)
                                                     → transport Q p (f x u) ≡ f y (transport P p u))
                                                  (λ x u → refl (f x u))
@@ -711,24 +713,54 @@ transport→ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x₁} {x₂} p f =
                 (λ x f → refl f)
                 x₁ x₂ p f
 
+Π : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} (A : X → Set ℓ') (B : (x : X) → A x → Set ℓ'') → X → Set (ℓ'' ⊔ ℓ')
+Π A B = (λ x → (a : A x) → B x a)
+
+B^ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : (x : X) → A x → Set ℓ''} → Σ[ x ∈ X ] (A x) → Set ℓ''
+B^ {B = B} = (λ w → B (pr₁ w) (pr₂ w))
+
 transportΠ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : (x : X) → A x → Set ℓ''} {x₁ x₂ : X} →
              (p : x₁ ≡ x₂) (f : (a : A x₁) → B x₁ a) (a : A x₂) →
-             transport (λ x → (a : A x) → B x a) p f a
+             transport (Π A B) p f a
              ≡
-             transport (λ w → B (pr₁ w) (pr₂ w)) ((pairΣ≡ {w = x₂ , a} {w' = x₁ , ((p ⁻¹) *) a} (p ⁻¹ , refl (((p ⁻¹) *) a))) ⁻¹)  (f (transport A (p ⁻¹) a))
+             transport (B^ {B = B}) ((pairΣ≡ {w = x₂ , a} {w' = x₁ , ((p ⁻¹) *) a} (p ⁻¹ , refl (((p ⁻¹) *) a))) ⁻¹)  (f (transport A (p ⁻¹) a))
 transportΠ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x₁} {x₂} p f a =
            ind≡ (λ x₁ x₂ p → (f : (a : A x₁) → B x₁ a) (a : A x₂)
-                           → transport (λ x → (a : A x) → B x a) p f a
-                           ≡ transport (λ w → B (pr₁ w) (pr₂ w)) ((pairΣ≡ {w = x₂ , a} {w' = x₁ , ((p ⁻¹) *) a} (p ⁻¹ , refl (((p ⁻¹) *) a))) ⁻¹)  (f (transport A (p ⁻¹) a)))
+                           → transport (Π A B) p f a
+                           ≡ transport (B^ {B = B}) ((pairΣ≡ {w = x₂ , a} {w' = x₁ , ((p ⁻¹) *) a} (p ⁻¹ , refl (((p ⁻¹) *) a))) ⁻¹)  (f (transport A (p ⁻¹) a)))
                 (λ x f a → refl (f a))
                 x₁ x₂ p f a
 
+--Lemma 2.9.6
 eqΠ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : X → Set ℓ''} {x y : X} →
       (p : x ≡ y) (f : A x → B x) (g : A y → B y) →
       ((p *) f ≡ g) ≃ ((a : A x) → (p *) (f a) ≡ g ((p *) a))
-eqΠ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} p f g with (isequiv→qinv (funextentionality {f = happly} {g = funext}))
-eqΠ {A = A} {B = B} {x = x} {y = y} p f g | happly⁻¹ , (α , β) = 
+eqΠ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} p f g =
     ind≡ (λ x y p → (f : A x → B x) (g : A y → B y)
                   → ((p *) f ≡ g) ≃ ((a : A x) → (p *) (f a) ≡ g ((p *) a)))
-         (λ x f g → happly , qinv→isequiv (funext , ((λ x → {!!}) , {!!})))
+         (λ x f g → happly , funextentionality)
          x y p f g
+^Π : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : X → Set ℓ''} {x y : X} →
+     {p : x ≡ y} {f : A x → B x} {g : A y → B y} → (q : (p *) f ≡ g) →
+     ((a : A x) → (p *) (f a) ≡ g ((p *) a))
+^Π {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} {p} {f} {g} with eqΠ p f g
+^Π | happly , _ = happly
+
+pathΠ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : X → Set ℓ''} {x y : X} →
+        {p : x ≡ y} {f : A x → B x} {g : A y → B y} {q : (p *) f ≡ g} (a : A x) →
+        (_* {P = λ x → A x → B x} p f) ((p *) a) ≡ g ((p *) a)
+pathΠ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} {p} {f} {g} {q} a =
+      (_* {P = λ x → A x → B x} p f) ((p *) a)
+   ≡⟨ ap (λ h → h ((p *) a)) (transport→ p f) ⟩
+      (p *) (f ((_* {P = A} (p ⁻¹)) ((p *) a)))
+   ≡⟨ ap (λ z → (p *) (f z)) (q*[p*[u]]≡[[p▪q]*][u] A p (p ⁻¹) a) ⟩
+      (p *) (f (_* {P = A} (p ▪ p ⁻¹) a))
+   ≡⟨ ap (λ r → (p *) (f (_* {P = A} r a))) (p▪p⁻¹≡reflx p) ⟩
+      (p *) (f a)
+   ≡⟨ ^Π {p = p} q a ⟩
+      g ((p *) a) ∎
+
+eqΠ₁ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : X → Set ℓ''} {x y : X} →
+       {p : x ≡ y} {f : A x → B x} {g : A y → B y} {q : (p *) f ≡ g} (a : A x) →
+       happly q ((p *) a) ≡ pathΠ {p = p} {q = q} a
+eqΠ₁ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} {p} {f} {g} {q} a = {!!}
