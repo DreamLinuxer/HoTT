@@ -771,14 +771,28 @@ eqΠ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : (x : X) → 
       ((p *) f ≡ g) ≃ ((a : A x) → transport (B^ {B = B}) (pairΣ≡ {w = x , a} {w' = y , (p *) a} (p , refl ((p *) a))) (f a) ≡ g ((p *) a))
 eqΠ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} p f g =
     ind≡ (λ x y p → (f : (a : A x) → B x a) → (g : (a : A y) → B y a)
-                  → ((p *) f ≡ g) ≃ ((a : A x)
-                  → transport (B^ {B = B}) (pairΣ≡ {w = x , a} {w' = y , (p *) a} (p , refl ((p *) a))) (f a) ≡ g ((p *) a)))
+                  → ((p *) f ≡ g)
+                  ≃ ((a : A x) → transport (B^ {B = B}) (pairΣ≡ {w = x , a} {w' = y , (p *) a} (p , refl ((p *) a))) (f a) ≡ g ((p *) a)))
          (λ x f g → happly , funextentionality)
          x y p f g
-{-
+
+eqΠ→ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : (x : X) → A x → Set ℓ''} {x y : X} →
+      {p : x ≡ y} {f : (a : A x) → B x a} {g : (a : A y) → B y a} →
+      ((p *) f ≡ g) → ((a : A x) → transport (B^ {B = B}) (pairΣ≡ {w = x , a} {w' = y , (p *) a} (p , refl ((p *) a))) (f a) ≡ g ((p *) a))
+eqΠ→ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} {p} {f} {g} with eqΠ p f g
+eqΠ→ | 𝒇 , _ = 𝒇
+
+eqΠ← : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : (x : X) → A x → Set ℓ''} {x y : X} →
+      {p : x ≡ y} {f : (a : A x) → B x a} {g : (a : A y) → B y a} →
+      ((a : A x) → transport (B^ {B = B}) (pairΣ≡ {w = x , a} {w' = y , (p *) a} (p , refl ((p *) a))) (f a) ≡ g ((p *) a)) → ((p *) f ≡ g)
+eqΠ← {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} {p} {f} {g} with eqΠ p f g
+eqΠ← | 𝒇 , iseq with isequiv→qinv iseq
+eqΠ← | 𝒇 , iseq | 𝒇⁻¹ , (α , β) = 𝒇⁻¹
+
 compΠ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : (x : X) → A x → Set ℓ''} {x y : X} →
         (p : x ≡ y) (f : (a : A x) → B x a) (g : (a : A y) → B y a) →
-        (h : (a : A x) → (((p *) (f a)) ≡ (g ((p *) a)))) →
-        (a : A x) → happly (funext h) a ≡ h a
-compΠ = {!!}
--}
+        (h : (a : A x) → transport (B^ {B = B}) (pairΣ≡ {w = x , a} {w' = y , (p *) a} (p , refl ((p *) a))) (f a) ≡ g ((p *) a)) →
+        (a : A x) → eqΠ→ {p = p} {f = f} {g = g} (eqΠ← {p = p} {f = f} {g = g} h) a ≡ h a
+compΠ {ℓ} {ℓ'} {ℓ''} {X} {A} {B} {x} {y} p f g h a with eqΠ p f g
+compΠ p f g h a | 𝒇 , iseq with isequiv→qinv iseq
+compΠ p f g h a | 𝒇 , iseq | 𝒇⁻¹ , (α , β) = ap (λ f → f a) (α h)
