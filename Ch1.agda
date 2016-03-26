@@ -1,5 +1,5 @@
 module Ch1 where
-open import Level using (_⊔_; suc)
+open import Level using (_⊔_; suc) public
 
 id : ∀ {ℓ} {A : Set ℓ} → A → A
 id a = a
