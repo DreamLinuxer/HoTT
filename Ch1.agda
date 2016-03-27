@@ -137,18 +137,17 @@ _,'_ {A} {B} a b = ind𝟚 (rec𝟚 Set A B) a b
 data ℕ : Set where
   zeroℕ : ℕ
   succ  : ℕ → ℕ
-{-# BUILTIN NATURAL ℕ #-}
 
 recℕ : ∀ {ℓ} (C : Set ℓ) → C → (ℕ → C → C) → ℕ → C
-recℕ C c₀ cs 0 = c₀
+recℕ C c₀ cs zeroℕ = c₀
 recℕ C c₀ cs (succ n) = cs n (recℕ C c₀ cs n)
 
-indℕ : ∀ {ℓ} (C : ℕ → Set ℓ) → C 0 → ((n : ℕ) → C n → C (succ n)) → (n : ℕ) → C n
-indℕ C c₀ cs 0 = c₀
+indℕ : ∀ {ℓ} (C : ℕ → Set ℓ) → C zeroℕ → ((n : ℕ) → C n → C (succ n)) → (n : ℕ) → C n
+indℕ C c₀ cs zeroℕ = c₀
 indℕ C c₀ cs (succ n) = cs n (indℕ C c₀ cs n)
 
 double : ℕ → ℕ
-double = recℕ ℕ 0 (λ n y → succ (succ y))
+double = recℕ ℕ zeroℕ (λ n y → succ (succ y))
 
 add : ℕ → ℕ → ℕ
 add = recℕ (ℕ → ℕ) (λ n → n) (λ n g m → succ (g m))
