@@ -133,7 +133,49 @@ module Ex1-5 where
   indr≡ C g₀ g₁ x = refl
 
 -- Ex 1.6
--- need function extensionality
+module Ex1-6 where
+  open import Relation.Binary.PropositionalEquality using (_≡_; refl; subst; cong)
+  data 𝟚 : Set where
+    0₂ : 𝟚
+    1₂ : 𝟚
+
+  rec𝟚 : ∀ {ℓ} (C : Set ℓ) → C → C → 𝟚 → C
+  rec𝟚 C c₀ c₁ 0₂ = c₀
+  rec𝟚 C c₀ c₁ 1₂ = c₁
+
+  ind𝟚 : ∀ {ℓ} (C : 𝟚 → Set ℓ) → C 0₂ → C 1₂ → (x : 𝟚) → C x
+  ind𝟚 C c₀ c₁ 0₂ = c₀
+  ind𝟚 C c₀ c₁ 1₂ = c₁
+
+  _×_ : (A B : Set) → Set
+  A × B = (x : 𝟚) → rec𝟚 Set A B x
+
+  _,_ : {A B : Set} → A → B → A × B
+  _,_ a b 0₂ = a
+  _,_ a b 1₂ = b
+
+  pr₁ : {A B : Set} → A × B → A
+  pr₁ x = x 0₂
+
+  pr₂ : {A B : Set} → A × B → B
+  pr₂ x = x 1₂
+
+  postulate
+    funext : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
+             ((x : A) → f x ≡ g x) → f ≡ g
+
+  uniqA×B : {A B : Set} → (x : A × B) → (pr₁ x , pr₂ x) ≡ x
+  uniqA×B x = funext (ind𝟚 (λ z → (pr₁ x , pr₂ x) z ≡ x z) refl refl)
+
+  ind× : {A B : Set} (C : A × B → Set) → ((x : A) (y : B) → C (x , y)) → ((z : A × B) → C z)
+  ind× C g z = subst C (uniqA×B z) (g (pr₁ z) (pr₂ z))
+
+  uniqA×B≡ : {A B : Set} (a : A) (b : B) → (uniqA×B (a , b)) ≡ refl
+  uniqA×B≡ a b = {!!}
+
+  ind×≡ : {A B : Set} (C : A × B → Set) (g : (x : A) (y : B) → C (x , y)) (a : A) (b : B) →
+          ind× C g (a , b) ≡ g a b
+  ind×≡ C g a b = cong (λ p → subst C p (g a b)) (uniqA×B≡ a b)
 
 -- Ex 1.7
 -- need concepts from later chapter
@@ -355,7 +397,7 @@ module Ex1-14 where
 
 This does not work because there might be more than one path from x to x.
 
-Excellent. 1.14 fails because we can't prove anything a particular path between two given points, only about the family.   by Amr
+1.14 fails because we can't prove anything a particular path between two given points, only about the family.   by Amr
 -}
 
 -- Ex1.15
