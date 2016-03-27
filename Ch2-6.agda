@@ -1,7 +1,6 @@
 {-# OPTIONS --without-K #-}
 
 module Ch2-6 where
-open import Ch1 public
 open import Ch2-4 public
 
 -- 2.6

@@ -1,7 +1,6 @@
 {-# OPTIONS --without-K #-}
 
 module Ch2-3 where
-open import Ch1 public
 open import Ch2-2 public
 
 --2.3
@@ -57,7 +56,7 @@ q*[p*[u]]≡[[p▪q]*][u] {ℓ} {ℓ'} {A} P {x} {y} {z} p q u =
                            x y p z q u
 
 --Lemma 2.3.10
-transport[P∘f,p,u]≡transport[P,ap[f,p],u] : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (P : B → Set)
+transport[P∘f,p,u]≡transport[P,ap[f,p],u] : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (P : B → Set ℓ'')
                                             {x y : A} (p : x ≡ y) (u : P (f x)) →
                                             transport (P ∘ f) p u ≡ transport P (ap f p) u
 transport[P∘f,p,u]≡transport[P,ap[f,p],u] {ℓ} {ℓ'} {A} {B} f P {x} {y} p u =

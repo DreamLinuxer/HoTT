@@ -1,7 +1,6 @@
 {-# OPTIONS --without-K #-}
 
 module Ch2-4 where
-open import Ch1 public
 open import Ch2-3 public
 
 --2.4
@@ -152,3 +151,12 @@ tran≃ (f , eq1) (g , eq2) | (f⁻¹ , (α1 , β1)) | (g⁻¹ , (α2 , β2)) =
                                      f⁻¹ (f x)
                                    ≡⟨ β1 x ⟩
                                      x ∎)))
+
+infix 3 _○_
+_○_ : ∀ {ℓ} {ℓ'} {ℓ''} {A : Set ℓ} {B : Set ℓ'} {C : Set ℓ''} →
+      (f : B ≃ C) (g : A ≃ B) → A ≃ C
+g ○ f  = tran≃ f g
+
+infix 20 _⁻¹≃
+_⁻¹≃ : ∀ {ℓ} {ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A ≃ B) → B ≃ A
+_⁻¹≃ f = sym≃ f
