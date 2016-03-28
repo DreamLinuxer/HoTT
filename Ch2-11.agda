@@ -96,3 +96,25 @@ ap≡ {a = a} {a' = a'} f eqf | f⁻¹ , (α , β) =
                 ap id p
              ≡⟨ apid a a' p ⟩
                 p ∎)))
+
+--Lemma 2.11.2
+transport[x↦a≡x] : ∀ {ℓ} {A : Set ℓ} {x₁ x₂ : A} (a : A) (p : x₁ ≡ x₂) (q : a ≡ x₁) →
+                   transport (λ x → a ≡ x) p q ≡ q ▪ p
+transport[x↦a≡x] {ℓ} {A} {x₁} {x₂} a p q =
+                 ind≡ (λ x₁ x₂ p → (q : a ≡ x₁) → transport (λ x → a ≡ x) p q ≡ q ▪ p)
+                      (λ x₁ q → unit-right q )
+                      x₁ x₂ p q
+
+transport[x↦x≡a] : ∀ {ℓ} {A : Set ℓ} {x₁ x₂ : A} (a : A) (p : x₁ ≡ x₂) (q : x₁ ≡ a) →
+                   transport (λ x → x ≡ a) p q ≡ p ⁻¹ ▪ q
+transport[x↦x≡a] {ℓ} {A} {x₁} {x₂} a p q =
+                 ind≡ (λ x₁ x₂ p → (q : x₁ ≡ a) → transport (λ x → x ≡ a) p q ≡ p ⁻¹ ▪ q)
+                      (λ x₁ q → unit-left q)
+                      x₁ x₂ p q
+
+transport[x↦x≡x] : ∀ {ℓ} {A : Set ℓ} {x₁ x₂ : A} (a : A) (p : x₁ ≡ x₂) (q : x₁ ≡ x₁) →
+                   transport (λ x → x ≡ x) p q ≡ p ⁻¹ ▪ q ▪ p
+transport[x↦x≡x] {ℓ} {A} {x₁} {x₂} a p q =
+                 ind≡ (λ x₁ x₂ p → (q : x₁ ≡ x₁) → transport (λ x → x ≡ x) p q ≡ p ⁻¹ ▪ q ▪ p)
+                      (λ x₁ q → (unit-left q) ▪ unit-right (refl x₁ ⁻¹ ▪ q))
+                      x₁ x₂ p q
