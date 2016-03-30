@@ -155,5 +155,38 @@ transport[x↦x≡x]≃ : ∀ {ℓ} {A : Set ℓ} {a a' : A} (p : a ≡ a') (q :
 transport[x↦x≡x]≃ {ℓ} {A} {a} {a'} p q r =
                   ind≡ (λ a a' p → (q : a ≡ a) → (r : a' ≡ a')
                                  → (transport (λ x → x ≡ x) p q) ≡ r ≃ (q ▪ p ≡ p ▪ r))
-                       (λ a q r → (λ 𝒑 → {!(unit-right q) ⁻¹ ▪ ?!}) , {!!})
+                       (λ a q r →
+                          let f   = (λ 𝒑 → unit-right q ⁻¹ ▪ 𝒑 ▪ unit-left r)
+                              f⁻¹ = (λ 𝒒 → unit-right q ▪ 𝒒 ▪ unit-left r ⁻¹)
+                          in  f , qinv→isequiv
+                                  (f⁻¹ , ( (λ 𝒒 →  f (unit-right q ▪ 𝒒 ▪ unit-left r ⁻¹)
+                                                ≡⟨ ap (λ 𝒓 → f 𝒓) (assoc▪ (unit-right q) 𝒒 (unit-left r ⁻¹)) ⁻¹ ⟩
+                                                   f (unit-right q ▪ (𝒒 ▪ unit-left r ⁻¹))
+                                                ≡⟨ ap (λ 𝒓 → 𝒓 ▪ unit-left r) (assoc▪ (unit-right q ⁻¹) (unit-right q) (𝒒 ▪ unit-left r ⁻¹)) ⟩
+                                                   unit-right q ⁻¹ ▪ unit-right q ▪ (𝒒 ▪ unit-left r ⁻¹) ▪ unit-left r
+                                                ≡⟨ ap (λ 𝒓 → 𝒓 ▪ (𝒒 ▪ unit-left r ⁻¹) ▪ unit-left r) (p⁻¹▪p≡refly (unit-right q)) ⟩
+                                                   refl (q ▪ refl a) ▪ (𝒒 ▪ unit-left r ⁻¹) ▪ unit-left r
+                                                ≡⟨ ap (λ 𝒓 → 𝒓 ▪ unit-left r) (unit-left (𝒒 ▪ unit-left r ⁻¹) ⁻¹) ⟩
+                                                   𝒒 ▪ unit-left r ⁻¹ ▪ unit-left r
+                                                ≡⟨ assoc▪ 𝒒 (unit-left r ⁻¹) (unit-left r) ⁻¹ ⟩
+                                                   𝒒 ▪ (unit-left r ⁻¹ ▪ unit-left r)
+                                                ≡⟨ ap (λ 𝒓 → 𝒒 ▪ 𝒓) (p⁻¹▪p≡refly (unit-left r)) ⟩
+                                                   𝒒 ▪ refl (refl a ▪ r)
+                                                ≡⟨ unit-right 𝒒 ⁻¹ ⟩
+                                                   𝒒 ∎)
+                                         , (λ 𝒑 → f⁻¹ (unit-right q ⁻¹ ▪ 𝒑 ▪ unit-left r)
+                                               ≡⟨ ap (λ 𝒓 → f⁻¹ 𝒓) (assoc▪ (unit-right q ⁻¹) 𝒑 (unit-left r) ⁻¹) ⟩
+                                                  f⁻¹ (unit-right q ⁻¹ ▪ (𝒑 ▪ unit-left r))
+                                               ≡⟨ ap (λ 𝒓 → 𝒓 ▪ unit-left r ⁻¹) (assoc▪ (unit-right q) (unit-right q ⁻¹) (𝒑 ▪ unit-left r)) ⟩
+                                                  unit-right q ▪ unit-right q ⁻¹ ▪ (𝒑 ▪ unit-left r) ▪ unit-left r ⁻¹
+                                               ≡⟨ ap (λ 𝒓 → 𝒓 ▪ (𝒑 ▪ unit-left r) ▪ unit-left r ⁻¹) (p▪p⁻¹≡reflx (unit-right q)) ⟩
+                                                  refl q ▪ (𝒑 ▪ unit-left r) ▪ unit-left r ⁻¹
+                                               ≡⟨ ap (λ 𝒓 → 𝒓 ▪ unit-left r ⁻¹) (unit-left (𝒑 ▪ unit-left r) ⁻¹) ⟩
+                                                  𝒑 ▪ unit-left r ▪ unit-left r ⁻¹
+                                               ≡⟨ assoc▪ 𝒑 (unit-left r) (unit-left r ⁻¹) ⁻¹ ⟩
+                                                  𝒑 ▪ (unit-left r ▪ unit-left r ⁻¹)
+                                               ≡⟨ ap (λ 𝒓 → 𝒑 ▪ 𝒓) (p▪p⁻¹≡reflx (unit-left r)) ⟩
+                                                  𝒑 ▪ refl r
+                                               ≡⟨ unit-right 𝒑 ⁻¹ ⟩
+                                                  𝒑 ∎))))
                        a a' p q r
