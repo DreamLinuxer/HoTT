@@ -118,3 +118,42 @@ transport[x↦x≡x] {ℓ} {A} {x₁} {x₂} a p q =
                  ind≡ (λ x₁ x₂ p → (q : x₁ ≡ x₁) → transport (λ x → x ≡ x) p q ≡ p ⁻¹ ▪ q ▪ p)
                       (λ x₁ q → (unit-left q) ▪ unit-right (refl x₁ ⁻¹ ▪ q))
                       x₁ x₂ p q
+
+--Theorem 2.11.3
+transport[x↦fx≡gx] : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a a' : A} (f g : A → B) (p : a ≡ a') (q : f a ≡ g a) →
+                     transport (λ x → f x ≡ g x) p q ≡ (ap f p) ⁻¹ ▪ q ▪ ap g p
+transport[x↦fx≡gx] {ℓ} {ℓ'} {A} {B} {a} {a'} f g p q =
+                   ind≡ (λ a a' p → (q : f a ≡ g a)
+                                  → transport (λ x → f x ≡ g x) p q ≡ (ap f p) ⁻¹ ▪ q ▪ ap g p)
+                        (λ a q →  transport (λ x → f x ≡ g x) (refl a) q
+                               ≡⟨ refl q ⟩
+                                  q
+                               ≡⟨ unit-left q ⟩
+                                  ap f (refl a) ⁻¹ ▪ q
+                               ≡⟨ unit-right (ap f (refl a) ⁻¹ ▪ q) ⟩
+                                  ap f (refl a) ⁻¹ ▪ q ▪ ap g (refl a) ∎)
+                        a a' p q
+
+--Theorem 2.11.4
+transportd[x↦fx≡gx] : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {a a' : A} (f g : (x : A) → B x) (p : a ≡ a') (q : f a ≡ g a) →
+                     transport (λ x → f x ≡ g x) p q ≡ (apd f p) ⁻¹ ▪ ap (transport B p) q ▪ apd g p
+transportd[x↦fx≡gx] {ℓ} {ℓ'} {A} {B} {a} {a'} f g p q =
+                    ind≡ (λ a a' p → (q : f a ≡ g a)
+                                   → transport (λ x → f x ≡ g x) p q ≡ (apd f p) ⁻¹ ▪ ap (transport B p) q ▪ apd g p)
+                         (λ a q →  (transport (λ x → f x ≡ g x) (refl a) q)
+                                ≡⟨ (apid (f a) (g a) q) ⁻¹ ⟩
+                                   ap (transport B (refl a)) q
+                                ≡⟨ unit-left (ap (transport B (refl a)) q) ⟩
+                                   apd f (refl a) ⁻¹ ▪ ap (transport B (refl a)) q
+                                ≡⟨ unit-right (apd f (refl a) ⁻¹ ▪ ap (transport B (refl a)) q) ⟩
+                                   apd f (refl a) ⁻¹ ▪ ap (transport B (refl a)) q ▪ apd g (refl a) ∎)
+                         a a' p q
+
+--Theorem 2.11.5
+transport[x↦x≡x]≃ : ∀ {ℓ} {A : Set ℓ} {a a' : A} (p : a ≡ a') (q : a ≡ a) (r : a' ≡ a') →
+                    (transport (λ x → x ≡ x) p q) ≡ r ≃ (q ▪ p ≡ p ▪ r)
+transport[x↦x≡x]≃ {ℓ} {A} {a} {a'} p q r =
+                  ind≡ (λ a a' p → (q : a ≡ a) → (r : a' ≡ a')
+                                 → (transport (λ x → x ≡ x) p q) ≡ r ≃ (q ▪ p ≡ p ▪ r))
+                       (λ a q r → (λ 𝒑 → {!(unit-right q) ⁻¹ ▪ ?!}) , {!!})
+                       a a' p q r
