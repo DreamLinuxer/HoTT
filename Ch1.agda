@@ -1,5 +1,5 @@
 module Ch1 where
-open import Level using (_⊔_; suc; zero) public
+open import Level using (_⊔_; suc) public
 
 id : ∀ {ℓ} {A : Set ℓ} → A → A
 id a = a
@@ -82,12 +82,12 @@ Magma = Σ[ A ∈ Set ] (A → A → A)
 PointedMagma : Set₁
 PointedMagma = Σ[ A ∈ Set ] ((A → A → A) × A)
 
-data 𝟘 {ℓ} : Set ℓ where
+data 𝟘 : Set where
 
-rec𝟘 : ∀ {ℓ} (C : Set ℓ) → 𝟘 {ℓ} → C
+rec𝟘 : ∀ {ℓ} (C : Set ℓ) → 𝟘 → C
 rec𝟘 C ()
 
-ind𝟘 : ∀ {ℓ} (C : 𝟘 → Set ℓ) → (z : 𝟘 {ℓ}) → C z
+ind𝟘 : ∀ {ℓ} (C : 𝟘 → Set ℓ) → (z : 𝟘) → C z
 ind𝟘 C ()
 
 data _+_ {ℓ ℓ'} (A : Set ℓ) (B : Set ℓ') : Set (ℓ ⊔ ℓ') where
@@ -161,12 +161,12 @@ assocℕ = indℕ (λ i → (j k : ℕ) → add i (add j k) ≡ add (add i j) k)
               (λ i h j k → apℕsucc (h j k))
 
 ¬_ : ∀ {ℓ} (A : Set ℓ) → Set ℓ
-¬_ {ℓ} A = A → 𝟘 {ℓ}
+¬_ {ℓ} A = A → 𝟘
 
-tautology₁ : {A B : Set} → (A → 𝟘) × (B → 𝟘) → (A + B → 𝟘 {zero})
+tautology₁ : {A B : Set} → (A → 𝟘) × (B → 𝟘) → (A + B → 𝟘)
 tautology₁ (x , y) = rec+ 𝟘 x y
 
-tautology₂ : {A B : Set} → (A + B → 𝟘 {zero}) → (A → 𝟘) × (B → 𝟘)
+tautology₂ : {A B : Set} → (A + B → 𝟘) → (A → 𝟘) × (B → 𝟘)
 tautology₂ f = (λ x → f (inl x)) , (λ x → f (inr x))
 
 tautology₃ : {A : Set} {P Q : A → Set} → ((x : A) → P x × Q x) → ((x : A) → P x) × ((x : A) → Q x)
