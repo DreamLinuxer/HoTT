@@ -42,6 +42,15 @@ encode∘decode~id {a₀ = a₀} (inr b) c = rec𝟘 (encode (inr b) (decode (in
                , qinv→isequiv ((decode x) , ( encode∘decode~id x
                                             , decode∘encode~id x))
 
+𝟚≃𝟙+𝟙 : 𝟚 ≃ 𝟙 + 𝟙
+𝟚≃𝟙+𝟙 = (λ { 0₂ → inl ⊤ ; 1₂ → inr ⊤ })
+      , qinv→isequiv ( rec+ 𝟚 (λ _ → 0₂) (λ _ → 1₂)
+                     , ((λ {(inl ⊤) → refl (inl ⊤) ; (inr ⊤) → refl (inr ⊤)})
+                     ,  (λ { 0₂ → refl 0₂ ; 1₂ → refl 1₂ })))
+
+0₂≠1₂ : 0₂ ≠ 1₂
+0₂≠1₂ eq = {!!}
+
 transport[x→Ax+Bx]l : {X : Set ℓ} {A : X → Set ℓ'} {B : X → Set ℓ''} {x₁ x₂ : X} (p : x₁ ≡ x₂) (a : A x₁)
                     → transport (λ x → A x + B x ) p (inl a) ≡ inl (transport A p a)
 transport[x→Ax+Bx]l {X} {A} {B} {x₁} {x₂} p a =
