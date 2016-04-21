@@ -12,6 +12,7 @@ data _≡_ {ℓ} {A : Set ℓ} : (x y : A) → Set ℓ where
 swap : (A B C : Set) → (A → B → C) → (B → A → C)
 swap A B C g = λ b → λ a → g a b
 
+infix 5 _,_
 data Σ {ℓ ℓ'} (A : Set ℓ) (B : A → Set ℓ') : Set (ℓ ⊔ ℓ') where
   _,_ : (x : A) → B x → Σ A B
 

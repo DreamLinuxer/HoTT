@@ -67,7 +67,7 @@ assoc▪ {ℓ} {A} {x} {y} {z} {w} p q r =
 Ω² : {A : Set} {a : A} → Set
 Ω² {A} {a} = 2-path {A} {a} {a} {refl a} {refl a}
 
-infixr 2 _≡⟨_⟩_
+infixr 1 _≡⟨_⟩_
 _≡⟨_⟩_ : ∀ {ℓ} {A : Set ℓ} {y z : A} → (x : A) → x ≡ y → y ≡ z → x ≡ z
 x ≡⟨ α ⟩ β = α ▪ β
 
