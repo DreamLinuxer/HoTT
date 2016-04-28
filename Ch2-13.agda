@@ -36,4 +36,20 @@ module Natural where
                                     m n p
 
   encode∘decode~id : {m n : ℕ} → (c : code m n) → encode m n (decode m n c) ≡ c
-  encode∘decode~id {m} {n} c = {!!}
+  encode∘decode~id {zeroℕ} {zeroℕ} c = uniq𝟙 c ⁻¹
+  encode∘decode~id {succ m} {zeroℕ} c = rec𝟘 (encode (succ m) zeroℕ (rec𝟘 (succ m ≡ zeroℕ) c) ≡ c) c
+  encode∘decode~id {zeroℕ} {succ n} c = rec𝟘 (encode zeroℕ (succ n) (rec𝟘 (zeroℕ ≡ succ n) c) ≡ c) c
+  encode∘decode~id {succ m} {succ n} c =  encode (succ m) (succ n) (ap succ (decode m n c))
+                                       ≡⟨ refl _ ⟩
+                                          transport (λ n → code (succ m) n) (ap succ (decode m n c)) (r (succ m))
+                                       ≡⟨ transport[P∘f,p,u]≡transport[P,ap[f,p],u] succ ((λ n → code (succ m) n)) (decode m n c) (r m) ⁻¹ ⟩
+                                          transport (λ n → code (succ m) (succ n)) (decode m n c) (r m)
+                                       ≡⟨ refl _ ⟩
+                                          transport (λ n → code m n) (decode m n c) (r m)
+                                       ≡⟨ refl _ ⟩
+                                          encode m n (decode m n c)
+                                       ≡⟨ encode∘decode~id {m = m} {n = n} c ⟩
+                                          c ∎
+--2.13.2
+succ[m]≠zeroℕ : {m : ℕ} → succ m ≡ zeroℕ → 𝟘
+succ[m]≠zeroℕ {m} = Natural.encode (succ m) zeroℕ
