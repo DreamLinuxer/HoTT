@@ -1,3 +1,5 @@
+{-# OPTIONS --without-K #-}
+
 module Ch1 where
 open import Level using (_⊔_; suc) public
 
@@ -173,8 +175,9 @@ tautology₂ f = (λ x → f (inl x)) , (λ x → f (inr x))
 tautology₃ : {A : Set} {P Q : A → Set} → ((x : A) → P x × Q x) → ((x : A) → P x) × ((x : A) → Q x)
 tautology₃ p = (λ x → pr₁ (p x)) , (λ x → pr₂ (p x))
 
-Semigroup : ∀ {ℓ} → Set (suc ℓ)
-Semigroup {ℓ} = Σ[ A ∈ Set ℓ ] (Σ[ m ∈ (A → A → A) ] ((x y z : A) → m x (m y z) ≡ m (m x y) z))
+module Ch1Semigroup where
+  Semigroup : ∀ {ℓ} → Set _
+  Semigroup {ℓ} = Σ[ A ∈ Set ℓ ] (Σ[ m ∈ (A → A → A) ] ((x y z : A) → m x (m y z) ≡ m (m x y) z))
 
 indiscern≡ : ∀ {ℓ ℓ'} {A : Set ℓ} (C : A → Set ℓ') (x y : A) (p : x ≡ y) → C x → C y
 indiscern≡ C x .x (refl .x) = id
