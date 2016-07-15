@@ -18,3 +18,16 @@ open import Ch2-14 public
                      , (λ f →  (λ x → ((pr₁ ∘ f) x , (pr₂ ∘ f) x))
                             ≡⟨ funext (λ x → pair×≡ ((refl (pr₁ (f x))) , (refl (pr₂ (f x))))) ⟩
                                f ∎)))
+
+--2.15.4
+Π×→ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : X → Set ℓ''}
+    → ((x : X) → (A x × B x)) → ((x : X) → A x) × ((x : X) → B x)
+Π×→ f = (λ x → pr₁ (f x)) , (λ x → pr₂ (f x))
+
+--Theorem 2.15.5
+Π×→≃ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : X → Set ℓ''}
+     → isequiv (Π×→ {X = X} {A = A} {B = B})
+Π×→≃ = qinv→isequiv ( (λ {(g , h) → λ x → (g x , h x)})
+                    , ( {!!}
+                      , {!!}))
+
