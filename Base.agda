@@ -183,6 +183,34 @@ apd : ∀ {ℓ ℓ'} {A : Set ℓ} {P : A → Set ℓ'} (f : (x : A) → P x)
       {x y : A} (p : x ≡ y) → (p *) (f x) ≡ f y
 apd f (refl x) = refl (f x)
 
+--Lemma 2.3.5
+transportconst : ∀ {ℓ} {ℓ'} {A : Set ℓ} (B : Set ℓ') {x y : A} (p : x ≡ y) →
+                 (b : B) → transport (λ x → B) p b ≡ b
+transportconst {ℓ} {ℓ'} {A} B {x} {.x} (refl .x) b = refl b
+
+--Lemma 2.3.8
+apd≡transportconst▪ap : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) {x y : A} (p : x ≡ y) →
+                        apd f p ≡ transportconst B p (f x) ▪ ap f p
+apd≡transportconst▪ap {ℓ} {ℓ'} {A} {B} f {x} {.x} (refl .x) = refl (refl (f x))
+
+--Lemma 2.3.9
+q*[p*[u]]≡[[p▪q]*][u] : ∀ {ℓ ℓ'} {A : Set ℓ} (P : A → Set ℓ') {x y z : A} (p : x ≡ y) (q : y ≡ z) →
+                        (u : P x) → (q *) (_* {P = P} p u) ≡ ((p ▪ q) *) u
+q*[p*[u]]≡[[p▪q]*][u] {ℓ} {ℓ'} {A} P {x} {.x} {.x} (refl .x) (refl .x) u = refl u
+
+--Lemma 2.3.10
+transport[P∘f,p,u]≡transport[P,ap[f,p],u] : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (P : B → Set ℓ'')
+                                            {x y : A} (p : x ≡ y) (u : P (f x)) →
+                                            transport (P ∘ f) p u ≡ transport P (ap f p) u
+transport[P∘f,p,u]≡transport[P,ap[f,p],u] {ℓ} {ℓ'} {A} {B} f P {x} {.x} (refl .x) u = refl u
+
+--Lemma 2.3.11
+transport[Q,p,f[x,u]]≡f[y,transport[P,p,u]] : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} (P : A → Set ℓ') (Q : A → Set ℓ'') →
+                                              (f : (x : A) → P x → Q x) →
+                                              {x y : A} (p : x ≡ y) (u : P x) →
+                                              transport Q p (f x u) ≡ f y (transport P p u)
+transport[Q,p,f[x,u]]≡f[y,transport[P,p,u]] {ℓ} {ℓ'} {ℓ''} {A} P Q f {x} {.x} (refl .x) u = refl (f x u)
+
 infix 2 _~_
 
 _~_ : ∀ {ℓ ℓ'} {A : Set ℓ} {P : A → Set ℓ'} (f g : (x : A) → P x) → Set (ℓ ⊔ ℓ')
@@ -289,3 +317,63 @@ _⁻¹≃ f = sym≃ f
 uniq𝟙 : (u : 𝟙) → u ≡ ⊤
 uniq𝟙 ⊤ = refl ⊤
 
+--2.9
+--2.9
+happly : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
+         f ≡ g → ((x : A) → f x ≡ g x)
+happly {ℓ} {ℓ'} {A} {B} {f} {g} p =
+       ind≡ (λ f g p → (x : A) → f x ≡ g x)
+            (λ f x → refl (f x))
+            f g p
+
+--Axiom 2.9.3
+postulate
+  funextentionality : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
+                      isequiv (happly {f = f} {g = g})
+
+funext : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
+         ((x : A) → f x ≡ g x) → f ≡ g
+funext {ℓ} {ℓ'} {A} {B} {f} {g} with (isequiv→qinv (funextentionality {f = f} {g = g}))
+funext | mkqinv happly⁻¹ α β = happly⁻¹
+
+--2.13
+
+ℕcode : ℕ → ℕ → Set
+ℕcode zero zero = 𝟙
+ℕcode (succ m) zero = 𝟘
+ℕcode zero (succ n) = 𝟘
+ℕcode (succ m) (succ n) = ℕcode m n
+
+r : (n : ℕ) → ℕcode n n
+r zero = ⊤
+r (succ n) = r n
+
+--Theorem 2.13.1
+ℕencode : {m n : ℕ} → m ≡ n → ℕcode m n
+ℕencode {m} {n} p = transport (λ n → ℕcode m n) p (r m)
+
+ℕdecode : {m n : ℕ} → ℕcode m n → m ≡ n
+ℕdecode {zero} {zero} x = refl zero
+ℕdecode {succ m} {zero} x = rec𝟘 (succ m ≡ zero) x
+ℕdecode {zero} {succ n} x = rec𝟘 (zero ≡ succ n) x
+ℕdecode {succ m} {succ n} x = ap succ (ℕdecode x)
+
+ℕdecode∘ℕencode~id : {m n : ℕ} → (p : m ≡ n) → ℕdecode (ℕencode p) ≡ p
+ℕdecode∘ℕencode~id {zero} (refl .zero) = refl (refl zero)
+ℕdecode∘ℕencode~id {succ m} (refl .(succ m)) = ap (λ x → ap succ x) (ℕdecode∘ℕencode~id (refl m))
+
+ℕencode∘ℕdecode~id : {m n : ℕ} → (c : ℕcode m n) → ℕencode (ℕdecode {m = m} c) ≡ c
+ℕencode∘ℕdecode~id {zero} {zero} ⊤ = refl ⊤
+ℕencode∘ℕdecode~id {zero} {succ n} ()
+ℕencode∘ℕdecode~id {succ m} {zero} ()
+ℕencode∘ℕdecode~id {succ m} {succ n} c =  transport (ℕcode (succ m)) (ap succ (ℕdecode c)) (r m)
+                                       ≡⟨ transport[P∘f,p,u]≡transport[P,ap[f,p],u] succ (ℕcode (succ m)) (ℕdecode c) (r m) ⁻¹ ⟩
+                                          transport (ℕcode (succ m) ∘ succ) (ℕdecode c) (r m)
+                                       ≡⟨ ℕencode∘ℕdecode~id {m = m} c ⟩
+                                          c ∎
+
+ℕ≃ : {m n : ℕ} → (m ≡ n) ≃ ℕcode m n
+ℕ≃ {m} {n} = ℕencode
+           , qinv→isequiv (mkqinv ℕdecode
+                                  (ℕencode∘ℕdecode~id {m = m})
+                                  ℕdecode∘ℕencode~id)
