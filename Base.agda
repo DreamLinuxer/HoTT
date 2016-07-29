@@ -299,6 +299,35 @@ infix 20 _⁻¹≃
 _⁻¹≃ : ∀ {ℓ} {ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A ≃ B) → B ≃ A
 _⁻¹≃ f = sym≃ f
 
+--2.6
+pair×≡⁻¹ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {x y : A × B} →
+           (x ≡ y) → (pr₁ x ≡ pr₁ y) × (pr₂ x ≡ pr₂ y)
+pair×≡⁻¹ p = (ap pr₁ p) , (ap pr₂ p)
+
+pair×≡' : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a a' : A} {b b' : B} →
+          (a ≡ a') × (b ≡ b') → (a , b) ≡ (a' , b')
+pair×≡' {ℓ} {ℓ'} {A} {B} {a} {.a} {b} {.b} (refl .a , refl .b) = refl (a , b)
+
+pair×≡ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {x y : A × B}
+       → (pr₁ x ≡ pr₁ y) × (pr₂ x ≡ pr₂ y) → (x ≡ y)
+pair×≡ {ℓ} {ℓ'} {A} {B} {a , b} {a' , b'} = pair×≡' {ℓ} {ℓ'} {A} {B} {a} {a'} {b} {b'}
+
+--Theorem 2.6.2
+pair×≡⁻¹∘pair×≡~id : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {x y : A × B}
+                   → (pair×≡⁻¹ {A = A} {B = B} {x = x} {y = y}) ∘ pair×≡ ~ id
+pair×≡⁻¹∘pair×≡~id {y = y₁ , y₂} (refl .y₁ , refl .y₂) = refl (refl y₁ , refl y₂)
+
+pair×≡∘pair×≡⁻¹~id : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {x y : A × B}
+                   → (pair×≡ {A = A} {B = B} {x = x} {y = y}) ∘ pair×≡⁻¹ ~ id
+pair×≡∘pair×≡⁻¹~id {y = y₁ , y₂} (refl .(y₁ , y₂)) = refl (refl (y₁ , y₂))
+
+×≃ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {x y : A × B}
+   → isequiv (pair×≡⁻¹ {ℓ} {ℓ'} {A} {B} {x} {y})
+×≃ {ℓ} {ℓ'} {A} {B} {x} {y} = qinv→isequiv (mkqinv pair×≡ pair×≡⁻¹∘pair×≡~id pair×≡∘pair×≡⁻¹~id)
+
+uniq×₁ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → (z : A × B) → ((pr₁ z , pr₂ z) ≡ z)
+uniq×₁ z = pair×≡ ((refl (pr₁ z)) , (refl (pr₂ z)))
+
 --2.8
 𝟙≡⁻¹ : {x y : 𝟙} → (x ≡ y) → 𝟙
 𝟙≡⁻¹ _ = ⊤

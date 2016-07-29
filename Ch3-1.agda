@@ -1,5 +1,6 @@
 module Ch3-1 where
 open import Base
+open Σ
 
 -- Definition 3.1.1
 isSet : ∀ {ℓ} (A : Set ℓ) → Set _
@@ -30,3 +31,14 @@ isSet A = {x y : A} → (p q : x ≡ y) → p ≡ q
        uniq {zero} {succ n} {()}
        uniq {succ m} {zero} {()}
        uniq {succ m} {succ n} {u} {v} = uniq {m = m}
+
+-- Example 3.1.5
+×isSet : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'}
+       → {AisSet : isSet A} {BisSet : isSet B} → isSet (A × B)
+×isSet {ℓ} {ℓ'} {A} {B} {AisSet} {BisSet} {x} {y} p q with ×≃ {A = A} {B = B} {x = x} {y = y}
+×isSet {ℓ} {ℓ'} {A} {B} {AisSet} {BisSet} {x} {y} p q | mkisequiv g α h β =
+       p ≡⟨ β p ⁻¹ ⟩
+       h (ap pr₁ p , ap pr₂ p) ≡⟨ ap h (pair×≡ ( (AisSet (ap pr₁ p) (ap pr₁ q))
+                                               , (BisSet (ap pr₂ p) (ap pr₂ q)))) ⟩
+       h (ap pr₁ q , ap pr₂ q) ≡⟨ β q ⟩
+       q ∎
