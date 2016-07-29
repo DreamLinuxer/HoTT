@@ -42,3 +42,62 @@ isSet A = {x y : A} → (p q : x ≡ y) → p ≡ q
                                                , (BisSet (ap pr₂ p) (ap pr₂ q)))) ⟩
        h (ap pr₁ q , ap pr₂ q) ≡⟨ β q ⟩
        q ∎
+
+-- Example 3.1.6
+ΠisSet : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {BxisSet : (x : A) → isSet (B x)}
+       → isSet ((x : A) → B x)
+ΠisSet {ℓ} {ℓ'} {A} {B} {BxisSet} {f} {g} p q with (isequiv→qinv (funextentionality {f = f} {g = g}))
+ΠisSet {ℓ} {ℓ'} {A} {B} {BxisSet} {f} {g} p q | mkqinv happly⁻¹ α β =
+       p ≡⟨ β p ⁻¹ ⟩
+       happly⁻¹ (λ x → happly p x) ≡⟨ ap happly⁻¹ (funext (λ x → BxisSet x (happly p x) (happly q x))) ⟩
+       happly⁻¹ (λ x → happly q x) ≡⟨ β q ⟩
+       q ∎
+
+-- Definition 3.1.7
+1-type : ∀ {ℓ} (A : Set ℓ) → Set _
+1-type A = {x y : A} {p q : x ≡ y} (r s : p ≡ q) → r ≡ s
+
+-- Lemma 3.1.8
+isSet→1-type : ∀ {ℓ} {A : Set ℓ} → isSet A → 1-type A
+isSet→1-type AisSet {x} {y} {p} {q} r s =
+             h r ▪ h s ⁻¹
+             where
+             g : (p' : x ≡ y) → p ≡ p'
+             g p' = AisSet p p'
+             
+             h : (r : p ≡ q) → r ≡ g p ⁻¹ ▪ (g q)
+             h r =  r
+                 ≡⟨ unit-left r ⟩
+                    refl p ▪ r
+                 ≡⟨ ap (λ p₁ → p₁ ▪ r) (p⁻¹▪p≡refly (g p) ⁻¹) ⟩
+                    (g p ⁻¹ ▪ g p) ▪ r
+                 ≡⟨ assoc▪ (g p ⁻¹) (g p) r ⁻¹ ⟩
+                    g p ⁻¹ ▪ (g p ▪ r)
+                 ≡⟨ ap (λ p₁ → g p ⁻¹ ▪ p₁) (transport[x↦a≡x] p r (g p) ⁻¹) ⟩
+                    g p ⁻¹ ▪ ((r *) (g p))
+                 ≡⟨ ap (λ p₁ → g p ⁻¹ ▪ p₁) (apd g r) ⟩
+                    g p ⁻¹ ▪ (g q) ∎
+
+-- Example 3.1.9
+¬UisSet : ¬ (isSet Set)
+¬UisSet UisSet = 0₂≠1₂ (ap (λ f → f 0₂) (f≡id ⁻¹))
+                 where
+                 f : 𝟚 → 𝟚
+                 f 0₂ = 1₂
+                 f 1₂ = 0₂                 
+
+                 f≃ : isequiv f
+                 f≃ = mkisequiv f (ind𝟚 (λ b → f (f b) ≡ b) (refl 0₂) (refl 1₂))
+                                f (ind𝟚 (λ b → f (f b) ≡ b) (refl 0₂) (refl 1₂))                                
+
+                 f̄≃≡id≃ : (f , f≃) ≡ (idtoeqv (refl 𝟚))
+                 f̄≃≡id≃ with isequiv→qinv (univalence {A = 𝟚} {B = 𝟚})
+                 f̄≃≡id≃ | mkqinv idtoeqv⁻¹ α β =
+                        (f , f≃) ≡⟨ α (f , f≃) ⁻¹ ⟩
+                        (idtoeqv (idtoeqv⁻¹ (f , f≃))) ≡⟨ ap idtoeqv (UisSet (idtoeqv⁻¹ (f , f≃))
+                                                                             (idtoeqv⁻¹ (idtoeqv (refl 𝟚)))) ⟩
+                        (idtoeqv (idtoeqv⁻¹ (idtoeqv (refl 𝟚)))) ≡⟨ α (idtoeqv (refl 𝟚)) ⟩
+                        idtoeqv (refl 𝟚) ∎
+
+                 f≡id : f ≡ id
+                 f≡id = ap pr₁ f̄≃≡id≃

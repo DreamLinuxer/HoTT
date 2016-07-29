@@ -1,7 +1,7 @@
 {-# OPTIONS --without-K #-}
 
 module Base where
-open import Level using (_⊔_)
+open import Level using (_⊔_; Lift)
 
 id : ∀ {ℓ} {A : Set ℓ} → A → A
 id a = a
@@ -60,6 +60,18 @@ rec𝟘 C ()
 
 ind𝟘 : ∀ {ℓ} (C : 𝟘 → Set ℓ) → (z : 𝟘) → C z
 ind𝟘 C ()
+
+data 𝟚 : Set where
+  0₂ : 𝟚
+  1₂ : 𝟚
+
+rec𝟚 : ∀ {ℓ} (C : Set ℓ) → C → C → 𝟚 → C
+rec𝟚 C c₀ c₁ 0₂ = c₀
+rec𝟚 C c₀ c₁ 1₂ = c₁
+
+ind𝟚 : ∀ {ℓ} (C : 𝟚 → Set ℓ) → C 0₂ → C 1₂ → (x : 𝟚) → C x
+ind𝟚 C c₀ c₁ 0₂ = c₀
+ind𝟚 C c₀ c₁ 1₂ = c₁
 
 data _+_ {a b} (A : Set a) (B : Set b) : Set (a ⊔ b) where
   inl : (x : A) → A + B
@@ -347,13 +359,10 @@ uniq𝟙 : (u : 𝟙) → u ≡ ⊤
 uniq𝟙 ⊤ = refl ⊤
 
 --2.9
---2.9
+
 happly : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
          f ≡ g → ((x : A) → f x ≡ g x)
-happly {ℓ} {ℓ'} {A} {B} {f} {g} p =
-       ind≡ (λ f g p → (x : A) → f x ≡ g x)
-            (λ f x → refl (f x))
-            f g p
+happly {ℓ} {ℓ'} {A} {B} {f} {.f} (refl .f) x = refl (f x)
 
 --Axiom 2.9.3
 postulate
@@ -365,6 +374,76 @@ funext : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B 
 funext {ℓ} {ℓ'} {A} {B} {f} {g} with (isequiv→qinv (funextentionality {f = f} {g = g}))
 funext | mkqinv happly⁻¹ α β = happly⁻¹
 
+--2.10
+--Lemma 2.10.1
+--Lemma 2.10.1
+idtoeqv : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B
+idtoeqv {ℓ} {A} {B} p = (p *) , ind≡ (λ A B p → isequiv (p *))
+                                     (λ A → qinv→isequiv (mkqinv id refl refl))
+                                     A B p
+
+--Axiom 2.10.3
+postulate
+  univalence : ∀ {ℓ} {A B : Set ℓ} → isequiv (idtoeqv {A = A} {B = B})
+
+ua : ∀ {ℓ} {A B : Set ℓ} → (A ≃ B) → (A ≡ B)
+ua {ℓ} {A} {B} with isequiv→qinv (univalence {A = A} {B = B})
+ua | mkqinv idtoeqv⁻¹ α β = idtoeqv⁻¹
+
+--2.11
+
+
+--Lemma 2.11.2
+transport[x↦a≡x] : ∀ {ℓ} {A : Set ℓ} {x₁ x₂ : A} (a : A) (p : x₁ ≡ x₂) (q : a ≡ x₁) →
+                   transport (λ x → a ≡ x) p q ≡ q ▪ p
+transport[x↦a≡x] {ℓ} {A} {x} {.x} a (refl .x) q = unit-right q
+
+transport[x↦x≡a] : ∀ {ℓ} {A : Set ℓ} {x₁ x₂ : A} (a : A) (p : x₁ ≡ x₂) (q : x₁ ≡ a) →
+                   transport (λ x → x ≡ a) p q ≡ p ⁻¹ ▪ q
+transport[x↦x≡a] {ℓ} {A} {x} {.x} a (refl .x) q = unit-left q
+
+transport[x↦x≡x] : ∀ {ℓ} {A : Set ℓ} {x₁ x₂ : A} (a : A) (p : x₁ ≡ x₂) (q : x₁ ≡ x₁) →
+                   transport (λ x → x ≡ x) p q ≡ p ⁻¹ ▪ q ▪ p
+transport[x↦x≡x] {ℓ} {A} {x} {.x} a (refl .x) q = (unit-left q) ▪ unit-right (refl x ⁻¹ ▪ q)
+
+--2.12
++code : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a₀ : A} → A + B → Set _
++code {a₀ = a₀} (inl a) = a₀ ≡ a
++code {a₀ = a₀} (inr b) = Lift 𝟘
+
+--Theorem 2.12.5
++encode : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a₀ : A} (x : A + B) (p : inl a₀ ≡ x)
+        → +code {a₀ = a₀} x
++encode {ℓ} {ℓ'} {A} {B} {a₀} x p = transport +code p (refl a₀)
+
++decode : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a₀ : A} (x : A + B) (c : +code {a₀ = a₀} x)
+        → inl a₀ ≡ x
++decode {a₀ = a₀} (inl a) c = ap inl c
++decode {a₀ = a₀} (inr b) c = rec𝟘 (inl a₀ ≡ inr b) (Level.lower c)
+
++decode∘+encode~id : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a₀ : A} (x : A + B) (p : inl a₀ ≡ x)
+                 → +decode x (+encode x p) ≡ p
++decode∘+encode~id {A = A} {a₀ = a₀} x p =
+                   ind≡' (inl a₀) (λ x₁ p₁ → +decode x₁ (+encode x₁ p₁) ≡ p₁)
+                         (refl (refl (inl a₀))) x p
+
++encode∘+decode~id : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a₀ : A} (x : A + B) (c : +code {a₀ = a₀} x)
+                 → +encode x (+decode x c) ≡ c
++encode∘+decode~id (inl a₀) (refl .a₀) = refl (refl a₀)
++encode∘+decode~id (inr b) (Lift.lift ())
+
+≃+ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a₀ : A} (x : A + B) → (inl a₀) ≡ x ≃ +code x
+≃+ {a₀ = a₀} x = (+encode x) , qinv→isequiv (mkqinv (+decode x) (+encode∘+decode~id x) (+decode∘+encode~id x))
+
+𝟚≃𝟙+𝟙 : 𝟚 ≃ 𝟙 + 𝟙
+𝟚≃𝟙+𝟙 = (λ { 0₂ → inl ⊤ ; 1₂ → inr ⊤ })
+      , qinv→isequiv (mkqinv (λ {(inl ⊤) → 0₂ ; (inr ⊤) → 1₂})
+                             (λ {(inl ⊤) → refl (inl ⊤) ; (inr ⊤) → refl (inr ⊤)})
+                             (λ { 0₂ → refl 0₂ ; 1₂ → refl 1₂ }))
+
+0₂≠1₂ : 0₂ ≠ 1₂
+0₂≠1₂ eq = Level.lower (+encode (inr ⊤) (ap (λ { 0₂ → inl ⊤ ; 1₂ → inr ⊤ }) eq))
+
 --2.13
 
 ℕcode : ℕ → ℕ → Set
@@ -373,13 +452,13 @@ funext | mkqinv happly⁻¹ α β = happly⁻¹
 ℕcode zero (succ n) = 𝟘
 ℕcode (succ m) (succ n) = ℕcode m n
 
-r : (n : ℕ) → ℕcode n n
-r zero = ⊤
-r (succ n) = r n
+ℕr : (n : ℕ) → ℕcode n n
+ℕr zero = ⊤
+ℕr (succ n) = ℕr n
 
 --Theorem 2.13.1
 ℕencode : {m n : ℕ} → m ≡ n → ℕcode m n
-ℕencode {m} {n} p = transport (λ n → ℕcode m n) p (r m)
+ℕencode {m} {n} p = transport (λ n → ℕcode m n) p (ℕr m)
 
 ℕdecode : {m n : ℕ} → ℕcode m n → m ≡ n
 ℕdecode {zero} {zero} x = refl zero
@@ -395,9 +474,9 @@ r (succ n) = r n
 ℕencode∘ℕdecode~id {zero} {zero} ⊤ = refl ⊤
 ℕencode∘ℕdecode~id {zero} {succ n} ()
 ℕencode∘ℕdecode~id {succ m} {zero} ()
-ℕencode∘ℕdecode~id {succ m} {succ n} c =  transport (ℕcode (succ m)) (ap succ (ℕdecode c)) (r m)
-                                       ≡⟨ transport[P∘f,p,u]≡transport[P,ap[f,p],u] succ (ℕcode (succ m)) (ℕdecode c) (r m) ⁻¹ ⟩
-                                          transport (ℕcode (succ m) ∘ succ) (ℕdecode c) (r m)
+ℕencode∘ℕdecode~id {succ m} {succ n} c =  transport (ℕcode (succ m)) (ap succ (ℕdecode c)) (ℕr m)
+                                       ≡⟨ transport[P∘f,p,u]≡transport[P,ap[f,p],u] succ (ℕcode (succ m)) (ℕdecode c) (ℕr m) ⁻¹ ⟩
+                                          transport (ℕcode (succ m) ∘ succ) (ℕdecode c) (ℕr m)
                                        ≡⟨ ℕencode∘ℕdecode~id {m = m} c ⟩
                                           c ∎
 
