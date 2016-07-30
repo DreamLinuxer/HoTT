@@ -1,6 +1,5 @@
 module Ch3-1 where
 open import Base
-open Σ
 
 -- Definition 3.1.1
 isSet : ∀ {ℓ} (A : Set ℓ) → Set _
@@ -9,7 +8,7 @@ isSet A = {x y : A} → (p q : x ≡ y) → p ≡ q
 -- Example 3.1.2
 𝟙isSet : isSet 𝟙
 𝟙isSet {x} {y} p q with 𝟙≃ {x} {y}
-𝟙isSet {x} {y} p q | f , mkisequiv g α h β =
+𝟙isSet {x} {y} p q | f , (g , α) , (h , β) =
        p       ≡⟨ β p ⁻¹ ⟩
        h (f p) ≡⟨ ap h (uniq𝟙 (f p)) ⟩
        h ⊤     ≡⟨ ap h (uniq𝟙 (f q) ⁻¹) ⟩
@@ -23,20 +22,20 @@ isSet A = {x y : A} → (p q : x ≡ y) → p ≡ q
 -- Example 3.1.4
 ℕisSet : isSet ℕ
 ℕisSet {m} {n} p q with ℕ≃ {m} {n}
-ℕisSet {m} {n} p q | f , mkisequiv g α h β =
+ℕisSet {m} {n} p q | f , (g , α) , (h , β) =
        β p ⁻¹ ▪ ((ap h (uniq {m = m})) ▪ β q)
        where
        uniq : {m n : ℕ} {u v : ℕcode m n} → u ≡ v
-       uniq {zero} {zero} {u} {v} = uniq𝟙 u ▪ uniq𝟙 v ⁻¹
-       uniq {zero} {succ n} {()}
-       uniq {succ m} {zero} {()}
+       uniq {zeroℕ} {zeroℕ} {u} {v} = uniq𝟙 u ▪ uniq𝟙 v ⁻¹
+       uniq {zeroℕ} {succ n} {()}
+       uniq {succ m} {zeroℕ} {()}
        uniq {succ m} {succ n} {u} {v} = uniq {m = m}
 
 -- Example 3.1.5
 ×isSet : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'}
        → {AisSet : isSet A} {BisSet : isSet B} → isSet (A × B)
 ×isSet {ℓ} {ℓ'} {A} {B} {AisSet} {BisSet} {x} {y} p q with ×≃ {A = A} {B = B} {x = x} {y = y}
-×isSet {ℓ} {ℓ'} {A} {B} {AisSet} {BisSet} {x} {y} p q | mkisequiv g α h β =
+×isSet {ℓ} {ℓ'} {A} {B} {AisSet} {BisSet} {x} {y} p q | (g , α) , (h , β) =
        p ≡⟨ β p ⁻¹ ⟩
        h (ap pr₁ p , ap pr₂ p) ≡⟨ ap h (pair×≡ ( (AisSet (ap pr₁ p) (ap pr₁ q))
                                                , (BisSet (ap pr₂ p) (ap pr₂ q)))) ⟩
@@ -47,7 +46,7 @@ isSet A = {x y : A} → (p q : x ≡ y) → p ≡ q
 ΠisSet : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {BxisSet : (x : A) → isSet (B x)}
        → isSet ((x : A) → B x)
 ΠisSet {ℓ} {ℓ'} {A} {B} {BxisSet} {f} {g} p q with (isequiv→qinv (funextentionality {f = f} {g = g}))
-ΠisSet {ℓ} {ℓ'} {A} {B} {BxisSet} {f} {g} p q | mkqinv happly⁻¹ α β =
+ΠisSet {ℓ} {ℓ'} {A} {B} {BxisSet} {f} {g} p q | happly⁻¹ , α , β =
        p ≡⟨ β p ⁻¹ ⟩
        happly⁻¹ (λ x → happly p x) ≡⟨ ap happly⁻¹ (funext (λ x → BxisSet x (happly p x) (happly q x))) ⟩
        happly⁻¹ (λ x → happly q x) ≡⟨ β q ⟩
@@ -87,12 +86,12 @@ isSet→1-type AisSet {x} {y} {p} {q} r s =
                  f 1₂ = 0₂                 
 
                  f≃ : isequiv f
-                 f≃ = mkisequiv f (ind𝟚 (λ b → f (f b) ≡ b) (refl 0₂) (refl 1₂))
-                                f (ind𝟚 (λ b → f (f b) ≡ b) (refl 0₂) (refl 1₂))                                
+                 f≃ = (f , (ind𝟚 (λ b → f (f b) ≡ b) (refl 0₂) (refl 1₂)))
+                    , (f , (ind𝟚 (λ b → f (f b) ≡ b) (refl 0₂) (refl 1₂)))
 
-                 f̄≃≡id≃ : (f , f≃) ≡ (idtoeqv (refl 𝟚))
-                 f̄≃≡id≃ with isequiv→qinv (univalence {A = 𝟚} {B = 𝟚})
-                 f̄≃≡id≃ | mkqinv idtoeqv⁻¹ α β =
+                 f≃≡id≃ : (f , f≃) ≡ (idtoeqv (refl 𝟚))
+                 f≃≡id≃ with isequiv→qinv (univalence {A = 𝟚} {B = 𝟚})
+                 f≃≡id≃ | idtoeqv⁻¹ , α , β =
                         (f , f≃) ≡⟨ α (f , f≃) ⁻¹ ⟩
                         (idtoeqv (idtoeqv⁻¹ (f , f≃))) ≡⟨ ap idtoeqv (UisSet (idtoeqv⁻¹ (f , f≃))
                                                                              (idtoeqv⁻¹ (idtoeqv (refl 𝟚)))) ⟩
@@ -100,4 +99,4 @@ isSet→1-type AisSet {x} {y} {p} {q} r s =
                         idtoeqv (refl 𝟚) ∎
 
                  f≡id : f ≡ id
-                 f≡id = ap pr₁ f̄≃≡id≃
+                 f≡id = ap pr₁ f≃≡id≃
