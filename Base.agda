@@ -1,8 +1,123 @@
 {-# OPTIONS --without-K #-}
 
 module Base where
-open import Ch1 public
-import Level
+open import Level using (_⊔_; Lift; lower)
+
+id : ∀ {ℓ} {A : Set ℓ} → A → A
+id a = a
+
+infix 4 _≡_
+data _≡_ {ℓ} {A : Set ℓ} : (x y : A) → Set ℓ where
+  refl : (x : A) → x ≡ x
+
+infixr 5 _,_
+data Σ {ℓ ℓ'} (A : Set ℓ) (B : A → Set ℓ') : Set (ℓ ⊔ ℓ') where
+  _,_ : (x : A) → B x → Σ A B
+
+infix 2 Σ-syntax
+open Σ
+
+Σ-syntax : ∀ {a b} (A : Set a) → (A → Set b) → Set (a ⊔ b)
+Σ-syntax = Σ
+
+syntax Σ-syntax A (λ x → B) = Σ[ x ∈ A ] B
+
+pr₁ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} → Σ A B → A
+pr₁ (a , b) = a
+
+pr₂ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} → (p : Σ A B) → B (pr₁ p)
+pr₂ (a , b) = b
+
+_×_ : ∀ {a b} (A : Set a) (B : Set b) → Set (a ⊔ b)
+A × B = Σ[ x ∈ A ] B
+
+recΣ : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : A → Set ℓ'} → (C : Set ℓ'') →
+       (g : (a : A) (b : B a) → C) → Σ A B → C
+recΣ C g (a , b) = g a b
+
+indΣ : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : A → Set ℓ'} → (C : Σ A B → Set ℓ'') →
+       (g : (a : A) (b : B a) → C (a , b)) → (p : Σ A B) → C p
+indΣ C g (a , b) = g a b
+
+rec× : ∀ {α β γ} {A : Set α} {B : Set β} (C : Set γ) →
+       (A → B → C) → A × B → C
+rec× C g (a , b)= g a b
+
+ind× : ∀ {α β γ} {A : Set α} {B : Set β} (C : A × B → Set γ) →
+       ((x : A) (y : B) → C (x , y)) → (x : A × B) → C x
+ind× C g (a , b) = g a b
+
+data 𝟙 : Set where
+  ⊤ : 𝟙
+
+rec𝟙 : ∀ {ℓ} (C : Set ℓ) → C → 𝟙 → C
+rec𝟙 C c ⊤ = c
+
+ind𝟙 : ∀ {ℓ} (C : 𝟙 → Set ℓ) → C ⊤ → ((x : 𝟙) → C x)
+ind𝟙 C c ⊤ = c
+
+data 𝟘 : Set where
+
+rec𝟘 : ∀ {ℓ} (C : Set ℓ) → 𝟘 → C
+rec𝟘 C ()
+
+ind𝟘 : ∀ {ℓ} (C : 𝟘 → Set ℓ) → (z : 𝟘) → C z
+ind𝟘 C ()
+
+data 𝟚 : Set where
+  0₂ : 𝟚
+  1₂ : 𝟚
+
+rec𝟚 : ∀ {ℓ} (C : Set ℓ) → C → C → 𝟚 → C
+rec𝟚 C c₀ c₁ 0₂ = c₀
+rec𝟚 C c₀ c₁ 1₂ = c₁
+
+ind𝟚 : ∀ {ℓ} (C : 𝟚 → Set ℓ) → C 0₂ → C 1₂ → (x : 𝟚) → C x
+ind𝟚 C c₀ c₁ 0₂ = c₀
+ind𝟚 C c₀ c₁ 1₂ = c₁
+
+data _+_ {a b} (A : Set a) (B : Set b) : Set (a ⊔ b) where
+  inl : (x : A) → A + B
+  inr : (y : B) → A + B
+
+rec+ : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : Set ℓ'} (C : Set ℓ'') →
+       (A → C) → (B → C) → A + B → C
+rec+ C g₀ g₁ (inl a) = g₀ a
+rec+ C g₀ g₁ (inr b) = g₁ b
+
+ind+ : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : Set ℓ'} (C : A + B → Set ℓ'') →
+       ((a : A) → C (inl a)) → ((b : B) → C (inr b)) → (x : A + B) → C x
+ind+ C g₀ g₁ (inl a) = g₀ a
+ind+ C g₀ g₁ (inr b) = g₁ b
+
+data ℕ : Set where
+  zero : ℕ
+  succ  : ℕ → ℕ
+{-# BUILTIN NATURAL ℕ #-}
+
+recℕ : ∀ {ℓ} (C : Set ℓ) → C → (ℕ → C → C) → ℕ → C
+recℕ C c₀ cs zero = c₀
+recℕ C c₀ cs (succ n) = cs n (recℕ C c₀ cs n)
+
+indℕ : ∀ {ℓ} (C : ℕ → Set ℓ) → C zero → ((n : ℕ) → C n → C (succ n)) → (n : ℕ) → C n
+indℕ C c₀ cs zero = c₀
+indℕ C c₀ cs (succ n) = cs n (indℕ C c₀ cs n)
+
+¬_ : ∀ {ℓ} (A : Set ℓ) → Set ℓ
+¬_ {ℓ} A = A → 𝟘
+
+ind≡ : ∀ {ℓ ℓ'} {A : Set ℓ} (C : (x y : A) (p : x ≡ y) → Set ℓ') →
+       ((x : A) → C x x (refl x)) →
+       ((x y : A) (p : x ≡ y) → C x y p)
+ind≡ C c x .x (refl .x) = c x
+
+ind≡' : ∀ {ℓ ℓ'} {A : Set ℓ} (a : A) (C : (x : A) (p : a ≡ x) → Set ℓ') →
+        (C a (refl a)) →
+        ((x : A) (p : a ≡ x) → C x p)
+ind≡' a C c .a (refl .a) = c
+
+_≠_ : ∀ {ℓ} {A : Set ℓ} → A → A → Set ℓ
+x ≠ y = ¬ (x ≡ y)
 
 infixr 20 _∘_
 _∘_ : ∀ {ℓ₁ ℓ₂ ℓ₃} {A : Set ℓ₁} {B : Set ℓ₂} {C : Set ℓ₃} (g : B → C) → (f : A → B) → (A → C)
@@ -471,6 +586,103 @@ transport≡ {ℓ} {ℓ'} {A} {B} {x} {y} p u =
            (pr₁ (idtoeqv (ap B p))) u ∎
 
 --2.11
+ap≡ : ∀ {ℓ} {ℓ'} {A : Set ℓ} {B : Set ℓ'} {a a' : A} →
+      (f : A → B) → (isequiv f) → (isequiv (ap f {x = a} {y = a'}))
+ap≡ {ℓ} {ℓ'} {A} {B} {a} {a'} f eqf with isequiv→qinv eqf
+ap≡ {ℓ} {ℓ'} {A} {B} {a} {a'} f eqf | f⁻¹ , α , β =
+    qinv→isequiv (g , (α' , β'))
+    where
+    g : {a a' : A} → f a ≡ f a' → a ≡ a'
+    g {a} {a'} p = β a ⁻¹ ▪ ap f⁻¹ p ▪ β a'
+
+    α' : ap f {x = a} {y = a'} ∘ g ~ id
+    α' q = ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a')
+        ≡⟨ unit-right (ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a')) ⟩
+           ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a') ▪ refl (f a')
+        ≡⟨ ap (λ p → ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a') ▪ p) ((p⁻¹▪p≡refly (α (f a'))) ⁻¹) ⟩
+           ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a') ▪ (α (f a') ⁻¹ ▪ α (f a'))
+        ≡⟨ assoc▪ (ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a')) (α (f a') ⁻¹) (α (f a')) ⟩
+           ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a') ▪ α (f a') ⁻¹ ▪ α (f a')
+        ≡⟨ unit-left (ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a') ▪ α (f a') ⁻¹ ▪ α (f a')) ⟩
+           refl (f a) ▪ (ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a') ▪ α (f a') ⁻¹ ▪ α (f a'))
+        ≡⟨ ap (λ p → p ▪ (ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a') ▪ α (f a') ⁻¹ ▪ α (f a'))) (p⁻¹▪p≡refly (α (f a)) ⁻¹) ⟩
+           α (f a) ⁻¹ ▪ α (f a) ▪ (ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a') ▪ α (f a') ⁻¹ ▪ α (f a'))
+        ≡⟨ (assoc▪ (α (f a) ⁻¹) (α (f a)) (ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a') ▪ α (f a') ⁻¹ ▪ α (f a'))) ⁻¹ ⟩
+           α (f a) ⁻¹ ▪ (α (f a) ▪ (ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a') ▪ α (f a') ⁻¹ ▪ α (f a')))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ p) (assoc▪ (α (f a)) (ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a') ▪ α (f a') ⁻¹) (α (f a'))) ⟩
+           α (f a) ⁻¹ ▪ (α (f a) ▪ (ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a') ▪ α (f a') ⁻¹) ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (p ▪ α (f a'))) (assoc▪ (α (f a)) (ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a')) (α (f a') ⁻¹)) ⟩
+           α (f a) ⁻¹ ▪ (α (f a) ▪ ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a') ▪ α (f a') ⁻¹ ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (p ▪ α (f a') ⁻¹ ▪ α (f a')))
+              (ntran~ ((f ∘ f⁻¹) ∘ f) f (λ a → α (f a)) (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a')) ⟩
+           α (f a) ⁻¹ ▪ (ap ((f ∘ f⁻¹) ∘ f) (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a') ▪ α (f a') ▪ α (f a') ⁻¹ ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (p ▪ α (f a')))
+              (assoc▪ (ap ((f ∘ f⁻¹) ∘ f) (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a')) (α (f a')) (α (f a') ⁻¹) ⁻¹) ⟩
+           α (f a) ⁻¹ ▪ (ap ((f ∘ f⁻¹) ∘ f) (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a') ▪ (α (f a') ▪ α (f a') ⁻¹) ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (ap ((f ∘ f⁻¹) ∘ f) (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a') ▪ p ▪ α (f a')))
+              (p▪p⁻¹≡reflx (α (f a'))) ⟩
+           α (f a) ⁻¹ ▪ (ap ((f ∘ f⁻¹) ∘ f) (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a') ▪ refl (f (f⁻¹ (f a'))) ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (p ▪ α (f a'))) ((unit-right (ap ((f ∘ f⁻¹) ∘ f) (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a'))) ⁻¹) ⟩
+           α (f a) ⁻¹ ▪ (ap ((f ∘ f⁻¹) ∘ f) (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a') ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (p ▪ α (f a'))) ((ap∘ f (f ∘ f⁻¹) a a' (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a')) ⁻¹) ⟩
+           α (f a) ⁻¹ ▪ (ap (f ∘ f⁻¹) (ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a')) ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (p ▪ α (f a'))) ((ap∘ f⁻¹ f (f a) (f a') (ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a'))) ⁻¹) ⟩
+           α (f a) ⁻¹ ▪ (ap f (ap f⁻¹ (ap f (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a'))) ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (ap f p ▪ α (f a'))) (ap∘ f f⁻¹ a a' (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a')) ⟩
+           α (f a) ⁻¹ ▪ (ap f (ap (f⁻¹ ∘ f) (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a')) ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (ap f p ▪ α (f a'))) (unit-left (ap (f⁻¹ ∘ f) (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a'))) ⟩
+           α (f a) ⁻¹ ▪ (ap f (refl (f⁻¹ (f a)) ▪ (ap (f⁻¹ ∘ f) (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a'))) ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (ap f (p ▪ (ap (f⁻¹ ∘ f) (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a'))) ▪ α (f a'))) ((p▪p⁻¹≡reflx (β a)) ⁻¹) ⟩
+           α (f a) ⁻¹ ▪ (ap f (β a ▪ β a ⁻¹ ▪ (ap (f⁻¹ ∘ f) (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a'))) ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (ap f p ▪ α (f a'))) ((assoc▪ (β a) (β a ⁻¹) (ap (f⁻¹ ∘ f) (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a'))) ⁻¹) ⟩
+           α (f a) ⁻¹ ▪ (ap f (β a ▪ (β a ⁻¹ ▪ (ap (f⁻¹ ∘ f) (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a')))) ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (ap f (β a ▪ p) ▪ α (f a'))) (ntran~ id (f⁻¹ ∘ f) (λ a → β a ⁻¹) (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a')) ⟩
+           α (f a) ⁻¹ ▪ (ap f (β a ▪ ((ap id (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a')) ▪ β a' ⁻¹)) ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (ap f (β a ▪ (p ▪ β a' ⁻¹)) ▪ α (f a'))) (apid a a' (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a')) ⟩
+           α (f a) ⁻¹ ▪ (ap f (β a ▪ (β a ⁻¹ ▪ ap f⁻¹ q ▪ β a' ▪ β a' ⁻¹)) ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (ap f (β a ▪ p) ▪ α (f a'))) ((assoc▪ (β a ⁻¹ ▪ ap f⁻¹ q) (β a') (β a' ⁻¹)) ⁻¹) ⟩
+           α (f a) ⁻¹ ▪ (ap f (β a ▪ (β a ⁻¹ ▪ ap f⁻¹ q ▪ (β a' ▪ β a' ⁻¹))) ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (ap f (β a ▪ (β a ⁻¹ ▪ ap f⁻¹ q ▪ p)) ▪ α (f a'))) (p▪p⁻¹≡reflx (β a')) ⟩
+           α (f a) ⁻¹ ▪ (ap f (β a ▪ (β a ⁻¹ ▪ ap f⁻¹ q ▪ refl (f⁻¹ (f a')))) ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (ap f (β a ▪ p) ▪ α (f a'))) ((assoc▪ (β a ⁻¹) (ap f⁻¹ q) (refl (f⁻¹ (f a')))) ⁻¹) ⟩
+           α (f a) ⁻¹ ▪ (ap f (β a ▪ (β a ⁻¹ ▪ (ap f⁻¹ q ▪ refl (f⁻¹ (f a'))))) ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (ap f (β a ▪ (β a ⁻¹ ▪ p)) ▪ α (f a'))) ((unit-right (ap f⁻¹ q)) ⁻¹) ⟩
+           α (f a) ⁻¹ ▪ (ap f (β a ▪ (β a ⁻¹ ▪ ap f⁻¹ q)) ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (ap f p ▪ α (f a'))) (assoc▪ (β a) (β a ⁻¹) (ap f⁻¹ q)) ⟩
+           α (f a) ⁻¹ ▪ (ap f (β a ▪ β a ⁻¹ ▪ ap f⁻¹ q) ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (ap f (p ▪ ap f⁻¹ q) ▪ α (f a'))) (p▪p⁻¹≡reflx (β a)) ⟩
+           α (f a) ⁻¹ ▪ (ap f (refl (f⁻¹ (f a)) ▪ ap f⁻¹ q) ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (ap f p ▪ α (f a'))) ((unit-left (ap f⁻¹ q)) ⁻¹) ⟩
+           α (f a) ⁻¹ ▪ (ap f (ap f⁻¹ q) ▪ α (f a'))
+        ≡⟨ ap (λ p → α (f a) ⁻¹ ▪ (p ▪ α (f a'))) (ap∘ f⁻¹ f (f a) (f a') q) ⟩
+           α (f a) ⁻¹ ▪ (ap (f ∘ f⁻¹) q ▪ α (f a'))
+        ≡⟨ assoc▪ (α (f a) ⁻¹) (ap (f ∘ f⁻¹) q) (α (f a')) ⟩
+           α (f a) ⁻¹ ▪ ap (f ∘ f⁻¹) q ▪ α (f a')
+        ≡⟨ ap (λ p → p ▪ α (f a')) (ntran~ id (f ∘ f⁻¹) (λ x → α x ⁻¹) q) ⟩
+           ap id q ▪ α (f a') ⁻¹ ▪ α (f a')
+        ≡⟨ ap (λ p → p ▪ α (f a') ⁻¹ ▪ α (f a')) (apid (f a) (f a') q) ⟩
+           q ▪ α (f a') ⁻¹ ▪ α (f a')
+        ≡⟨ (assoc▪ q (α (f a') ⁻¹) (α (f a'))) ⁻¹ ⟩
+           q ▪ (α (f a') ⁻¹ ▪ α (f a'))
+        ≡⟨ ap (λ p → q ▪ p) (p⁻¹▪p≡refly (α (f a'))) ⟩
+           q ▪ refl (f a')
+        ≡⟨ (unit-right q) ⁻¹ ⟩
+           q ∎ 
+
+    β' : g {a = a} {a' = a'} ∘ ap f ~ id
+    β' p = β a ⁻¹ ▪ ap f⁻¹ (ap f p) ▪ β a'
+        ≡⟨ ap (λ q → β a ⁻¹ ▪ q ▪ β a') (ap∘ f f⁻¹ a a' p) ⟩
+           β a ⁻¹ ▪ ap (f⁻¹ ∘ f) p ▪ β a'
+        ≡⟨ ap (λ q → q ▪ β a') (ntran~ id (f⁻¹ ∘ f) (λ a → (β a) ⁻¹) p) ⟩
+           ap id p ▪ β a' ⁻¹ ▪ β a'
+        ≡⟨ (assoc▪ (ap id p) (β a' ⁻¹) (β a')) ⁻¹ ⟩
+           ap id p ▪ (β a' ⁻¹ ▪ β a')
+        ≡⟨ ap (λ q → ap id p ▪ q) (p⁻¹▪p≡refly (β a')) ⟩
+           ap id p ▪ refl a'
+        ≡⟨ (unit-right (ap id p)) ⁻¹ ⟩
+           ap id p
+        ≡⟨ apid a a' p ⟩
+           p ∎
 
 --Lemma 2.11.2
 transport[x↦a≡x] : ∀ {ℓ} {A : Set ℓ} {x₁ x₂ : A} (a : A) (p : x₁ ≡ x₂) (q : a ≡ x₁) →
@@ -485,10 +697,66 @@ transport[x↦x≡x] : ∀ {ℓ} {A : Set ℓ} {x₁ x₂ : A} (a : A) (p : x₁
                    transport (λ x → x ≡ x) p q ≡ p ⁻¹ ▪ q ▪ p
 transport[x↦x≡x] {ℓ} {A} {x} {.x} a (refl .x) q = (unit-left q) ▪ unit-right (refl x ⁻¹ ▪ q)
 
+--Theorem 2.11.3
+transport[x↦fx≡gx] : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a a' : A} (f g : A → B) (p : a ≡ a') (q : f a ≡ g a) →
+                     transport (λ x → f x ≡ g x) p q ≡ (ap f p) ⁻¹ ▪ q ▪ ap g p
+transport[x↦fx≡gx] {ℓ} {ℓ'} {A} {B} {a} {.a} f g (refl .a) q = unit-left q ▪ unit-right (ap f (refl a) ⁻¹ ▪ q)
+
+--Theorem 2.11.4
+transportd[x↦fx≡gx] : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {a a' : A} (f g : (x : A) → B x) (p : a ≡ a') (q : f a ≡ g a) →
+                     transport (λ x → f x ≡ g x) p q ≡ (apd f p) ⁻¹ ▪ ap (transport B p) q ▪ apd g p
+transportd[x↦fx≡gx] {ℓ} {ℓ'} {A} {B} {a} {.a} f g (refl .a) q =
+                    (transport (λ x → f x ≡ g x) (refl a) q)
+                 ≡⟨ (apid (f a) (g a) q) ⁻¹ ⟩
+                    ap (transport B (refl a)) q
+                 ≡⟨ unit-left (ap (transport B (refl a)) q) ⟩
+                    apd f (refl a) ⁻¹ ▪ ap (transport B (refl a)) q
+                 ≡⟨ unit-right (apd f (refl a) ⁻¹ ▪ ap (transport B (refl a)) q) ⟩
+                    apd f (refl a) ⁻¹ ▪ ap (transport B (refl a)) q ▪ apd g (refl a) ∎
+
+--Theorem 2.11.5
+transport[x↦x≡x]≃ : ∀ {ℓ} {A : Set ℓ} {a a' : A} (p : a ≡ a') (q : a ≡ a) (r : a' ≡ a') →
+                    (transport (λ x → x ≡ x) p q) ≡ r ≃ (q ▪ p ≡ p ▪ r)
+transport[x↦x≡x]≃ {ℓ} {A} {a} {.a} (refl .a) q r =
+                  f , (qinv→isequiv (f⁻¹ , (α , β)))
+                  where
+                  f   = (λ 𝒑 → unit-right q ⁻¹ ▪ 𝒑 ▪ unit-left r)
+                  f⁻¹ = (λ 𝒒 → unit-right q ▪ 𝒒 ▪ unit-left r ⁻¹)
+                  α = (λ 𝒒 → f (unit-right q ▪ 𝒒 ▪ unit-left r ⁻¹)
+                          ≡⟨ ap (λ 𝒓 → f 𝒓) (assoc▪ (unit-right q) 𝒒 (unit-left r ⁻¹)) ⁻¹ ⟩
+                             f (unit-right q ▪ (𝒒 ▪ unit-left r ⁻¹))
+                          ≡⟨ ap (λ 𝒓 → 𝒓 ▪ unit-left r) (assoc▪ (unit-right q ⁻¹) (unit-right q) (𝒒 ▪ unit-left r ⁻¹)) ⟩
+                             unit-right q ⁻¹ ▪ unit-right q ▪ (𝒒 ▪ unit-left r ⁻¹) ▪ unit-left r
+                          ≡⟨ ap (λ 𝒓 → 𝒓 ▪ (𝒒 ▪ unit-left r ⁻¹) ▪ unit-left r) (p⁻¹▪p≡refly (unit-right q)) ⟩
+                             refl (q ▪ refl a) ▪ (𝒒 ▪ unit-left r ⁻¹) ▪ unit-left r
+                          ≡⟨ ap (λ 𝒓 → 𝒓 ▪ unit-left r) (unit-left (𝒒 ▪ unit-left r ⁻¹) ⁻¹) ⟩
+                             𝒒 ▪ unit-left r ⁻¹ ▪ unit-left r
+                          ≡⟨ assoc▪ 𝒒 (unit-left r ⁻¹) (unit-left r) ⁻¹ ⟩
+                             𝒒 ▪ (unit-left r ⁻¹ ▪ unit-left r)
+                          ≡⟨ ap (λ 𝒓 → 𝒒 ▪ 𝒓) (p⁻¹▪p≡refly (unit-left r)) ⟩
+                             𝒒 ▪ refl (refl a ▪ r)
+                          ≡⟨ unit-right 𝒒 ⁻¹ ⟩
+                             𝒒 ∎)
+                  β = (λ 𝒑 → f⁻¹ (unit-right q ⁻¹ ▪ 𝒑 ▪ unit-left r)
+                          ≡⟨ ap (λ 𝒓 → f⁻¹ 𝒓) (assoc▪ (unit-right q ⁻¹) 𝒑 (unit-left r) ⁻¹) ⟩
+                             f⁻¹ (unit-right q ⁻¹ ▪ (𝒑 ▪ unit-left r))
+                          ≡⟨ ap (λ 𝒓 → 𝒓 ▪ unit-left r ⁻¹) (assoc▪ (unit-right q) (unit-right q ⁻¹) (𝒑 ▪ unit-left r)) ⟩
+                             unit-right q ▪ unit-right q ⁻¹ ▪ (𝒑 ▪ unit-left r) ▪ unit-left r ⁻¹
+                          ≡⟨ ap (λ 𝒓 → 𝒓 ▪ (𝒑 ▪ unit-left r) ▪ unit-left r ⁻¹) (p▪p⁻¹≡reflx (unit-right q)) ⟩
+                             refl q ▪ (𝒑 ▪ unit-left r) ▪ unit-left r ⁻¹
+                          ≡⟨ ap (λ 𝒓 → 𝒓 ▪ unit-left r ⁻¹) (unit-left (𝒑 ▪ unit-left r) ⁻¹) ⟩
+                             𝒑 ▪ unit-left r ▪ unit-left r ⁻¹
+                          ≡⟨ assoc▪ 𝒑 (unit-left r) (unit-left r ⁻¹) ⁻¹ ⟩
+                             𝒑 ▪ (unit-left r ▪ unit-left r ⁻¹)
+                          ≡⟨ ap (λ 𝒓 → 𝒑 ▪ 𝒓) (p▪p⁻¹≡reflx (unit-left r)) ⟩
+                             𝒑 ▪ refl r
+                          ≡⟨ unit-right 𝒑 ⁻¹ ⟩
+                             𝒑 ∎)
+
 --2.12
 +code : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a₀ : A} → A + B → Set _
 +code {a₀ = a₀} (inl a) = a₀ ≡ a
-+code {a₀ = a₀} (inr b) = Level.Lift 𝟘
++code {a₀ = a₀} (inr b) = Lift 𝟘
 
 --Theorem 2.12.5
 +encode : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a₀ : A} (x : A + B) (p : inl a₀ ≡ x)
@@ -498,7 +766,7 @@ transport[x↦x≡x] {ℓ} {A} {x} {.x} a (refl .x) q = (unit-left q) ▪ unit-r
 +decode : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a₀ : A} (x : A + B) (c : +code {a₀ = a₀} x)
         → inl a₀ ≡ x
 +decode {a₀ = a₀} (inl a) c = ap inl c
-+decode {a₀ = a₀} (inr b) c = rec𝟘 (inl a₀ ≡ inr b) (Level.lower c)
++decode {a₀ = a₀} (inr b) c = rec𝟘 (inl a₀ ≡ inr b) (lower c)
 
 +decode∘+encode~id : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a₀ : A} (x : A + B) (p : inl a₀ ≡ x)
                  → +decode x (+encode x p) ≡ p
@@ -509,7 +777,7 @@ transport[x↦x≡x] {ℓ} {A} {x} {.x} a (refl .x) q = (unit-left q) ▪ unit-r
 +encode∘+decode~id : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a₀ : A} (x : A + B) (c : +code {a₀ = a₀} x)
                  → +encode x (+decode x c) ≡ c
 +encode∘+decode~id (inl a₀) (refl .a₀) = refl (refl a₀)
-+encode∘+decode~id (inr b) (Level.lift ())
++encode∘+decode~id (inr b) (Lift.lift ())
 
 ≃+ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a₀ : A} (x : A + B) → (inl a₀) ≡ x ≃ +code x
 ≃+ {a₀ = a₀} x = (+encode x) , qinv→isequiv ((+decode x) , (+encode∘+decode~id x) , (+decode∘+encode~id x))
@@ -521,18 +789,18 @@ transport[x↦x≡x] {ℓ} {A} {x} {.x} a (refl .x) q = (unit-left q) ▪ unit-r
                      , (λ { 0₂ → refl 0₂ ; 1₂ → refl 1₂ }))
 
 0₂≠1₂ : 0₂ ≠ 1₂
-0₂≠1₂ eq = Level.lower (+encode (inr ⊤) (ap (λ { 0₂ → inl ⊤ ; 1₂ → inr ⊤ }) eq))
+0₂≠1₂ eq = lower (+encode (inr ⊤) (ap (λ { 0₂ → inl ⊤ ; 1₂ → inr ⊤ }) eq))
 
 --2.13
 
 ℕcode : ℕ → ℕ → Set
-ℕcode zeroℕ zeroℕ = 𝟙
-ℕcode (succ m) zeroℕ = 𝟘
-ℕcode zeroℕ (succ n) = 𝟘
+ℕcode zero zero = 𝟙
+ℕcode (succ m) zero = 𝟘
+ℕcode zero (succ n) = 𝟘
 ℕcode (succ m) (succ n) = ℕcode m n
 
 ℕr : (n : ℕ) → ℕcode n n
-ℕr zeroℕ = ⊤
+ℕr zero = ⊤
 ℕr (succ n) = ℕr n
 
 --Theorem 2.13.1
@@ -540,24 +808,25 @@ transport[x↦x≡x] {ℓ} {A} {x} {.x} a (refl .x) q = (unit-left q) ▪ unit-r
 ℕencode {m} {n} p = transport (λ n → ℕcode m n) p (ℕr m)
 
 ℕdecode : {m n : ℕ} → ℕcode m n → m ≡ n
-ℕdecode {zeroℕ} {zeroℕ} x = refl zeroℕ
-ℕdecode {succ m} {zeroℕ} x = rec𝟘 (succ m ≡ zeroℕ) x
-ℕdecode {zeroℕ} {succ n} x = rec𝟘 (zeroℕ ≡ succ n) x
+ℕdecode {0} {0} x = refl 0
+ℕdecode {succ m} {0} x = rec𝟘 (succ m ≡ 0) x
+ℕdecode {0} {succ n} x = rec𝟘 (0 ≡ succ n) x
 ℕdecode {succ m} {succ n} x = ap succ (ℕdecode x)
 
 ℕdecode∘ℕencode~id : {m n : ℕ} → (p : m ≡ n) → ℕdecode (ℕencode p) ≡ p
-ℕdecode∘ℕencode~id {zeroℕ} (refl .zeroℕ) = refl (refl zeroℕ)
+ℕdecode∘ℕencode~id {0} (refl .0) = refl (refl 0)
 ℕdecode∘ℕencode~id {succ m} (refl .(succ m)) = ap (λ x → ap succ x) (ℕdecode∘ℕencode~id (refl m))
 
 ℕencode∘ℕdecode~id : {m n : ℕ} → (c : ℕcode m n) → ℕencode (ℕdecode {m = m} c) ≡ c
-ℕencode∘ℕdecode~id {zeroℕ} {zeroℕ} ⊤ = refl ⊤
-ℕencode∘ℕdecode~id {zeroℕ} {succ n} ()
-ℕencode∘ℕdecode~id {succ m} {zeroℕ} ()
-ℕencode∘ℕdecode~id {succ m} {succ n} c =  transport (ℕcode (succ m)) (ap succ (ℕdecode c)) (ℕr m)
-                                       ≡⟨ transport[P∘f,p,u]≡transport[P,ap[f,p],u] succ (ℕcode (succ m)) (ℕdecode c) (ℕr m) ⁻¹ ⟩
-                                          transport (ℕcode (succ m) ∘ succ) (ℕdecode c) (ℕr m)
-                                       ≡⟨ ℕencode∘ℕdecode~id {m = m} c ⟩
-                                          c ∎
+ℕencode∘ℕdecode~id {0} {0} ⊤ = refl ⊤
+ℕencode∘ℕdecode~id {0} {succ n} ()
+ℕencode∘ℕdecode~id {succ m} {0} ()
+ℕencode∘ℕdecode~id {succ m} {succ n} c =
+                   transport (ℕcode (succ m)) (ap succ (ℕdecode c)) (ℕr m)
+                ≡⟨ transport[P∘f,p,u]≡transport[P,ap[f,p],u] succ (ℕcode (succ m)) (ℕdecode c) (ℕr m) ⁻¹ ⟩
+                   transport (ℕcode (succ m) ∘ succ) (ℕdecode c) (ℕr m)
+                ≡⟨ ℕencode∘ℕdecode~id {m = m} c ⟩
+                   c ∎
 
 ℕ≃ : {m n : ℕ} → (m ≡ n) ≃ ℕcode m n
 ℕ≃ {m} {n} = ℕencode
