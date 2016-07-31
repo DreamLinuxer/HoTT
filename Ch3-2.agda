@@ -38,8 +38,8 @@ open import Base
                 ¬e[x]≡x 1₂ ()
 
 -- Corollary 3.2.7
-¬lem : ¬ ((A : Set) → (A + (¬ A)))
-¬lem g = ¬double-neg (λ A u → h (g A) u)
+¬LEM : ¬ ((A : Set) → (A + (¬ A)))
+¬LEM g = ¬double-neg (λ A u → h (g A) u)
          where
          h : {A : Set} → A + (¬ A) → ¬ ¬ A → A
          h {A} (inl a) u = a
