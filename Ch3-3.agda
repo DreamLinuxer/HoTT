@@ -1,3 +1,4 @@
+{-# OPTIONS --without-K #-}
 module Ch3-3 where
 open import Base
 open import Ch3-1

@@ -1,3 +1,4 @@
+{-# OPTIONS --without-K #-}
 module Ch3-2 where
 open import Base
 

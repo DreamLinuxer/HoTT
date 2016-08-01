@@ -1,3 +1,4 @@
+{-# OPTIONS --without-K #-}
 module Ex2 where
 
 --Ex 2.1
