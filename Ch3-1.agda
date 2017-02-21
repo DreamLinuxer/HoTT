@@ -12,7 +12,7 @@ isSet A = (x y : A) → (p q : x ≡ y) → p ≡ q
 𝟙isSet x y p q | f , (g , α) , (h , β) =
        p       ≡⟨ β p ⁻¹ ⟩
        h (f p) ≡⟨ ap h (uniq𝟙 (f p)) ⟩
-       h ⊤     ≡⟨ ap h (uniq𝟙 (f q) ⁻¹) ⟩
+       h ⋆     ≡⟨ ap h (uniq𝟙 (f q) ⁻¹) ⟩
        h (f q) ≡⟨ (β q) ⟩
        q ∎
 

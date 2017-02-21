@@ -48,13 +48,13 @@ ind× : ∀ {α β γ} {A : Set α} {B : Set β} (C : A × B → Set γ) →
 ind× C g (a , b) = g a b
 
 data 𝟙 : Set where
-  ⊤ : 𝟙
+  ⋆ : 𝟙
 
 rec𝟙 : ∀ {ℓ} (C : Set ℓ) → C → 𝟙 → C
-rec𝟙 C c ⊤ = c
+rec𝟙 C c ⋆ = c
 
-ind𝟙 : ∀ {ℓ} (C : 𝟙 → Set ℓ) → C ⊤ → ((x : 𝟙) → C x)
-ind𝟙 C c ⊤ = c
+ind𝟙 : ∀ {ℓ} (C : 𝟙 → Set ℓ) → C ⋆ → ((x : 𝟙) → C x)
+ind𝟙 C c ⋆ = c
 
 data 𝟘 : Set where
 
@@ -355,7 +355,7 @@ pair×≡∘pair×≡⁻¹~id {y = y₁ , y₂} (refl .(y₁ , y₂)) = refl (re
 
 ×≃ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {x y : A × B}
    → isequiv (pair×≡⁻¹ {ℓ} {ℓ'} {A} {B} {x} {y})
-×≃ {ℓ} {ℓ'} {A} {B} {x} {y} = qinv→isequiv (pair×≡ , pair×≡⁻¹∘pair×≡~id , pair×≡∘pair×≡⁻¹~id)
+×≃ {ℓ} {ℓ'} {A} {B} {x} {y} = qinv→isequiv (pair×≡ , pair×≡⁻¹∘pair×≡~id {x = x} {y = y} , pair×≡∘pair×≡⁻¹~id)
 
 uniq×₁ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → (z : A × B) → ((pr₁ z , pr₂ z) ≡ z)
 uniq×₁ z = pair×≡ ((refl (pr₁ z)) , (refl (pr₂ z)))
@@ -415,20 +415,20 @@ liftΣ {ℓ} {ℓ'} {ℓ''} {A} {P} {Q} {x} {.x} (refl .x) u z = refl (u , z)
 
 --2.8
 𝟙≡⁻¹ : {x y : 𝟙} → (x ≡ y) → 𝟙
-𝟙≡⁻¹ _ = ⊤
+𝟙≡⁻¹ _ = ⋆
 
 𝟙≡ : {x y : 𝟙} → 𝟙 → (x ≡ y)
-𝟙≡ {⊤} {⊤} ⊤ = refl ⊤
+𝟙≡ {⋆} {⋆} ⋆ = refl ⋆
 
 --Theorem 2.8.1
 𝟙≃ : {x y : 𝟙} → (x ≡ y) ≃ 𝟙
-𝟙≃ {x} {y} = 𝟙≡⁻¹ , qinv→isequiv (𝟙≡ , (λ { ⊤ → refl ⊤ })
+𝟙≃ {x} {y} = 𝟙≡⁻¹ , qinv→isequiv (𝟙≡ , (λ { ⋆ → refl ⋆ })
                                      , (ind≡ (λ x y p → (𝟙≡ ∘ 𝟙≡⁻¹) p ≡ p)
-                                             (λ {⊤ → refl (refl ⊤)})
+                                             (λ {⋆ → refl (refl ⋆)})
                                              x y))
 
-uniq𝟙 : (u : 𝟙) → u ≡ ⊤
-uniq𝟙 ⊤ = refl ⊤
+uniq𝟙 : (u : 𝟙) → u ≡ ⋆
+uniq𝟙 ⋆ = refl ⋆
 
 --2.9
 
@@ -783,13 +783,13 @@ transport[x↦x≡x]≃ {ℓ} {A} {a} {.a} (refl .a) q r =
 ≃+ {a₀ = a₀} x = (+encode x) , qinv→isequiv ((+decode x) , (+encode∘+decode~id x) , (+decode∘+encode~id x))
 
 𝟚≃𝟙+𝟙 : 𝟚 ≃ 𝟙 + 𝟙
-𝟚≃𝟙+𝟙 = (λ { 0₂ → inl ⊤ ; 1₂ → inr ⊤ })
-      , qinv→isequiv ( (λ {(inl ⊤) → 0₂ ; (inr ⊤) → 1₂})
-                     , (λ {(inl ⊤) → refl (inl ⊤) ; (inr ⊤) → refl (inr ⊤)})
+𝟚≃𝟙+𝟙 = (λ { 0₂ → inl ⋆ ; 1₂ → inr ⋆ })
+      , qinv→isequiv ( (λ {(inl ⋆) → 0₂ ; (inr ⋆) → 1₂})
+                     , (λ {(inl ⋆) → refl (inl ⋆) ; (inr ⋆) → refl (inr ⋆)})
                      , (λ { 0₂ → refl 0₂ ; 1₂ → refl 1₂ }))
 
 0₂≠1₂ : 0₂ ≠ 1₂
-0₂≠1₂ eq = lower (+encode (inr ⊤) (ap (λ { 0₂ → inl ⊤ ; 1₂ → inr ⊤ }) eq))
+0₂≠1₂ eq = lower (+encode (inr ⋆) (ap (λ { 0₂ → inl ⋆ ; 1₂ → inr ⋆ }) eq))
 
 --2.13
 
@@ -800,7 +800,7 @@ transport[x↦x≡x]≃ {ℓ} {A} {a} {.a} (refl .a) q r =
 ℕcode (succ m) (succ n) = ℕcode m n
 
 ℕr : (n : ℕ) → ℕcode n n
-ℕr zero = ⊤
+ℕr zero = ⋆
 ℕr (succ n) = ℕr n
 
 --Theorem 2.13.1
@@ -818,7 +818,7 @@ transport[x↦x≡x]≃ {ℓ} {A} {a} {.a} (refl .a) q r =
 ℕdecode∘ℕencode~id {succ m} (refl .(succ m)) = ap (λ x → ap succ x) (ℕdecode∘ℕencode~id (refl m))
 
 ℕencode∘ℕdecode~id : {m n : ℕ} → (c : ℕcode m n) → ℕencode (ℕdecode {m = m} c) ≡ c
-ℕencode∘ℕdecode~id {0} {0} ⊤ = refl ⊤
+ℕencode∘ℕdecode~id {0} {0} ⋆ = refl ⋆
 ℕencode∘ℕdecode~id {0} {succ n} ()
 ℕencode∘ℕdecode~id {succ m} {0} ()
 ℕencode∘ℕdecode~id {succ m} {succ n} c =

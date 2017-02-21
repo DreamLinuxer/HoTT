@@ -25,10 +25,10 @@ P≃𝟙 {ℓ} {P} PisProp x₀ =
     P≃Q PisProp (λ x y → uniq𝟙 x ▪ uniq𝟙 y ⁻¹) f g
     where
     f : P → 𝟙
-    f _ = ⊤
+    f _ = ⋆
 
     g : 𝟙 → P
-    g ⊤ = x₀
+    g ⋆ = x₀
 
 --Lemma 3.3.4
 PropisSet : ∀ {ℓ} {A : Set ℓ} → isProp A → isSet A
