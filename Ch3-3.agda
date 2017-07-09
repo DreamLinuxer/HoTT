@@ -20,8 +20,8 @@ P≃Q PisProp QisProp f g = f , (qinv→isequiv (g , (α , β)))
     β x = PisProp (g (f x)) x
 
 -- Lemma 3.3.2
-P≃𝟙 : ∀ {ℓ} {P : Set ℓ} → isProp P → (x₀ : P) → P ≃ 𝟙
-P≃𝟙 {ℓ} {P} PisProp x₀ =
+P≃𝟙 : ∀ {ℓ} {P : Set ℓ} → isProp P × P → P ≃ 𝟙
+P≃𝟙 {ℓ} {P} (PisProp , x₀) =
     P≃Q PisProp (λ x y → uniq𝟙 x ▪ uniq𝟙 y ⁻¹) f g
     where
     f : P → 𝟙

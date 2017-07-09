@@ -43,6 +43,16 @@ isSet A = (x y : A) → (p q : x ≡ y) → p ≡ q
        h (ap pr₁ q , ap pr₂ q) ≡⟨ β q ⟩
        q ∎
 
+ΣisSet : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'}
+       → {AisSet : isSet A} {BisSet : (x : A) → isSet (B x)} → isSet (Σ A B)
+ΣisSet {ℓ} {ℓ'} {A} {B} {AisSet} {BisSet} x y p q with Σ≃
+ΣisSet {ℓ} {ℓ'} {A} {B} {AisSet} {BisSet} x y p q | f , eq with isequiv→qinv eq
+ΣisSet {ℓ} {ℓ'} {A} {B} {AisSet} {BisSet} x y p q | f , eq | g , α , β =
+       p ≡⟨ (β p)⁻¹ ⟩
+       g (f p) ≡⟨ ap g (pairΣ≡ (AisSet _ _ _ _ , BisSet _ _ _ _ _)) ⟩
+       g (f q) ≡⟨ β q ⟩
+       q ∎
+
 -- Example 3.1.6
 ΠisSet : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {BxisSet : (x : A) → isSet (B x)}
        → isSet ((x : A) → B x)

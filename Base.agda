@@ -398,12 +398,13 @@ uniqΣ z | f , ((g , α) , (h , β)) = g (refl (pr₁ z) , refl (pr₂ z))
 pairΣ≡⁻¹ : ∀ {ℓ ℓ'} {A : Set ℓ} {P : A → Set ℓ'} {w w' : Σ[ x ∈ A ] P x} →
            (w ≡ w') → (Σ[ p ∈ (pr₁ w ≡ pr₁ w') ] ((_* {P = P} p) (pr₂ w) ≡ (pr₂ w')))
 pairΣ≡⁻¹ {w = w} {w' = w'} with Σ≃ {w = w} {w' = w'}
-pairΣ≡⁻¹ | f , ((g , α) , (h , β)) = f
+pairΣ≡⁻¹ | f , _ = f
 
 pairΣ≡ : ∀ {ℓ ℓ'} {A : Set ℓ} {P : A → Set ℓ'} {w w' : Σ[ x ∈ A ] P x} →
          (Σ[ p ∈ (pr₁ w ≡ pr₁ w') ] ((_* {P = P} p) (pr₂ w) ≡ (pr₂ w'))) → w ≡ w'
 pairΣ≡ {w = w} {w' = w'} with Σ≃ {w = w} {w' = w'}
-pairΣ≡ | f , ((g , α) , (h , β)) = g
+pairΣ≡ | f , eq with isequiv→qinv eq
+...    | g , _ , _ = g
 
 --Theorem 2.7.4
 liftΣ : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {P : A → Set ℓ'} {Q : (Σ[ x ∈ A ] (P x)) → Set ℓ''} →
