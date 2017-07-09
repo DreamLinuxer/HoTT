@@ -406,6 +406,11 @@ pairΣ≡ {w = w} {w' = w'} with Σ≃ {w = w} {w' = w'}
 pairΣ≡ | f , eq with isequiv→qinv eq
 ...    | g , _ , _ = g
 
+pairΣ≡₁ : ∀ {ℓ ℓ'} {A : Set ℓ} {P : A → Set ℓ'} {a a' : A} {pa : P a} {pa' : P a'}
+        → (p : Σ[ p ∈ a ≡ a' ] (_* {P = P} p) pa ≡ pa')
+        → ap pr₁ {x = (a , pa)} {y = (a' , pa')} (pairΣ≡ p) ≡ pr₁ p
+pairΣ≡₁ (refl _ , refl _) = refl _
+
 --Theorem 2.7.4
 liftΣ : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {P : A → Set ℓ'} {Q : (Σ[ x ∈ A ] (P x)) → Set ℓ''} →
         {x y : A} (p : x ≡ y) (u : P x) (z : Q (x , u)) →

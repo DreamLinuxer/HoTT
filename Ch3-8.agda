@@ -57,23 +57,13 @@ module lemma3-8-5 where
   eq (A , p) (B , q) = f , qinv→isequiv (g , α , β)
      where
      f : (A , p ≡ B , q) → A ≃ B
-     f (refl _) = idtoeqv (refl _)
+     f = idtoeqv ∘ ap pr₁ 
 
      g : A ≃ B → (A , p ≡ B , q)
      g eq = pairΣ≡ (ua eq , inhabPath _ _)
 
      α : f ∘ g ~ id
-     α eq = pairΣ≡ ( f-pr₁ (g eq) ▪ ap (transport id) (pairΣ≡₁ (ua eq , inhabPath _ _)) ▪ funext (computation≡ eq)
-                   , isequivIsProp _ _ _)
-            where
-            f-pr₁ : (w : A , p ≡ B , q)
-                  → pr₁ (f w) ≡ transport id (ap pr₁ w)
-            f-pr₁ (refl _) = refl _
-
-            pairΣ≡₁ : {A B : Set} {p : ∥ 𝟚 ≡ A ∥} {q : ∥ 𝟚 ≡ B ∥}
-                    → (w : Σ[ w₁ ∈ A ≡ B ] transport _ w₁ p ≡ q)
-                    → ap pr₁ (pairΣ≡ {w = A , p} {w' = B , q} w) ≡ pr₁ w
-            pairΣ≡₁ (refl _ , refl _) = refl (refl _)
+     α eq = ap idtoeqv (pairΣ≡₁ (ua eq , inhabPath _ _)) ▪ comp≡ eq ⁻¹
 
      β : g ∘ f ~ id
      β (refl _) = ap pairΣ≡ (pairΣ≡ ((uniq≡ _)⁻¹ , (PropisSet inhabPath _ _ _ _)))
