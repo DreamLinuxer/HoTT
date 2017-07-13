@@ -274,6 +274,16 @@ comm~ {ℓ} {A} f H x = H (f x)
                       ap f (H x) ▪ refl (f x)
                     ≡⟨ unit-right (ap f (H x)) ⁻¹ ⟩
                       ap f (H x) ∎
+                      
+natural~ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B} {g : B → A}
+         → (H : f ∘ g ~ id) {x : A} {y : B} (p : f x ≡ y)
+         → H y ≡ ap (f ∘ g) p ⁻¹ ▪ H (f x) ▪ p
+natural~ H (refl _) = unit-right _ ▪ unit-left _ ▪ assoc▪ _ _ _
+
+natural~' : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B} {g : B → A}
+          → (H : f ∘ g ~ id) {x : A} {y : B} (p : f x ≡ y)
+          → p ≡ H (f x) ⁻¹ ▪ ap (f ∘ g) p ▪ H y
+natural~' H (refl _) = p⁻¹▪p≡refly _ ⁻¹ ▪ ap (λ x → x ▪ H _) (unit-right _)
 
 --Definition 2.4.6
 qinv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) → Set (ℓ ⊔ ℓ')
@@ -296,6 +306,18 @@ isequiv→qinv {f = f} ((g , α) , (h , β)) =
 infix 2 _≃_
 _≃_ : ∀ {ℓ} {ℓ'} (A : Set ℓ) (B : Set ℓ') → Set (ℓ ⊔ ℓ')
 A ≃ B = Σ[ f ∈ (A → B) ] (isequiv f)
+
+≃→ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → A ≃ B → A → B
+≃→ = pr₁
+
+≃← : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → A ≃ B → B → A
+≃← e = pr₁ (isequiv→qinv (pr₂ e))
+
+≃ε : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → (e : A ≃ B) → (≃→ e) ∘ (≃← e) ~ id
+≃ε e = pr₁ (pr₂ (isequiv→qinv (pr₂ e)))
+
+≃η : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → (e : A ≃ B) → (≃← e) ∘ (≃→ e) ~ id
+≃η e = pr₂ (pr₂ (isequiv→qinv (pr₂ e)))
 
 --Lemma 2.4.12
 ref≃ : ∀ {ℓ} {A : Set ℓ} → A ≃ A
@@ -320,7 +342,6 @@ tran≃ (f , eq1) (g , eq2) | (f⁻¹ , (α1 , β1)) | (g⁻¹ , (α2 , β2)) =
                                      f⁻¹ (f x)
                                    ≡⟨ β1 x ⟩
                                      x ∎)))
-
 
 infix 3 _○_
 _○_ : ∀ {ℓ} {ℓ'} {ℓ''} {A : Set ℓ} {B : Set ℓ'} {C : Set ℓ''} →
@@ -456,6 +477,16 @@ computationΠ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A)
                (h : (x : A) → f x ≡ g x) → (x : A) → happly (funext h) x ≡ h x
 computationΠ {ℓ} {ℓ'} {A} {B} {f} {g} h x with (isequiv→qinv (funextentionality {f = f} {g = g}))
 computationΠ h x | happly⁻¹ , α , β = ap (λ f → f x) (α h)
+
+compΠ≡ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
+         (h : (x : A) → f x ≡ g x) → happly (funext h) ≡ h
+compΠ≡ {ℓ} {ℓ'} {A} {B} {f} {g} with (isequiv→qinv (funextentionality {f = f} {g = g}))
+... | happly⁻¹ , α , β = α
+
+uniqΠ≡ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
+         (p : f ≡ g) → funext (happly p) ≡ p
+uniqΠ≡ {ℓ} {ℓ'} {A} {B} {f} {g} with (isequiv→qinv (funextentionality {f = f} {g = g}))
+... | happly⁻¹ , α , β = β
 
 uniqΠ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
         (p : f ≡ g) → p ≡ funext (λ x → happly p x)
@@ -839,3 +870,133 @@ transport[x↦x≡x]≃ {ℓ} {A} {a} {.a} (refl .a) q r =
            , qinv→isequiv ( ℕdecode
                           , (ℕencode∘ℕdecode~id {m = m})
                           , ℕdecode∘ℕencode~id)
+
+--2.15.1
+×→ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : Set ℓ'} {B : Set ℓ''}
+   → (X → A × B) → (X → A) × (X → B)
+×→ f = (pr₁ ∘ f) , (pr₂ ∘ f)
+
+--Theorem 2.15.2
+×→≃ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : Set ℓ'} {B : Set ℓ''}
+    → isequiv (×→ {X = X} {A = A} {B = B})
+×→≃ = qinv→isequiv ( (λ {(g , h) → λ x → (g x , h x)})
+                   , ( (λ {(g , h) →  (λ x → g x) , (λ x → h x)
+                                   ≡⟨ pair×≡ (refl g , refl h) ⟩
+                                      (g , h) ∎})
+                     , (λ f →  (λ x → ((pr₁ ∘ f) x , (pr₂ ∘ f) x))
+                            ≡⟨ funext (λ x → pair×≡ ((refl (pr₁ (f x))) , (refl (pr₂ (f x))))) ⟩
+                               f ∎)))
+
+--2.15.4
+Π×→ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : X → Set ℓ''}
+    → ((x : X) → (A x × B x)) → ((x : X) → A x) × ((x : X) → B x)
+Π×→ f = (λ x → pr₁ (f x)) , (λ x → pr₂ (f x))
+
+--Theorem 2.15.5
+Π×→≃ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {B : X → Set ℓ''}
+     → isequiv (Π×→ {X = X} {A = A} {B = B})
+Π×→≃ = qinv→isequiv ( (λ {(g , h) → λ x → (g x , h x)})
+                    , ( (λ {(g , h) → (λ x → g x) , (λ x → h x)
+                                   ≡⟨ pair×≡ (refl g , refl h) ⟩
+                                      (g , h) ∎})
+                      , ((λ f → (λ x → (pr₁ (f x) , pr₂ (f x)))
+                             ≡⟨ funext (λ x → pair×≡ ((refl (pr₁ (f x))) , (refl (pr₂ (f x))))) ⟩
+                                f ∎))))
+
+--2.15.6
+Π→ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {P : (x : X) → A x → Set ℓ''}
+   → ((x : X) → Σ[ a ∈ (A x) ] P x a)
+   → Σ[ g ∈ ((x : X) → A x) ] ((x : X) → P x (g x))
+Π→ f = (λ x → pr₁ (f x)) , (λ x → pr₂ (f x))
+
+--Theorem 2.15.7
+Π→≃ : ∀ {ℓ ℓ' ℓ''} {X : Set ℓ} {A : X → Set ℓ'} {P : (x : X) → A x → Set ℓ''}
+    → isequiv (Π→ {X = X} {A = A} {P = P})
+Π→≃ = qinv→isequiv ( (λ {(g , h) → λ x → (g x , h x)})
+                   , ( (λ {(g , h) → (λ x → g x) , (λ x → h x)
+                                  ≡⟨ pairΣ≡ (refl g , refl h) ⟩
+                                     (g , h) ∎})
+                     , (λ f → (λ x → (pr₁ (f x) , pr₂ (f x)))
+                           ≡⟨ funext (λ x → pairΣ≡ ((refl (pr₁ (f x))) , ((refl (pr₂ (f x)))))) ⟩
+                              f ∎)))
+
+×→Π : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : Set ℓ'} {C : A × B → Set ℓ''}
+    → ((w : A × B) → C w)
+    → ((x : A) → (y : B) → C (x , y))
+×→Π f = λ x y → f (x , y)
+
+Π→× : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : Set ℓ'} {C : A × B → Set ℓ''}
+    → ((x : A) → (y : B) → C (x , y))
+    → ((w : A × B) → C w)
+Π→× {C = C} f = ind× C f
+
+×→Π≃ : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : Set ℓ'} {C : A × B → Set ℓ''}
+     → isequiv (×→Π {A = A} {B = B} {C = C})
+×→Π≃ = qinv→isequiv (Π→× , ( (λ f → refl f)
+                           , (λ f → funext (λ {(a , b) → refl (f (a , b))}))))
+
+Σ→Π : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : A → Set ℓ'} {C : Σ[ x ∈ A ] B x → Set ℓ''}
+    → ((w : Σ[ x ∈ A ] B x) → C w)
+    → ((x : A) → (y : B x) → C (x , y))
+Σ→Π f = λ x y → f (x , y)
+
+Π→Σ : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : A → Set ℓ'} {C : Σ[ x ∈ A ] B x → Set ℓ''}
+    → ((x : A) → (y : B x) → C (x , y))
+    → ((w : Σ[ x ∈ A ] B x) → C w)
+Π→Σ {C = C} f = indΣ C f
+
+Σ→Π≃ : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : A → Set ℓ'} {C : Σ[ x ∈ A ] B x → Set ℓ''}
+     → isequiv (Σ→Π {A = A} {B = B} {C = C})
+Σ→Π≃ = qinv→isequiv (Π→Σ , ( (λ f → refl f)
+                           , (λ f → funext (λ {(a , b) → refl (f (a , b))}))))
+
+pathind≃ : ∀ {ℓ ℓ'} {A : Set ℓ} {a : A} {B : (x : A) (p : a ≡ x) → Set ℓ'}
+         → isequiv (ind≡' {A = A} a B)
+pathind≃ {a = a} {B = B} = qinv→isequiv ( (λ f → f a (refl a))
+                                        , ( (λ g → funext (λ x → funext (λ p →
+                                                     ind≡' a (λ x p → ind≡' a B (g a (refl a)) x p ≡ g x p)
+                                                             (refl (g a (refl a))) x p)))
+                                          , (λ h → refl h)))
+
+≃→Π≃ : ∀ {ℓ₁ ℓ₂ ℓ₃} {A : Set ℓ₁} {B : A → Set ℓ₂} {C : A → Set ℓ₃}
+     → ((x : A) → B x ≃ C x) → ((x : A) → B x) ≃ ((x : A) → C x)
+≃→Π≃ {A = A} {B} {C} eq = f , qinv→isequiv (g , α , β)
+   where
+   f : ((x : A) → B x) → ((x : A) → C x)
+   f h x = ≃→ (eq x) (h x)
+
+   g : ((x : A) → C x) → ((x : A) → B x)
+   g h x = ≃← (eq x) (h x)
+
+   α : f ∘ g ~ id
+   α h = funext (λ x → ≃ε (eq x) (h x))
+
+   β : g ∘ f ~ id
+   β h = funext (λ x → ≃η (eq x) (h x))
+
+≃→Σ≃ : ∀ {ℓ₁ ℓ₂ ℓ₃} {A : Set ℓ₁} {B : A → Set ℓ₂} {C : A → Set ℓ₃}
+     → ((x : A) → B x ≃ C x) → Σ A B ≃ Σ A C
+≃→Σ≃ {A = A} {B} {C} eq = f , qinv→isequiv (g , α , β)
+   where
+   f : Σ A B → Σ A C
+   f (a , b) = a , (≃→ (eq a) b)
+
+   g : Σ A C → Σ A B
+   g (a , c) = a , (≃← (eq a) c)
+
+   α : f ∘ g ~ id
+   α (a , c) = pairΣ≡ (refl _ , ≃ε (eq a) c)
+
+   β : g ∘ f ~ id
+   β (a , b) = pairΣ≡ (refl _ , ≃η (eq a) b)
+
+
+l-cancel : ∀ {ℓ} {A : Set ℓ} {x y z : A} {r : z ≡ x}(p q : x ≡ y)
+         → r ▪ p ≡ r ▪ q → p ≡ q
+l-cancel {r = r} p q α = unit-left p
+                       ▪ ap (λ x → x ▪ p) (p⁻¹▪p≡refly r ⁻¹)
+                       ▪ assoc▪ (r ⁻¹) r p ⁻¹
+                       ▪ ap (λ x → r ⁻¹ ▪ x) α
+                       ▪ assoc▪ (r ⁻¹) r q
+                       ▪ ap (λ x → x ▪ q) (p⁻¹▪p≡refly r)
+                       ▪ unit-left q ⁻¹

@@ -62,7 +62,7 @@ isContrP→ΣPx≃A A P PisContr = pr₁ , qinv→isequiv (g , refl , β)
 
 isContrA→ΣPx≃Pa : ∀ {ℓ ℓ'} (A : Set ℓ) (P : A → Set ℓ')
                 → (contr : isContr A) → (Σ[ x ∈ A ] P x) ≃ P (pr₁ contr)
-isContrA→ΣPx≃Pa A P (a , p) = f , qinv→isequiv (g , {!!} , {!!})
+isContrA→ΣPx≃Pa A P (a , p) = f , qinv→isequiv (g , α , β)
   where
   f : Σ A P → P a
   f (a' , pa') = transport P (p a' ⁻¹) pa'

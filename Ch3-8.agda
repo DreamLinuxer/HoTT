@@ -43,15 +43,35 @@ AC'→AC ac' {X} {A} {P} {XisSet} {AisSet} {PisProp} f =
 𝟚isSet 1₂ 0₂ () ()
 𝟚isSet 1₂ 1₂ (refl .1₂) (refl .1₂) = refl (refl 1₂)
 
+A≃L[A] : ∀ {ℓ} {ℓ'} {A : Set ℓ} → A ≃ (Lift {ℓ = ℓ'} A)
+A≃L[A] = Level.lift , qinv→isequiv (Level.lower , refl , refl)
+
+AisSet→L[A]isSet : ∀ {ℓ} {ℓ'} {A : Set ℓ} → isSet A → isSet (Lift {ℓ = ℓ'} A)
+AisSet→L[A]isSet AisSet p q α β =
+                 α ≡⟨ lem α ⟩
+                 ap Level.lift (ap lower α) ≡⟨ ap (ap Lift.lift) (AisSet _ _ _ _)  ⟩
+                 ap Level.lift (ap lower β) ≡⟨ (lem β) ⁻¹  ⟩
+                 β ∎
+                 where
+                 lem : (γ : p ≡ q) → γ ≡ ap Level.lift (ap lower γ)
+                 lem γ = apid _ _ γ ⁻¹ ▪ (ap∘ lower Level.lift _ _ γ) ⁻¹
+
+AisSet→l[A]isSet : ∀ {ℓ} {ℓ'} {A : Set ℓ} → isSet (Lift {ℓ = ℓ'} A) → isSet A
+AisSet→l[A]isSet AisSet p q α β = 
+                 α ≡⟨ lem α ⟩
+                 ap lower (ap Level.lift α) ≡⟨ ap (ap lower) (AisSet _ _ _ _) ⟩
+                 ap lower (ap Level.lift β) ≡⟨ (lem β) ⁻¹  ⟩
+                 β ∎
+                 where
+                 lem : (γ : p ≡ q) → γ ≡ ap lower (ap Level.lift γ)
+                 lem γ = apid _ _ γ ⁻¹ ▪ (ap∘ Level.lift lower _ _ γ) ⁻¹
+
 module lemma3-8-5 where
   X : Set _
   X = Σ[ A ∈ Set ] ∥ 𝟚 ≡ A ∥
 
   x₀ : X
   x₀ = 𝟚 , ∣ refl 𝟚 ∣
-
-  postulate
-    isequivIsProp : ∀ {ℓ} {A B : Set ℓ} (f : A → B) → isProp (isequiv f) 
 
   eq : (X₁ X₂ : X) → (X₁ ≡ X₂) ≃ (pr₁ X₁ ≃ pr₁ X₂)
   eq (A , p) (B , q) = f , qinv→isequiv (g , α , β)
@@ -95,34 +115,26 @@ module lemma3-8-5 where
            (idtoeqv (idtoeqv⁻¹ (idtoeqv (refl 𝟚)))) ≡⟨ α (idtoeqv (refl 𝟚)) ⟩
            idtoeqv (refl 𝟚) ∎
 
-  ≃isSet : {A B : Set} → isSet A → isSet B → isSet (A ≃ B)
-  ≃isSet AisSet BisSet = ΣisSet {AisSet = ΠisSet {BxisSet = λ _ → BisSet}}
-                                {BisSet = λ f → PropisSet (isequivIsProp f)}
-
   X₁isSet : (x : X) → isSet (pr₁ x)
   X₁isSet (A , p) = pr₁ (rec∥-∥ isSetAisProp f) p
           where
           f : 𝟚 ≡ A → isSet A
           f p = transport isSet p 𝟚isSet
 
+  postulate
+    isequivIsProp : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) → isProp (isequiv f)
+
+  ≃isSet : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → isSet A → isSet B → isSet (A ≃ B)
+  ≃isSet AisSet BisSet = ΣisSet {AisSet = ΠisSet {BxisSet = λ _ → BisSet}}
+                                {BisSet = λ f → PropisSet (isequivIsProp f)}
+
   Xis1-type : 1-type X
-  Xis1-type {x = (A , p)} {y = (B , q)} = transport isSet ([x≡y]≡[A≃B] ⁻¹) L[A≃B]isSet _ _
+  Xis1-type {x = (A , p)} {y = (B , q)} =
+    transport isSet ([x≡y]≡[A≃B] ⁻¹)
+              (AisSet→L[A]isSet (≃isSet (X₁isSet (A , p)) (X₁isSet (B , q)))) _ _
     where
-    [A≃B]≃L[A≃B] : (A ≃ B) ≃ (Lift (A ≃ B))
-    [A≃B]≃L[A≃B] = Level.lift , qinv→isequiv (Level.lower , refl , refl)
-
     [x≡y]≡[A≃B] : (A , p ≡ B , q) ≡ Lift (A ≃ B)
-    [x≡y]≡[A≃B] = ua (tran≃ (eq _ _) [A≃B]≃L[A≃B])
-
-    L[A≃B]isSet : isSet (Lift (A ≃ B))
-    L[A≃B]isSet eq₁ eq₂ p₁ p₂ =
-                p₁ ≡⟨ lem p₁ ⟩
-                ap Level.lift (ap lower p₁) ≡⟨ ap (ap Lift.lift) (≃isSet (X₁isSet (A , p)) (X₁isSet (B , q)) _ _ _ _)  ⟩
-                ap Level.lift (ap lower p₂) ≡⟨ (lem p₂) ⁻¹  ⟩
-                p₂ ∎
-                where
-                lem : (r : eq₁ ≡ eq₂) → r ≡ ap Level.lift (ap lower r)
-                lem r = apid _ _ r ⁻¹ ▪ (ap∘ lower Level.lift _ _ r) ⁻¹
+    [x≡y]≡[A≃B] = ua (tran≃ (eq _ _) A≃L[A])
 
   Y : X → Set _
   Y x = x₀ ≡ x

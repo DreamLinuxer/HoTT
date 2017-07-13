@@ -98,3 +98,66 @@ module Ex2-4 where
   boundary : ∀ {ℓ} {A : Set ℓ} → (n : ℕ) → Set ℓ
   boundary {ℓ} {A} = recℕ (Set ℓ) (Lift 𝟘)
                           (λ n b → npath {ℓ} {A} n × npath {ℓ} {A} n)
+
+--Ex 2.13
+module Ex2-13 where
+  open import Base
+  open import Ch3-3
+
+  postulate
+    isequivIsProp : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) → isProp (isequiv f)
+
+  not : 𝟚 → 𝟚
+  not 0₂ = 1₂
+  not 1₂ = 0₂
+
+  not≃ : 𝟚 ≃ 𝟚
+  not≃ = not , qinv→isequiv (not , ind𝟚 _ (refl _) (refl _)
+                                 , ind𝟚 _ (refl _) (refl _))
+
+  f≡id∨not : (f : 𝟚 → 𝟚) → qinv f → (b : 𝟚) → f 0₂ ≡ b → (f ≡ id) + (f ≡ not)
+  f≡id∨not f (g , α , β) 0₂ p = inl (funext (ind𝟚 _ p (f1≡1 (f 1₂) (refl _))))
+    where
+    f1≡1 : (b : 𝟚) → f 1₂ ≡ b → f 1₂ ≡ 1₂
+    f1≡1 0₂ p₁ = rec𝟘 _ (g⊥ (g 1₂) (refl _))
+      where
+      g⊥ : (b : 𝟚) → g 1₂ ≡ b → 𝟘
+      g⊥ 0₂ p₂ = 0₂≠1₂ (p ⁻¹ ▪ ap f (p₂ ⁻¹) ▪ α 1₂)
+      g⊥ 1₂ p₂ = 0₂≠1₂ (p₁ ⁻¹ ▪ ap f (p₂ ⁻¹) ▪ α 1₂)
+    f1≡1 1₂ p = p
+  f≡id∨not f (g , α , β) 1₂ p = inr (funext (ind𝟚 _ p (f1≡0 (f 1₂) (refl _))))
+    where
+    f1≡0 : (b : 𝟚) → f 1₂ ≡ b → f 1₂ ≡ 0₂
+    f1≡0 0₂ p₁ = p₁
+    f1≡0 1₂ p₁ = rec𝟘 _ (g⊥ (g 0₂) (refl _))
+      where
+      g⊥ : (b : 𝟚) → g 0₂ ≡ b → 𝟘
+      g⊥ 0₂ p₂ = 0₂≠1₂ (α 0₂ ⁻¹ ▪ ap f p₂ ▪ p)
+      g⊥ 1₂ p₂ = 0₂≠1₂ (α 0₂ ⁻¹ ▪ ap f p₂ ▪ p₁)
+
+  [𝟚≃𝟚]≡id∨not : (eq : 𝟚 ≃ 𝟚) → (eq ≡ ref≃) + (eq ≡ not≃)
+  [𝟚≃𝟚]≡id∨not (f , eq) with f≡id∨not f (isequiv→qinv eq) (f 0₂) (refl _)
+  [𝟚≃𝟚]≡id∨not (f , eq) | inl f≡id  = inl (pairΣ≡ (f≡id , (isequivIsProp _ _ _)))
+  [𝟚≃𝟚]≡id∨not (f , eq) | inr f≡not = inr (pairΣ≡ (f≡not , (isequivIsProp _ _ _)))
+
+  [𝟚≃𝟚]→𝟚 : (𝟚 ≃ 𝟚) → 𝟚
+  [𝟚≃𝟚]→𝟚 (f , eq) with f≡id∨not f (isequiv→qinv eq) (f 0₂) (refl _)
+  [𝟚≃𝟚]→𝟚 (f , eq) | inl f≡id  = 0₂
+  [𝟚≃𝟚]→𝟚 (f , eq) | inr f≡not = 1₂
+
+  𝟚→[𝟚≃𝟚] : 𝟚 → (𝟚 ≃ 𝟚)
+  𝟚→[𝟚≃𝟚] 0₂ = ref≃
+  𝟚→[𝟚≃𝟚] 1₂ = not≃
+
+  α : [𝟚≃𝟚]→𝟚 ∘ 𝟚→[𝟚≃𝟚] ~ id
+  α 0₂ = refl 0₂
+  α 1₂ = refl 1₂
+
+  β : 𝟚→[𝟚≃𝟚] ∘ [𝟚≃𝟚]→𝟚 ~ id
+  β (f , eq) with f≡id∨not f (isequiv→qinv eq) (f 0₂) (refl _)
+  β (f₁ , eq) | inl f≡id  = pairΣ≡ (f≡id ⁻¹ , (isequivIsProp _ _ _))
+  β (f₁ , eq) | inr f≡not = pairΣ≡ (f≡not ⁻¹ , (isequivIsProp _ _ _))
+  
+  [𝟚≃𝟚]≃𝟚 : (𝟚 ≃ 𝟚) ≃ 𝟚
+  [𝟚≃𝟚]≃𝟚 = [𝟚≃𝟚]→𝟚 , (qinv→isequiv (𝟚→[𝟚≃𝟚] , α , β))
+
