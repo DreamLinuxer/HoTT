@@ -99,6 +99,17 @@ module Ex2-4 where
   boundary {ℓ} {A} = recℕ (Set ℓ) (Lift 𝟘)
                           (λ n b → npath {ℓ} {A} n × npath {ℓ} {A} n)
 
+--Ex 2.10
+module Ex2-10 where
+  open import Base
+
+  assocΣ : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : A → Set ℓ'} {C : Σ[ x ∈ A ] (B x) → Set ℓ''}
+         → (Σ[ x ∈ A ] Σ[ y ∈ (B x) ] (C (x , y))) ≃ (Σ[ p ∈ Σ[ x ∈ A ] (B x) ] C p)
+  assocΣ = (λ {(x , y , c) → (x , y) , c})
+         , qinv→isequiv ( (λ {((x , y) , c) → x , y , c})
+                        , (λ {((x , y) , c) → refl _})
+                        , (λ {(x , y , c) → refl _}))
+
 --Ex 2.13
 module Ex2-13 where
   open import Base

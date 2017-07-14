@@ -20,3 +20,15 @@ module Ex3-1 where
     L[B]isSet : isSet (Lift {ℓ = ℓ ⊔ ℓ'} B)
     L[B]isSet = transport isSet (ua L[A]≃L[B]) L[A]isSet
     
+--Ex3.5
+module Ex3-5 where
+  open import Base
+  open import Ch3-3
+  open import Ch3-6
+  open import Ch3-11
+
+  isPropA≃[A→isContrA] : ∀ {ℓ} {A : Set ℓ} → isProp A ≃ (A → isContr A)
+  isPropA≃[A→isContrA] = P≃Q isPropAisProp (ΠisProp (λ x → isContrAisProp))
+                             (λ p a → a , p a)
+                             (λ f x y →  pr₂ (f x) x ⁻¹ ▪ pr₂ (f x) y)
+  

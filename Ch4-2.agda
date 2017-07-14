@@ -1,7 +1,10 @@
 {-# OPTIONS --without-K #-}
 module Ch4-2 where
 open import Base
+open import Ch3-3
 open import Ch3-11
+open import Ex2
+open import Ex3
 
 -- Definition 4.2.1
 ishae : ∀ {ℓ} {ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) → Set _
@@ -59,6 +62,10 @@ qinv→ishae {A = A} {f = f} (g , ε , η) = g , η , ε' , τ
         ε (f (g (f a))) ⁻¹ ▪ ap f (ap (g ∘ f) (η a)) ▪ ε (f a)
      ≡⟨ ap (λ x → ε (f (g (f a))) ⁻¹ ▪ ap f x ▪ ε (f a)) (comm~ _ η a ⁻¹) ⟩
         ε (f (g (f a))) ⁻¹ ▪ ap f (η (g (f a))) ▪ ε (f a) ∎
+
+ishae→qinv : ∀ {ℓ} {ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B}
+           → ishae f → qinv f
+ishae→qinv (g , η , ε , τ) = g , ε , η
 
 -- Definition 4.2.4
 fiber : ∀ {ℓ} {ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B) → Set _
@@ -175,3 +182,33 @@ rcoh≃ {A = A} {B} f g ε = sym≃ (≃→Π≃ eq) ○ sym≃ (Π→ , Π→�
                ≃ (Σ[ γ ∈ (g (f x) ≡ x)] (ap f γ ≡ ε (f x)))
   eq x = tran≃ ([x,p≡x,p']≃Σ[fγ▪p'≡p] f (f x) (g (f x) , ε (f x)) (x , refl (f x)))
                (≃→Σ≃ (λ γ → idtoeqv (ap (λ x₁ → x₁ ≡ ε (f x)) (unit-right _ ⁻¹))))
+
+-- Lemma 4.2.12
+ishae→isContr[rcoh] : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B)
+                    → ishae f → (ri : rinv f) → isContr (rcoh f ri)
+ishae→isContr[rcoh] {A = A} f hae (g , ε) =
+  transport isContr (ua (rcoh≃ f g ε) ⁻¹) (ΠisContr (λ a → AisProp→isContr[a≡a] (isProp[fib≡fib] a) _ _))
+  where
+  isProp[fib≡fib] : (a : A) → isProp (fiber f (f a))
+  isProp[fib≡fib] a = (pr₁ (isContra→isProp (hae→isContr[fib] hae (f a))))
+
+-- Theorem 4.2.13
+ishaeIsProp : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B)
+            → isProp (ishae f)
+ishaeIsProp {A = A} {B} f = transport id eq contr
+  where
+  open Ex3-5
+  open Ex2-10
+  eq : (ishae f → isContr (ishae f)) ≡ isProp (ishae f)
+  eq = ua (isPropA≃[A→isContrA] {A = ishae f}) ⁻¹
+
+  hae≃Σ = (λ {(g , η , ε , τ) → g , ε , η , τ})
+        , qinv→isequiv ( (λ {(g , ε , η , τ) → g , η , ε , τ})
+                       , (λ {(g , ε , η , τ) → refl _})
+                       , (λ {(g , η , ε , τ) → refl _}))
+
+  contr : ishae f → isContr (ishae f)
+  contr hae = transport isContr (ua Σeq ⁻¹) (qinv→isContr[rinv] f (ishae→qinv hae))
+    where
+    Σeq : ishae f ≃ rinv f
+    Σeq = hae≃Σ ▪≃ assocΣ ▪≃ (isContrP→ΣPx≃A _ (rcoh f) (λ {(g , η) → ishae→isContr[rcoh] f hae (g , η)}))
