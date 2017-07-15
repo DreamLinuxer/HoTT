@@ -85,3 +85,7 @@ AisProp→isContr[a≡a] AisProp x y = (AisProp x y) , (PropisSet AisProp x y _)
 
 isContr[a≡a]→AisProp : ∀ {ℓ} {A : Set ℓ} → ((x y : A) → isContr (x ≡ y)) → isProp A
 isContr[a≡a]→AisProp contr x y = pr₁ (contr x y)
+
+
+×isContr : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → isContr A → isContr B  → isContr (A × B)
+×isContr (a , p) (b , q) = (a , b) , (λ {(a' , b') → pair×≡ ((p a') , (q b'))})
