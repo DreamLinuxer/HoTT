@@ -183,6 +183,9 @@ apid : ∀ {ℓ} {A : Set ℓ} (x y : A) → (p : x ≡ y) →
        ap id p ≡ p
 apid x .x (refl .x) = refl (refl x)
 
+apconst : ∀ {ℓ} {ℓ'} {A : Set ℓ} {B : Set ℓ'} → {x y : A} {b : B} → (p : x ≡ y) → ap (λ _ → b) p ≡ refl b
+apconst (refl x) = refl (refl _)
+
 --Lemma 2.3.1
 transport : ∀ {ℓ ℓ'} {A : Set ℓ} (P : A → Set ℓ') {x y : A} (p : x ≡ y) → P x → P y
 transport P (refl x) p = p
@@ -1005,3 +1008,13 @@ l-cancel {r = r} p q α = unit-left p
                        ▪ assoc▪ (r ⁻¹) r q
                        ▪ ap (λ x → x ▪ q) (p⁻¹▪p≡refly r)
                        ▪ unit-left q ⁻¹
+
+r-cancel : ∀ {ℓ} {A : Set ℓ} {x y z : A} {r : y ≡ z}(p q : x ≡ y)
+         → p ▪ r ≡ q ▪ r → p ≡ q
+r-cancel {r = r} p q α = unit-right p
+                       ▪ (ap (λ x → p ▪ x) (p▪p⁻¹≡reflx r) ⁻¹
+                       ▪ (assoc▪ p r (r ⁻¹)
+                       ▪ (ap (λ x → x ▪ r ⁻¹) α
+                       ▪ (assoc▪ q r (r ⁻¹) ⁻¹
+                       ▪ (ap (λ x → q ▪ x) (p▪p⁻¹≡reflx r)
+                       ▪ unit-right q ⁻¹)))))

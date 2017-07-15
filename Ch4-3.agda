@@ -7,18 +7,18 @@ open import Ch4-2
 open import Ex3
 
 biinv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) → Set _
-biinv f = linv f × rinv f
+biinv f = rinv f × linv f
 
 biinv→qinv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B}
            → biinv f → qinv f
-biinv→qinv {f = f} ((g , η) , (h , ε)) =
+biinv→qinv {f = f} ((h , ε) , (g , η)) =
            let γ : g ~ h
                γ x = ap g (ε x ⁻¹) ▪ η (h x)
            in  h , (ε , (λ x → γ (f x) ⁻¹ ▪ η x))
 
 qinv→biinv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B}
            → qinv f → biinv f
-qinv→biinv (g , η , ε) = (g , ε) , (g , η)
+qinv→biinv (g , η , ε) = (g , η) , (g , ε)
 
 -- Theorem 4.3.2
 biinvIsProp : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B)
@@ -27,7 +27,7 @@ biinvIsProp f = ≃← Ex3-5.isPropA≃[A→isContrA] contr
   where
   contr : biinv f → isContr (biinv f)
   contr binv with biinv→qinv binv
-  ... | qinv = ×isContr (qinv→isContr[linv] f qinv) (qinv→isContr[rinv] f qinv)
+  ... | qinv = ×isContr (qinv→isContr[rinv] f qinv) (qinv→isContr[linv] f qinv)
 
 -- Corollary 4.3.3
 biinv≃ishae : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B)

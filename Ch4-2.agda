@@ -8,7 +8,7 @@ open import Ex3
 
 -- Definition 4.2.1
 ishae : ∀ {ℓ} {ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) → Set _
-ishae {A = A} {B} f = Σ[ g ∈ (B → A) ] Σ[ η ∈ g ∘ f ~ id ] Σ[ ε ∈ f ∘ g ~ id ] ((x : A) → ap f (η x) ≡ ε (f x))
+ishae {A = A} {B} f = Σ[ g ∈ (B → A) ] Σ[ ε ∈ f ∘ g ~ id ] Σ[ η ∈ g ∘ f ~ id ] ((x : A) → ap f (η x) ≡ ε (f x))
 
 -- Lemma 4.2.2
 τ→v : ∀ {ℓ} {ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (g : B → A)
@@ -47,7 +47,7 @@ ishae {A = A} {B} f = Σ[ g ∈ (B → A) ] Σ[ η ∈ g ∘ f ~ id ] Σ[ ε ∈
 -- Theorem 4.2.3
 qinv→ishae : ∀ {ℓ} {ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B}
            → qinv f → ishae f
-qinv→ishae {A = A} {f = f} (g , ε , η) = g , η , ε' , τ
+qinv→ishae {A = A} {f = f} (g , ε , η) = g , ε' , η , τ
   where
   ε' : f ∘ g ~ id
   ε' b = ε (f (g b)) ⁻¹ ▪ ap f (η (g b)) ▪ ε b
@@ -65,15 +65,15 @@ qinv→ishae {A = A} {f = f} (g , ε , η) = g , η , ε' , τ
 
 ishae→qinv : ∀ {ℓ} {ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B}
            → ishae f → qinv f
-ishae→qinv (g , η , ε , τ) = g , ε , η
+ishae→qinv (g , ε , η , τ) = g , ε , η
 
 -- Definition 4.2.4
-fiber : ∀ {ℓ} {ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B) → Set _
-fiber {A = A} f y = Σ[ x ∈ A ] (f x ≡ y)
+fib : ∀ {ℓ} {ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B) → Set _
+fib {A = A} f y = Σ[ x ∈ A ] (f x ≡ y)
 
 -- Lemma 4.2.5
 [x,p≡x,p']≃Σ[fγ▪p'≡p] : ∀ {ℓ} {ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (y : B)
-                      → (f₁ f₂ : fiber f y)
+                      → (f₁ f₂ : fib f y)
                       → (f₁ ≡ f₂) ≃ (Σ[ γ ∈ (pr₁ f₁ ≡ pr₁ f₂) ] (ap f γ ▪ pr₂ f₂ ≡ pr₂ f₁))
 [x,p≡x,p']≃Σ[fγ▪p'≡p] f .(f x') (x , p) (x' , refl .(f x')) = 𝒇 , qinv→isequiv (𝒈 , α , β)
   where
@@ -91,10 +91,10 @@ fiber {A = A} f y = Σ[ x ∈ A ] (f x ≡ y)
 
 -- Theorem 4.2.6
 hae→isContr[fib] : ∀ {ℓ} {ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B}
-                 → ishae f → (y : B) → isContr (fiber f y)
-hae→isContr[fib] {f = f} (g , η , ε , τ)  y = (g y , ε y) , h
+                 → ishae f → (y : B) → isContr (fib f y)
+hae→isContr[fib] {f = f} (g , ε , η , τ)  y = (g y , ε y) , h
   where
-  h : (fib : fiber f y) → g y , ε y ≡ fib
+  h : (fib : fib f y) → g y , ε y ≡ fib
   h (x , p) = 𝒈 (ap g p ⁻¹ ▪ η x , φ)
     where
     𝒈 : Σ[ γ ∈ (g y ≡ x)] (ap f γ ▪ p ≡ ε y) → g y , ε y ≡ x , p
@@ -166,19 +166,19 @@ rcoh {A = A} f (g , ε) = Σ[ η ∈ (g ∘ f ~ id) ] ((x : A) → ap f (η x) �
 
 -- Lemma 4.2.11
 lcoh≃ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (g : B → A) (η : g ∘ f ~ id) 
-      → lcoh f (g , η) ≃ ((y : B) → _≡_ {A = fiber g (g y)} (f (g y) , η (g y)) (y , refl (g y)))
+      → lcoh f (g , η) ≃ ((y : B) → _≡_ {A = fib g (g y)} (f (g y) , η (g y)) (y , refl (g y)))
 lcoh≃ {A = A} {B} f g η = sym≃ (≃→Π≃ eq) ○ sym≃ (Π→ , Π→≃)
   where
-  eq : (y : B) → (_≡_ {A = fiber g (g y)} (f (g y) , η (g y)) (y , refl (g y)))
+  eq : (y : B) → (_≡_ {A = fib g (g y)} (f (g y) , η (g y)) (y , refl (g y)))
                ≃ (Σ[ γ ∈ (f (g y) ≡ y)] (ap g γ ≡ η (g y)))
   eq y = tran≃ ([x,p≡x,p']≃Σ[fγ▪p'≡p] g (g y) (f (g y) , η (g y)) (y , refl (g y)))
                (≃→Σ≃ (λ γ → idtoeqv (ap (λ x → x ≡ η (g y)) (unit-right _ ⁻¹))))
 
 rcoh≃ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (g : B → A) (ε : f ∘ g ~ id) 
-      → rcoh f (g , ε) ≃ ((x : A) → _≡_ {A = fiber f (f x)} (g (f x) , ε (f x)) (x , refl (f x)))
+      → rcoh f (g , ε) ≃ ((x : A) → _≡_ {A = fib f (f x)} (g (f x) , ε (f x)) (x , refl (f x)))
 rcoh≃ {A = A} {B} f g ε = sym≃ (≃→Π≃ eq) ○ sym≃ (Π→ , Π→≃)
   where
-  eq : (x : A) → (_≡_ {A = fiber f (f x)} (g (f x) , ε (f x)) (x , refl (f x)))
+  eq : (x : A) → (_≡_ {A = fib f (f x)} (g (f x) , ε (f x)) (x , refl (f x)))
                ≃ (Σ[ γ ∈ (g (f x) ≡ x)] (ap f γ ≡ ε (f x)))
   eq x = tran≃ ([x,p≡x,p']≃Σ[fγ▪p'≡p] f (f x) (g (f x) , ε (f x)) (x , refl (f x)))
                (≃→Σ≃ (λ γ → idtoeqv (ap (λ x₁ → x₁ ≡ ε (f x)) (unit-right _ ⁻¹))))
@@ -189,7 +189,7 @@ ishae→isContr[rcoh] : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B
 ishae→isContr[rcoh] {A = A} f hae (g , ε) =
   transport isContr (ua (rcoh≃ f g ε) ⁻¹) (ΠisContr (λ a → AisProp→isContr[a≡a] (isProp[fib≡fib] a) _ _))
   where
-  isProp[fib≡fib] : (a : A) → isProp (fiber f (f a))
+  isProp[fib≡fib] : (a : A) → isProp (fib f (f a))
   isProp[fib≡fib] a = (pr₁ (isContra→isProp (hae→isContr[fib] hae (f a))))
 
 -- Theorem 4.2.13
@@ -202,13 +202,8 @@ ishaeIsProp {A = A} {B} f = transport id eq contr
   eq : (ishae f → isContr (ishae f)) ≡ isProp (ishae f)
   eq = ua (isPropA≃[A→isContrA] {A = ishae f}) ⁻¹
 
-  hae≃Σ = (λ {(g , η , ε , τ) → g , ε , η , τ})
-        , qinv→isequiv ( (λ {(g , ε , η , τ) → g , η , ε , τ})
-                       , (λ {(g , ε , η , τ) → refl _})
-                       , (λ {(g , η , ε , τ) → refl _}))
-
   contr : ishae f → isContr (ishae f)
   contr hae = transport isContr (ua Σeq ⁻¹) (qinv→isContr[rinv] f (ishae→qinv hae))
     where
     Σeq : ishae f ≃ rinv f
-    Σeq = hae≃Σ ▪≃ assocΣ ▪≃ (isContrP→ΣPx≃A _ (rcoh f) (λ {(g , η) → ishae→isContr[rcoh] f hae (g , η)}))
+    Σeq = assocΣ ▪≃ (isContrP→ΣPx≃A _ (rcoh f) (λ {(g , η) → ishae→isContr[rcoh] f hae (g , η)}))
