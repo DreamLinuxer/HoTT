@@ -17,14 +17,14 @@ embedding : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) → Set _
 embedding {A = A} f = (x y : A) → isequiv {A = x ≡ y} (ap f)
 
 -- Theorem 4.6.3
-iseq→surj×embed : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B}
-                → isequiv f → surjective f × embedding f
-iseq→surj×embed {f = f} eq = (λ b → ∣ pr₁ ((hae→isContr[fib] ∘ ≃→ (biinv≃ishae f)) eq b) ∣)
-                           , (λ x y → ap≡ _ eq)
+isequiv→surj×embed : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B}
+                   → isequiv f → surjective f × embedding f
+isequiv→surj×embed {f = f} eq = (λ b → ∣ pr₁ ((hae→isContr[fib] ∘ ≃→ (biinv≃ishae f)) eq b) ∣)
+                              , (λ x y → ap≡ _ eq)
 
-surj×embed→iseq : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B}
-                → surjective f × embedding f → isequiv f
-surj×embed→iseq {B = B} {f = f} (surj , embed) = (≃← (biinv≃ishae f) ∘ isContr→ishae) isContrf
+surj×embed→isequiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B}
+                   → surjective f × embedding f → isequiv f
+surj×embed→isequiv {B = B} {f = f} (surj , embed) = (≃← (biinv≃ishae f) ∘ isContr→ishae) isContrf
   where
   isContrf : isContract f
   isContrf b = pr₁ (rec∥-∥ isContrAisProp (λ x → x , (λ y → γ x y))) (surj b)
@@ -50,8 +50,8 @@ surj×embed→iseq {B = B} {f = f} (surj , embed) = (≃← (biinv≃ishae f) �
         ▪ unit-left _ ⁻¹
 
 -- Corollary 4.6.4
-iseq≃surj×embed : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B}
-                → isequiv f ≃ surjective f × embedding f
-iseq≃surj×embed = P≃Q (biinvIsProp _) (×isProp (λ f g → funext (λ x → inhabPath _ _))
+isequiv≃surj×embed : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B}
+                   → isequiv f ≃ surjective f × embedding f
+isequiv≃surj×embed = P≃Q (biinvIsProp _) (×isProp (λ f g → funext (λ x → inhabPath _ _))
                                                (λ e₁ e₂ → funext (λ x → funext (λ y → biinvIsProp _ _ _))))
-                      iseq→surj×embed surj×embed→iseq
+                         isequiv→surj×embed surj×embed→isequiv

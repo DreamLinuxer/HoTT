@@ -38,16 +38,19 @@ isContr→isContr[isContr] c = c , isContrAisProp c
 retraction : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → (A → B) → Set _
 retraction {A = A} {B} r = Σ[ s ∈ (B → A) ] ((y : B) → r (s y) ≡ y)
 
-is-retract : ∀ {ℓ ℓ'} (B : Set ℓ) (A : Set ℓ') → Set _
-is-retract B A = Σ[ r ∈ (A → B) ] retraction r
+is-retract : ∀ {ℓ ℓ'} (A : Set ℓ') (B : Set ℓ) → Set _
+is-retract A B = Σ[ r ∈ (A → B) ] retraction r
 
 -- Lemma 3.11.7
-retract-prv-contra : ∀ {ℓ ℓ'} {B : Set ℓ} {A : Set ℓ'} → is-retract B A → isContr A → isContr B
+retract-prv-contra : ∀ {ℓ ℓ'} {B : Set ℓ} {A : Set ℓ'} → is-retract A B → isContr A → isContr B
 retract-prv-contra (r , s , ε) (a₀ , contr) = r a₀ , (λ b → ap r (contr (s b)) ▪ ε b)
 
 -- Lemma 3.11.8
 Σ[a≡x]isContr : ∀ {ℓ} (A : Set ℓ) (a : A) → isContr (Σ[ x ∈ A ] a ≡ x)
 Σ[a≡x]isContr A a = (a , refl a) , (λ {(x , p) → pairΣ≡ (p , transport[x↦a≡x] a p (refl a) ▪ unit-left p ⁻¹)})
+
+Σ[x≡a]isContr : ∀ {ℓ} (A : Set ℓ) (a : A) → isContr (Σ[ x ∈ A ] x ≡ a)
+Σ[x≡a]isContr A a = (a , refl a) , (λ {(x , p) → pairΣ≡ (p ⁻¹ , transport[x↦x≡a] a (p ⁻¹) (refl a) ▪ unit-right _ ⁻¹ ▪ p⁻¹⁻¹≡p _)})
 
 -- Lemma 3.11.9
 isContrP→ΣPx≃A : ∀ {ℓ ℓ'} (A : Set ℓ) (P : A → Set ℓ')
@@ -89,3 +92,6 @@ isContr[a≡a]→AisProp contr x y = pr₁ (contr x y)
 
 ×isContr : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → isContr A → isContr B  → isContr (A × B)
 ×isContr (a , p) (b , q) = (a , b) , (λ {(a' , b') → pair×≡ ((p a') , (q b'))})
+
+≃isContr : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → isContr A → A ≃ B  → isContr B
+≃isContr (a , p) eq = ≃→ eq a , (λ b → ap (≃→ eq) (p _) ▪ ≃ε eq b)

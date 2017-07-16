@@ -28,8 +28,12 @@ isContractisProp f = ΠisProp (λ _ → isContrAisProp)
 
 -- Theorem 4.4.5
 isContract≃ishae : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B)
-                 → ishae f ≃ isContract f
-isContract≃ishae f = P≃Q (ishaeIsProp f) (isContractisProp f) hae→isContr[fib] isContr→ishae
+                 → isContract f ≃ ishae f 
+isContract≃ishae f = P≃Q (isContractisProp f) (ishaeIsProp f) isContr→ishae hae→isContr[fib]
+
+isContract≃isequiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B)
+                   → isContract f ≃ isequiv f
+isContract≃isequiv f = isContract≃ishae f ▪≃ biinv≃ishae f ⁻¹≃
 
 -- Corollary 4.4.6
 [B→isequiv]→isequiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B)
