@@ -110,6 +110,45 @@ module Ex2-10 where
                         , (λ {((x , y) , c) → refl _})
                         , (λ {(x , y , c) → refl _}))
 
+--Ex 2.11
+module Ex2-11 where
+  open import Base
+
+  comm-square : ∀ {ℓ₁ ℓ₂ ℓ₃ ℓ₄} (A : Set ℓ₁) (B : Set ℓ₂) (C : Set ℓ₃) (P : Set ℓ₄)
+              → Set _
+  comm-square A B C P = Σ[ f ∈ (A → C) ] Σ[ g ∈ (B → C) ]
+                        Σ[ h ∈ (P → A) ] Σ[ k ∈ (P → B) ]
+                        ((p : P) → (f ∘ h) p ≡ (g ∘ k) p)
+
+  _×[_]_ : ∀ {ℓ₁ ℓ₂ ℓ₃} (A : Set ℓ₁) (C : Set ℓ₂) (B : Set ℓ₃)
+         → (f : A → C) (g : B → C) → Set _
+  A ×[ C ] B = λ f g → Σ[ a ∈ A ] Σ[ b ∈ B ] ((f a) ≡ (g b))
+
+  induce-map : ∀ {ℓ₁ ℓ₂ ℓ₃ ℓ₄ ℓ₅} {A : Set ℓ₁} {B : Set ℓ₂} {C : Set ℓ₃} {P : Set ℓ₄} {X : Set ℓ₅}
+              → (sq : comm-square A B C P)
+              → (X → P) → ((X → A) ×[ (X → C) ] (X → B)) (λ i → (pr₁ sq) ∘ i) (λ j → (pr₁ (pr₂ sq)) ∘ j)
+  induce-map {A = A} {B} {C} {P} {X} (f , g , h , k , α) 𝒇 = h ∘ 𝒇 , k ∘ 𝒇 , funext (λ x → α (𝒇 x))
+
+  is-pullback : ∀ {ℓ₁ ℓ₂ ℓ₃ ℓ₄ ℓ₅} {A : Set ℓ₁} {B : Set ℓ₂} {C : Set ℓ₃} {P : Set ℓ₄}
+              → comm-square A B C P → Set _
+  is-pullback {ℓ₅ = ℓ₅} {A} {B} {C} {P} (f , g , h , k , α) = (X : Set ℓ₅) → isequiv (induce-map {X = X} (f , g , h , k , α))
+
+  module pb-square where
+    square : ∀ {ℓ₁ ℓ₂ ℓ₃} {A : Set ℓ₁} {B : Set ℓ₂} {C : Set ℓ₃} (f : A → C) (g : B → C)
+           → comm-square A B C ((A ×[ C ] B) f g)
+    square f g = f , g , pr₁ , (λ w → pr₁ (pr₂ w)) , (λ {p → pr₂ (pr₂ p)})
+
+    pullback-square : ∀ {ℓ₁ ℓ₂ ℓ₃ ℓ₄} {A : Set ℓ₁} {B : Set ℓ₂} {C : Set ℓ₃} (f : A → C) (g : B → C)
+                    → is-pullback {ℓ₅ = ℓ₄} (square f g)
+    pullback-square {A = A} {B} {C} f g X =
+      qinv→isequiv (map⁻¹
+                   , (λ {(i , j , β) → pairΣ≡ (refl _ , pairΣ≡ (refl _ , uniqΠ _ ⁻¹))})
+                   , (λ {𝒇 → funext (λ x → pairΣ≡ (refl _ , pairΣ≡ (refl _ , computationΠ  _ x)))}))
+      where
+      P = ((A ×[ C ] B) f g)
+      map⁻¹ : ((X → A) ×[ (X → C) ] (X → B)) (λ i → f ∘ i) (λ j → g ∘ j) → (X → P)
+      map⁻¹ (i , j , β) = λ x → (i x) , j x , happly β x
+
 --Ex 2.13
 module Ex2-13 where
   open import Base

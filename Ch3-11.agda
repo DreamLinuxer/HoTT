@@ -95,3 +95,6 @@ isContr[a≡a]→AisProp contr x y = pr₁ (contr x y)
 
 ≃isContr : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → isContr A → A ≃ B  → isContr B
 ≃isContr (a , p) eq = ≃→ eq a , (λ b → ap (≃→ eq) (p _) ▪ ≃ε eq b)
+
+isContr→isequiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → isContr A → isContr B → (f : A → B) → isequiv f
+isContr→isequiv (a , p) (b , q) f = qinv→isequiv ((λ _ → a) , (λ b' → q (f a) ⁻¹ ▪ q b') , (λ a' → p a'))

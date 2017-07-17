@@ -1022,6 +1022,10 @@ pathind≃ {a = a} {B = B} = qinv→isequiv ( (λ f → f a (refl a))
    β : g ∘ f ~ id
    β (a , b) = pairΣ≡ (refl _ , ≃η (eq a) b)
 
+swap×≃ : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : Set ℓ₂} → A × B ≃ B × A
+swap×≃ = (λ {(a , b) → b , a}) , qinv→isequiv ( (λ {(b , a) → a , b})
+                                              , (λ {(b , a) → refl _ })
+                                              , (λ {(a , b) → refl _}))
 
 l-cancel : ∀ {ℓ} {A : Set ℓ} {x y z : A} {r : z ≡ x}(p q : x ≡ y)
          → r ▪ p ≡ r ▪ q → p ≡ q
