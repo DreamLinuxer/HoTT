@@ -73,21 +73,21 @@ qinv≃Π[x≡x] {A = A} {B} 𝒇 qe = lem (𝒇 , qinv→isequiv qe)
           r ∎
 
   [x≡y]isSet : (x y : A) → isSet (x ≡ y)
-  [x≡y]isSet x y = pr₁ (rec∥-∥ isSetAisProp
-                               (λ p → pr₁ (rec∥-∥ isSetAisProp
-                                                  (λ q → Ex3-1.isSetA×[A≃B]→BisSet [a≡a]isSet
-                                                         (sym≃ ([x≡y]≃[a≡a] x y p q)))) (g y))) (g x)
+  [x≡y]isSet x y = rec∥-∥ isSetAisProp
+                               (λ p → rec∥-∥ isSetAisProp
+                                            (λ q → Ex3-1.isSetA×[A≃B]→BisSet [a≡a]isSet
+                                                   (sym≃ ([x≡y]≃[a≡a] x y p q))) (g y)) (g x)
 
   B : A → Set _
   B x = Σ[ r ∈ (x ≡ x) ] ((s : a ≡ x) → r ≡ s ⁻¹ ▪ q ▪ s)
 
   BisProp : (x : A) → isProp (B x)
-  BisProp x = pr₁ (rec∥-∥ isPropAisProp
-                          (λ {p (r , h) (r' , h') → pairΣ≡ (h p ▪ h' p ⁻¹ ,
-                                                            funext (λ s → [x≡y]isSet _ _ _ _ _ _))})) (g x)
+  BisProp x = rec∥-∥ isPropAisProp
+                    (λ {p (r , h) (r' , h') → pairΣ≡ (h p ▪ h' p ⁻¹ ,
+                                                      funext (λ s → [x≡y]isSet _ _ _ _ _ _))}) (g x)
   x→Bx : (x : A) → B x
-  x→Bx x = pr₁ (rec∥-∥ (BisProp x) (λ p → (p ⁻¹ ▪ q ▪ p)
-                                       , (λ s → β s p))) (g x)
+  x→Bx x = rec∥-∥ (BisProp x) (λ p → (p ⁻¹ ▪ q ▪ p)
+                                  , (λ s → β s p)) (g x)
            where
            α : (s p : a ≡ x) → q ▪ p ▪ s ⁻¹ ≡ p ▪ s ⁻¹ ▪ q
            α s p = assoc▪ _ _ _ ⁻¹ ▪ commq (p ▪ s ⁻¹) ⁻¹
@@ -174,7 +174,7 @@ qinv≃Π[x≡x] {A = A} {B} 𝒇 qe = lem (𝒇 , qinv→isequiv qe)
 
   Σf : Σ[ f ∈ ((x : X) → x ≡ x) ] (f a ≡ q)
   Σf = ∃Π[x≡x] a q (λ p q r s → lemma3-8-5.Xis1-type r s)
-               (λ {(τ , p) → pr₁ (rec∥-∥ inhabPath (λ p → ∣ pairΣ≡ (p , (inhabPath _ _)) ∣)) p})
+               (λ {(τ , p) → rec∥-∥ inhabPath (λ p → ∣ pairΣ≡ (p , (inhabPath _ _)) ∣) p})
                (λ p → p▪q≡q▪p (pr₁ [a≡a]≃[𝟚≃𝟚] p) (pr₁ [a≡a]≃[𝟚≃𝟚] q) p (refl _) (refl _))
 
   f : (x : X) → x ≡ x

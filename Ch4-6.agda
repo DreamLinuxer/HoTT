@@ -27,7 +27,7 @@ surj×embed→isequiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B
 surj×embed→isequiv {B = B} {f = f} (surj , embed) = (≃← (biinv≃ishae f) ∘ isContr→ishae) isContrf
   where
   isContrf : isContract f
-  isContrf b = pr₁ (rec∥-∥ isContrAisProp (λ x → x , (λ y → γ x y))) (surj b)
+  isContrf b = rec∥-∥ isContrAisProp (λ x → x , (λ y → γ x y)) (surj b)
     where
     γ : (x y : fib f b) → x ≡ y
     γ (x , p) (y , q) with isequiv→qinv (embed x y)

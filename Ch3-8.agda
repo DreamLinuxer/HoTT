@@ -21,17 +21,17 @@ AC' {ℓ} {ℓ'} =
 --Lemma 3.8.2
 AC→AC' : ∀ {ℓ ℓ'} → AC → AC' {ℓ} {ℓ'}
 AC→AC' ac {X} {Y} {XisSet} {YisSet} f =
-       pr₁ (rec∥-∥ inhabPath (λ {(g , _) → ∣ g ∣})) choice
+       rec∥-∥ inhabPath (λ {(g , _) → ∣ g ∣}) choice
        where
        g : (x : X) → ∥ Σ (Y x) (λ _ → 𝟙) ∥
-       g x = pr₁ (rec∥-∥ inhabPath (λ Yx → ∣ Yx , ⋆ ∣)) (f x)
+       g x = rec∥-∥ inhabPath (λ Yx → ∣ Yx , ⋆ ∣) (f x)
        
        choice : ∥ Σ[ g ∈ ((x : X) → Y x) ] ((x : X) → 𝟙) ∥
        choice = ac {X} {Y} {λ _ _ → 𝟙} {XisSet} {YisSet} {λ { _ _ ⋆ ⋆ → refl ⋆ }} g
 
 AC'→AC : ∀ {ℓ ℓ' ℓ''} → AC' → AC {ℓ} {ℓ'} {ℓ''}
 AC'→AC ac' {X} {A} {P} {XisSet} {AisSet} {PisProp} f =
-       pr₁ (rec∥-∥ inhabPath (λ g → ∣ (λ x → pr₁ (g x)) , (λ x → pr₂ (g x)) ∣)) choice
+       (rec∥-∥ inhabPath (λ g → ∣ (λ x → pr₁ (g x)) , (λ x → pr₂ (g x)) ∣)) choice
        where
        choice : ∥ ((x : X) → Σ[ a ∈ (A x) ] (P x a)) ∥
        choice = ac' {X} {λ x → Σ[ a ∈ (A x) ] (P x a)} {XisSet}
@@ -116,7 +116,7 @@ module lemma3-8-5 where
            idtoeqv (refl 𝟚) ∎
 
   X₁isSet : (x : X) → isSet (pr₁ x)
-  X₁isSet (A , p) = pr₁ (rec∥-∥ isSetAisProp f) p
+  X₁isSet (A , p) = rec∥-∥ isSetAisProp f p
           where
           f : 𝟚 ≡ A → isSet A
           f p = transport isSet p 𝟚isSet
@@ -143,7 +143,7 @@ module lemma3-8-5 where
   YisSet x p q r s = Xis1-type r s
 
   𝒇 : (x : X) → ∥ Y x ∥
-  𝒇 (A , p) = pr₁ (rec∥-∥ inhabPath (λ p → ∣ pairΣ≡ (p , inhabPath _ _) ∣)) p
+  𝒇 (A , p) = rec∥-∥ inhabPath (λ p → ∣ pairΣ≡ (p , inhabPath _ _) ∣) p
 
   AC'' : ∀ {ℓ ℓ'} → Set _
   AC'' {ℓ} {ℓ'} = {X : Set ℓ} {Y : X → Set ℓ'}
@@ -157,4 +157,4 @@ module lemma3-8-5 where
         contra = ac {X} {Y} {YisSet} 𝒇
         
         XisProp : isProp X
-        XisProp = pr₁ (rec∥-∥ isPropAisProp (λ f x₁ x₂ → (f x₁)⁻¹ ▪ f x₂)) contra
+        XisProp = rec∥-∥ isPropAisProp (λ f x₁ x₂ → (f x₁)⁻¹ ▪ f x₂) contra

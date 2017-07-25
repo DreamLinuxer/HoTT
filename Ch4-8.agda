@@ -20,24 +20,16 @@ fib[pr₁a]≃Ba {A = A} {B} a = fib pr₁ a
                              B a ∎≃
 
 -- Lemma 4.8.2
--- A≃Σ[fib] : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B}
---          → A ≃ (Σ[ b ∈ B ] fib f b)
--- A≃Σ[fib] {A = A} {B} {f} = A
---                         ≃⟨ (isContrP→ΣPx≃A _ _ (λ a → Σ[a≡x]isContr B (f a))) ⁻¹≃ ⟩
---                            Σ[ a ∈ A ] Σ[ b ∈ B ] f a ≡ b
---                         ≃⟨ (λ {(a , b , p) → (b , a , p)})
---                           , (qinv→isequiv ( (λ {(b , a , p) → (a , b , p)})
---                                           , (λ {(b , a , p) → refl _})
---                                           , (λ {(a , b , p) → refl _}))) ⟩
---                            (Σ[ b ∈ B ] fib f b) ∎≃
-
 A≃Σ[fib] : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {f : A → B}
          → A ≃ (Σ[ b ∈ B ] fib f b)
-A≃Σ[fib] {A = A} {B} {f} = (λ a → f a , a , refl _)
-                         , (qinv→isequiv ( (λ {(b , a , p) → a})
-                                         , (λ {(b , a , p) → ap (λ {(b , a , p) → a , b , p})
-                                                                (pairΣ≡ ((refl a) , pr₂ (Σ[a≡x]isContr B (f a)) _))})
-                                         , (λ a → refl _)))
+A≃Σ[fib] {A = A} {B} {f} = A
+                        ≃⟨ (isContrP→ΣPx≃A _ _ (λ a → Σ[a≡x]isContr B (f a))) ⁻¹≃ ⟩
+                           Σ[ a ∈ A ] Σ[ b ∈ B ] f a ≡ b
+                        ≃⟨ (λ {(a , b , p) → (b , a , p)})
+                          , (qinv→isequiv ( (λ {(b , a , p) → (a , b , p)})
+                                          , (λ {(b , a , p) → refl _})
+                                          , (λ {(a , b , p) → refl _}))) ⟩
+                           (Σ[ b ∈ B ] fib f b) ∎≃
 
 -- Theorem 4.8.3
 Σ[A→B]≃[B→U] : ∀ {ℓ ℓ'} {B : Set ℓ'} → (Σ[ A ∈ Set (ℓ ⊔ ℓ') ] (A → B)) ≃ (B → Set (ℓ ⊔ ℓ'))

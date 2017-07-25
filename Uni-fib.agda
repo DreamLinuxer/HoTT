@@ -1,66 +1,36 @@
 {-# OPTIONS --without-K #-}
 
 module Uni-fib where
-
-import Level as L using (_⊔_; suc)
-open import Data.Empty
-open import Data.Unit
-open import Data.Product
-open import Data.Sum
-open import Function
-open import Relation.Binary.PropositionalEquality
-
-_~_ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f g : A → B) → Set _
-_~_ {A = A} f g = (a : A) → f a ≡ g a
-
-IsEquiv : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → (A → B) → Set _
-IsEquiv {A = A} {B = B} f = (Σ[ g ∈ (B → A) ] ((f ∘ g) ~ id) ) × (Σ[ h ∈ (B → A) ] ((h ∘ f) ~ id) )
-
-_≃_ : ∀ {ℓ} (A B : Set ℓ) → Set _
-A ≃ B = Σ[ f ∈ (A → B) ] IsEquiv f
-
-ω : ∀ {ℓ} {A B : Set ℓ} → A ≡ B → A ≃ B
-ω refl = id , (id , (λ _ → refl)) , (id , (λ _ → refl))
-
-ap : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} (B : A → Set ℓ₂) → {a a' : A} → a ≡ a' → (B a ≡ B a')
-ap B refl = refl
+open import Base
+open import Ch3-3
+open import Ch3-7
 
 IsUnivFib : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} (B : A → Set ℓ₂)  → Set _
-IsUnivFib {A = A} B = {a a' : A} → IsEquiv {A = (a ≡ a')} {B = (B a ≃ B a')} (ω ∘ ap B)
+IsUnivFib {A = A} B = {a a' : A} → isequiv {A = (a ≡ a')} {B = (B a ≃ B a')} (idtoeqv ∘ ap B)
 
-isProp : ∀ {ℓ} (P : Set ℓ) → Set _
-isProp P = (x y : P) → x ≡ y
+Ω : ∀ {ℓ} {X : Set ℓ} (x : X) → Set _
+Ω x = x ≡ x
 
-data ∥_∥ {ℓ} (A : Set ℓ) : Set ℓ where
-  ∣_∣ : A → ∥ A ∥
-postulate
-  truncationIsProp : ∀ {ℓ} {A : Set ℓ} → isProp ∥ A ∥
+BAut : ∀ {ℓ} (F : Set ℓ) → Set _
+BAut F = Σ[ Y ∈ (Set _) ] (∥ Y ≡ F ∥)
 
-⟦_⟧ : ∀ {ℓ} (F : Set ℓ) → Set _
-⟦_⟧ F = Σ[ Y ∈ (Set _) ] (∥ Y ≡ F ∥)
+Aut : ∀ {ℓ} (F : Set ℓ) → Set _
+Aut F = F ≃ F
 
-UA : ∀ {ℓ} {A : Set ℓ} → Set _
-UA {ℓ} {A} = IsUnivFib {ℓ₁ = L.suc ℓ} id
+BAut≃ :  ∀ {ℓ} {X : Set ℓ} (X₁ X₂ : BAut X) → (X₁ ≡ X₂) ≃ (pr₁ X₁ ≃ pr₁ X₂)
+BAut≃ {X = X} (A , p) (B , q) = f , qinv→isequiv (g , α , β)
+  where
+  f : (A , p) ≡ (B , q) → A ≃ B
+  f = idtoeqv ∘ ap pr₁
 
-module ex1 where
-  𝟙 : Set
-  𝟙 = ⊤
+  g : A ≃ B → (A , p) ≡ (B , q)
+  g eq = pairΣ≡ (ua eq , inhabPath _ _)
 
-  P : 𝟙 → Set
-  P = λ _ → 𝟙
+  α : f ∘ g ~ id
+  α eq = ap idtoeqv (pairΣ≡₁ (ua eq , inhabPath _ _)) ▪ comp≡ eq ⁻¹
 
-  PIsUnivFib : IsUnivFib P
-  PIsUnivFib = ((λ _ → refl) , (λ {a → {!!}}))
-             , ((λ x → refl) , (λ {refl → refl}))
+  β : g ∘ f ~ id
+  β (refl _) = ap pairΣ≡ (pairΣ≡ ((uniq≡ _)⁻¹ , (PropisSet inhabPath _ _ _ _)))
 
-module ex2 where
-  𝟙 𝟘 : Set
-  𝟙 = ⊤
-  𝟘 = ⊥
-
-  P : 𝟙 → Set
-  P = λ _ → 𝟘
-
-  PIsUnivFib : IsUnivFib P
-  PIsUnivFib = ((λ _ → refl) , (λ {a → {!!}}))
-             , ((λ x → refl) , (λ {refl → refl}))
+ΩBAut≃Aut : ∀ {ℓ} {X : Set ℓ} → Ω (X , ∣ refl _ ∣) ≃ Aut X
+ΩBAut≃Aut {X = X} = BAut≃ (X , ∣ refl _ ∣) (X , ∣ refl _ ∣)

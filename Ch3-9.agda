@@ -6,7 +6,7 @@ open import Ch3-7
 
 -- Lemma 3.9.1
 P≃∥P∥ : ∀ {ℓ} (P : Set ℓ) → isProp P → P ≃ ∥ P ∥
-P≃∥P∥ P PisProp = P≃Q PisProp inhabPath ∣_∣ (λ p → pr₁ (rec∥-∥ PisProp id) p)
+P≃∥P∥ P PisProp = P≃Q PisProp inhabPath ∣_∣ (λ p → rec∥-∥ PisProp id p)
 
 -- Corollary 3.9.2
 UC : ∀ {ℓ ℓ'} {A : Set ℓ} (P : A → Set ℓ')

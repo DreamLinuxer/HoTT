@@ -1,0 +1,4 @@
+name: HoTT
+depend: standard-library
+include: .
+	 

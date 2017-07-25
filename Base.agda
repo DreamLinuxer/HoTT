@@ -230,6 +230,11 @@ transport[Q,p,f[x,u]]≡f[y,transport[P,p,u]] : ∀ {ℓ ℓ' ℓ''} {A : Set �
                                               transport Q p (f x u) ≡ f y (transport P p u)
 transport[Q,p,f[x,u]]≡f[y,transport[P,p,u]] {ℓ} {ℓ'} {ℓ''} {A} P Q f {x} {.x} (refl .x) u = refl (f x u)
 
+[p*q≡r]≡[q≡p⁻¹*r] : ∀ {ℓ ℓ'} {A : Set ℓ} {P : A → Set ℓ'} {x y : A}
+                   → {p : x ≡ y} {q : P x} {r : P y}
+                   → (transport P p q ≡ r) ≡ (q ≡ transport P (p ⁻¹) r)
+[p*q≡r]≡[q≡p⁻¹*r] {p = refl x} {q} {r} = refl _
+
 infix 2 _~_
 
 _~_ : ∀ {ℓ ℓ'} {A : Set ℓ} {P : A → Set ℓ'} (f g : (x : A) → P x) → Set (ℓ ⊔ ℓ')
@@ -1022,6 +1027,13 @@ pathind≃ {a = a} {B = B} = qinv→isequiv ( (λ f → f a (refl a))
    β : g ∘ f ~ id
    β (a , b) = pairΣ≡ (refl _ , ≃η (eq a) b)
 
+≃→×≃ : ∀ {ℓ₁ ℓ₂ ℓ₃ ℓ₄} {A : Set ℓ₁} {B : Set ℓ₂} {C : Set ℓ₃} {D : Set ℓ₄}
+     → A ≃ C → B ≃ D → A × B ≃ C × D
+≃→×≃ {A = A} {B} {C} {D} eq₁ eq₂ = (λ {(a , b) → (≃→ eq₁) a , (≃→ eq₂) b})
+                                 , qinv→isequiv ( (λ {(c , d) → (≃← eq₁) c , (≃← eq₂) d})
+                                                , (λ {(c , d) → pair×≡ ((≃ε eq₁) _ , (≃ε eq₂) _)})
+                                                , (λ {(a , b) → pair×≡ ((≃η eq₁) _ , (≃η eq₂) _)}))
+
 swap×≃ : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : Set ℓ₂} → A × B ≃ B × A
 swap×≃ = (λ {(a , b) → b , a}) , qinv→isequiv ( (λ {(b , a) → a , b})
                                               , (λ {(b , a) → refl _ })
@@ -1046,3 +1058,4 @@ r-cancel {r = r} p q α = unit-right p
                        ▪ (assoc▪ q r (r ⁻¹) ⁻¹
                        ▪ (ap (λ x → q ▪ x) (p▪p⁻¹≡reflx r)
                        ▪ unit-right q ⁻¹)))))
+
