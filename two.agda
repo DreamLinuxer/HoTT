@@ -3,8 +3,7 @@
 module two where
 open import Base
 open import Uni-fib
-open import Ch3-1
-open import Ch3-7
+open import Ch3
 open import Ex2
 open import Ex3
 open Ex2-13
@@ -48,14 +47,8 @@ all-1-path p = lem (≃→ Ω𝟚₀≃𝟚 p) (refl _)
   lem 0₂ r = inl (≃η Ω𝟚₀≃𝟚 p ⁻¹ ▪ ap (≃← Ω𝟚₀≃𝟚) r ▪ ≃η Ω𝟚₀≃𝟚 `id )
   lem 1₂ r = inr (≃η Ω𝟚₀≃𝟚 p ⁻¹ ▪ ap (≃← Ω𝟚₀≃𝟚) r ▪ ap (≃← Ω𝟚₀≃𝟚) lemma ⁻¹ ▪ ≃η Ω𝟚₀≃𝟚 `not)
 
-𝟚isSet : isSet 𝟚
-𝟚isSet 0₂ 0₂ (refl .0₂) (refl .0₂) = refl (refl 0₂)
-𝟚isSet 0₂ 1₂ () q
-𝟚isSet 1₂ 0₂ () q
-𝟚isSet 1₂ 1₂ (refl .1₂) (refl .1₂) = refl (refl 1₂)
-
 Ω𝟚₀isSet : isSet (Ω 𝟚₀)
-Ω𝟚₀isSet = isSetA×[A≃B]→BisSet 𝟚isSet (Ω𝟚₀≃𝟚 ⁻¹≃)
+Ω𝟚₀isSet = ≃isSet 𝟚isSet (Ω𝟚₀≃𝟚 ⁻¹≃)
 
 all-2-path : (p : 𝟚₀ ≡ 𝟚₀) → (r : p ≡ p) → r ≡ refl p
 all-2-path p r = Ω𝟚₀isSet _ _ _ _

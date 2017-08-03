@@ -8,17 +8,24 @@ module Ex3-1 where
   open import Ch3-8
   open import Level
 
-  isSetA×[A≃B]→BisSet : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → isSet A → A ≃ B → isSet B
-  isSetA×[A≃B]→BisSet {ℓ} {ℓ'} {A} {B} AisSet eq = AisSet→l[A]isSet L[B]isSet
+  ≃isSet : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → isSet A → A ≃ B → isSet B
+  ≃isSet AisSet (f , eq) b _ (refl _) q with isequiv→qinv eq
+  ... | (g , ε , η) = α _ _ (ap (ap f) (AisSet (g b) (g b) (ap g (refl _)) (ap g q)) ▪ ap∘ g f b b q)
     where
-    L[A]isSet : isSet (Lift {ℓ = ℓ ⊔ ℓ'} A)
-    L[A]isSet = AisSet→L[A]isSet AisSet
+    α : (r s : b ≡ b) → ap (f ∘ g) r ≡ ap (f ∘ g) s → r ≡ s
+    α r s γ = apid b b r ⁻¹ ▪ ≃→ (idtoeqv (ap (λ h → ap h r ≡ ap h s) (funext ε))) γ ▪ apid b b s
 
-    L[A]≃L[B] : (Lift {ℓ = ℓ ⊔ ℓ'} A) ≃ (Lift {ℓ = ℓ ⊔ ℓ'} B)
-    L[A]≃L[B] = tran≃ (sym≃ A≃L[A]) (tran≃ eq A≃L[A])
+  -- isSetA×[A≃B]→BisSet : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} → isSet A → A ≃ B → isSet B
+  -- isSetA×[A≃B]→BisSet {ℓ} {ℓ'} {A} {B} AisSet eq = AisSet→l[A]isSet L[B]isSet
+  --   where
+  --   L[A]isSet : isSet (Lift {ℓ = ℓ ⊔ ℓ'} A)
+  --   L[A]isSet = AisSet→L[A]isSet AisSet
 
-    L[B]isSet : isSet (Lift {ℓ = ℓ ⊔ ℓ'} B)
-    L[B]isSet = transport isSet (ua L[A]≃L[B]) L[A]isSet
+  --   L[A]≃L[B] : (Lift {ℓ = ℓ ⊔ ℓ'} A) ≃ (Lift {ℓ = ℓ ⊔ ℓ'} B)
+  --   L[A]≃L[B] = tran≃ (sym≃ A≃L[A]) (tran≃ eq A≃L[A])
+
+  --   L[B]isSet : isSet (Lift {ℓ = ℓ ⊔ ℓ'} B)
+  --   L[B]isSet = transport isSet (ua L[A]≃L[B]) L[A]isSet
     
 --Ex3.5
 module Ex3-5 where

@@ -4,9 +4,7 @@
 module hinitiality-2 where
 open import Level
 open import Base
-open import Ch3-1
-open import Ch3-3
-open import Ch3-11
+open import Ch3
 open import Ch4
 open import Ex2
 
@@ -32,7 +30,7 @@ Bip≃ : ∀ {ℓ ℓ'} {A : Bip {ℓ}} {B : Bip {ℓ'}} (f g : Bipmorphism A B)
 
 -- Definition 2.5
 FibBip : ∀ {ℓ ℓ'} (A : Bip {ℓ}) → Set (suc ℓ' ⊔ ℓ)
-FibBip {ℓ' = ℓ'} (A , a₀ , a₁) = Σ[ E ∈ (A → Set ℓ') ] (E a₀ × E a₁)
+FibBip {ℓ' = ℓ'} A = Σ[ E ∈ (pr₁ A → Set ℓ') ] (E (pr₁ (pr₂ A)) × E (pr₂ (pr₂ A)))
 
 -- Definition 2.6
 BipSec : ∀ {ℓ ℓ'} (A : Bip {ℓ}) (E : FibBip {ℓ' = ℓ'} A) → Set (ℓ' ⊔ ℓ)

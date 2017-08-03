@@ -453,6 +453,10 @@ pairΣ≡₁ : ∀ {ℓ ℓ'} {A : Set ℓ} {P : A → Set ℓ'} {a a' : A} {pa 
         → ap pr₁ {x = (a , pa)} {y = (a' , pa')} (pairΣ≡ p) ≡ pr₁ p
 pairΣ≡₁ (refl _ , refl _) = refl _
 
+pairΣ≡₁' : ∀ {ℓ ℓ'} {A : Set ℓ} {P : A → Set ℓ'} {w w' : Σ[ x ∈ A ] P x}
+         → (p : w ≡ w') → ap pr₁ p ≡ pr₁ (pairΣ≡⁻¹ p)
+pairΣ≡₁' {w = w₁ , w₂} {.w₁ , .w₂} (refl .(w₁ , w₂)) = refl (refl w₁)
+
 --Theorem 2.7.4
 liftΣ : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {P : A → Set ℓ'} {Q : (Σ[ x ∈ A ] (P x)) → Set ℓ''} →
         {x y : A} (p : x ≡ y) (u : P x) (z : Q (x , u)) →
@@ -498,7 +502,8 @@ uniq𝟙 ⋆ = refl ⋆
 
 happly : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
          f ≡ g → ((x : A) → f x ≡ g x)
-happly {ℓ} {ℓ'} {A} {B} {f} {.f} (refl .f) x = refl (f x)
+happly p x = ap (λ f → f x) p
+--happly {ℓ} {ℓ'} {A} {B} {f} {.f} (refl .f) x = refl (f x)
 
 --Axiom 2.9.3
 postulate

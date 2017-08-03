@@ -75,7 +75,7 @@ qinv≃Π[x≡x] {A = A} {B} 𝒇 qe = lem (𝒇 , qinv→isequiv qe)
   [x≡y]isSet : (x y : A) → isSet (x ≡ y)
   [x≡y]isSet x y = rec∥-∥ isSetAisProp
                                (λ p → rec∥-∥ isSetAisProp
-                                            (λ q → Ex3-1.isSetA×[A≃B]→BisSet [a≡a]isSet
+                                            (λ q → Ex3-1.≃isSet [a≡a]isSet
                                                    (sym≃ ([x≡y]≃[a≡a] x y p q))) (g y)) (g x)
 
   B : A → Set _

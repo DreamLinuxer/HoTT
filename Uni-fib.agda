@@ -1,9 +1,7 @@
 {-# OPTIONS --without-K #-}
-
 module Uni-fib where
 open import Base
-open import Ch3-3
-open import Ch3-7
+open import Ch3
 
 IsUnivFib : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} (B : A → Set ℓ₂)  → Set _
 IsUnivFib {A = A} B = {a a' : A} → isequiv {A = (a ≡ a')} {B = (B a ≃ B a')} (idtoeqv ∘ ap B)
@@ -34,3 +32,6 @@ BAut≃ {X = X} (A , p) (B , q) = f , qinv→isequiv (g , α , β)
 
 ΩBAut≃Aut : ∀ {ℓ} {X : Set ℓ} → Ω (X , ∣ refl _ ∣) ≃ Aut X
 ΩBAut≃Aut {X = X} = BAut≃ (X , ∣ refl _ ∣) (X , ∣ refl _ ∣)
+
+pr₁IsUnivFib : ∀ {ℓ} {F : Set ℓ} → IsUnivFib {A = BAut F} pr₁
+pr₁IsUnivFib {F} {a = (A , p)} {a' = (B , q)} = pr₂ (BAut≃ (A , p) (B , q))
