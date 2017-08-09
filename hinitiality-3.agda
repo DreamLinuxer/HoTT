@@ -139,7 +139,7 @@ hinit-uniqiso A B (Aishinit , Bishinit) = ≃isContr (isProp→isContra (isbipeq
                           , (g , pr₂ (Bishinit B) (_∘b_ {A = B} {B = A} {C = B} f g) ⁻¹ ▪ pr₂ (Bishinit B) (idBip {A = B}))
 
   eq : BipEquiv A B ≃ isbipequiv {A = A} {B = B} (pr₁ (Aishinit B))
-  eq = isContrA→ΣPx≃Pa _ isbipequiv (Aishinit B)
+  eq = isContrA→ΣPx≃Pa (Bipmorphism A B) (isbipequiv {A = A} {B = B}) (Aishinit B)
 
 -- Proposition 3.8
 rec : ∀ {ℓ ℓ'} {A : Bip {ℓ}} → ishinit {ℓ' = ℓ'} A → (B : Set ℓ')
@@ -324,7 +324,7 @@ uaBip {A = 𝑨@(A , a₀ , a₁)} {B = 𝑩@(B , b₀ , b₁)} =
                     , (λ {((f , f₀ , f₁) , eq) → refl _})
                     , (λ {((f , eq) , f₀ , f₁) → refl _})) ⟩
       Σ[ f ∈ Bipmorphism 𝑨 𝑩 ] (isequiv (pr₁ f))
-   ≃⟨ ≃→Σ≃ (λ f → isbipequiv≃isequiv ⁻¹≃) ⟩
+   ≃⟨ ≃→Σ≃ (λ f → isbipequiv≃isequiv {A = 𝑨} {B = 𝑩} {f = f} ⁻¹≃) ⟩
       BipEquiv 𝑨 𝑩 ∎≃
 
 -- Corollary 3.15

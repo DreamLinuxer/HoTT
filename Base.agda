@@ -502,8 +502,7 @@ uniq𝟙 ⋆ = refl ⋆
 
 happly : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x} →
          f ≡ g → ((x : A) → f x ≡ g x)
-happly p x = ap (λ f → f x) p
---happly {ℓ} {ℓ'} {A} {B} {f} {.f} (refl .f) x = refl (f x)
+happly {ℓ} {ℓ'} {A} {B} {f} {.f} (refl .f) x = refl (f x)
 
 --Axiom 2.9.3
 postulate

@@ -291,4 +291,4 @@ module PAlg {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : A → Set ℓ₂} where
 -- Corollary 4.12
   isalgequivIsProp : ∀ {ℓ ℓ'} {C : Alg {ℓ}} {D : Alg {ℓ'}} {f : Alghom C D}
                    → isProp (isalgequiv {C = C} {D = D} f)
-  isalgequivIsProp {f = f} = ≃isProp (isalgequiv≃isequiv ⁻¹≃) (biinvIsProp (pr₁ f))
+  isalgequivIsProp {C = C} {D} {f} = ≃isProp (isalgequiv≃isequiv {C = C} {D = D} ⁻¹≃) (biinvIsProp (pr₁ f))

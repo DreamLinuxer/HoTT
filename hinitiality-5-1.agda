@@ -23,13 +23,13 @@ module Phinit {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : A → Set ℓ₂} where
                 → isContr (AlgEquiv {C = C} {D = D})
   hinit-uniqiso 𝑪 𝑫 (Cishinit , Dishinit) = ≃isContr (isProp→isContra (isalgequivIsProp , algeq)) eq
     where
-    algeq : isalgequiv (pr₁ (Cishinit 𝑫))
+    algeq : isalgequiv {C = 𝑪} {D = 𝑫} (pr₁ (Cishinit 𝑫))
     algeq with (Dishinit 𝑪)
     ... | g , _ = (g , pr₂ (Cishinit 𝑪) _ ⁻¹ ▪ pr₂ (Cishinit 𝑪) _)
                 , (g , pr₂ (Dishinit 𝑫) _ ⁻¹ ▪ pr₂ (Dishinit 𝑫) _)
     
     eq : isalgequiv {C = 𝑪} {D = 𝑫} (pr₁ (Cishinit 𝑫)) ≃ AlgEquiv {C = 𝑪} {D = 𝑫}
-    eq = isContrA→ΣPx≃Pa _ isalgequiv (Cishinit 𝑫) ⁻¹≃
+    eq = isContrA→ΣPx≃Pa _ (isalgequiv {C = 𝑪} {D = 𝑫}) (Cishinit 𝑫) ⁻¹≃
 
 -- Proposition 5.3
   module _ {ℓ ℓ'} {C : Alg {ℓ}} {Cisind : isind {ℓ' = ℓ'} C} where
@@ -184,7 +184,7 @@ module Phinit {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : A → Set ℓ₂} where
         → (pc : P (pr₁ C)) → ηz D supd f ϕ (pr₂ C pc) ▪ β D supd pc
                            ≡ ϕ pc ▪ ap (λ h → supd (𝑷 h pc)) (funext (ηz D supd f ϕ))
     ηz' D supd f ϕ pc = happly (p ⁻¹) (supc pc) ▪ happly recf' pc
-                    ≡⟨ γ₃' ⁻¹ ⟩
+                    ≡⟨ γ₂ (γ (p ⁻¹) (supc pc)) (refl _) ▪ γ₃' ⁻¹ ⟩
                        (ap (λ h → h (supc pc)) (p ⁻¹) ▪ happly recf' pc ▪ ap (λ h → supd (𝑷 h pc)) p) ▪ ap (λ h → supd (𝑷 h pc)) p ⁻¹
                     ≡⟨ γ₂ (γ' pc) (ap⁻¹ _ _ _ _ ⁻¹ ▪ ap (λ p → ap (λ h → supd (𝑷 h pc)) p) (uniqΠ (p ⁻¹))) ⟩
                        ϕ pc ▪ ap (λ h → supd (𝑷 h pc)) (funext (happly (p ⁻¹))) ∎
@@ -202,6 +202,10 @@ module Phinit {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : A → Set ℓ₂} where
       q = (pr₂ (pairΣ≡⁻¹ ((pr₂ (Cishinit (D , supd))) (f , funext ϕ))))
       r : (ap (λ h → h ∘ supc) p) ⁻¹ ▪ recf' ▪ ap (λ h → supd ∘ 𝑷 h) p ≡ funext ϕ
       r = transport[x↦fx≡gx] _ _ p recf' ⁻¹ ▪ q
+
+      γ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {f g : (x : A) → B x}
+        → (p : f ≡ g) (x : A) → happly p x ≡ ap (λ f → f x) p
+      γ (refl f) x = refl (refl (f x))
       
       γ₂ : ∀ {ℓ} {A : Set ℓ} {x y z : A} {p q : x ≡ y} {r s : y ≡ z}
          → p ≡ q → r ≡ s → p ▪ r ≡ q ▪ s
@@ -222,10 +226,11 @@ module Phinit {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : A → Set ℓ₂} where
               ap (λ f₁ → f₁ pc) (ap (λ h → h ∘ supc) p ⁻¹)
             ▪ happly recf' pc
             ▪ ap (λ f₁ → f₁ pc) (ap (λ h → supd ∘ 𝑷 h) p)
-           ≡⟨ ap (λ p' → p' ▪ ap (λ f₁ → f₁ pc) (ap (λ h → supd ∘ 𝑷 h) p)) (ap▪ (λ f₁ → f₁ pc) _ _ _ _ _ ⁻¹)
+           ≡⟨ γ₃ (refl _) (γ recf' pc) (refl _)
+            ▪ ap (λ p' → p' ▪ ap (λ f₁ → f₁ pc) (ap (λ h → supd ∘ 𝑷 h) p)) (ap▪ (λ f₁ → f₁ pc) _ _ _ _ _ ⁻¹)
             ▪ ap▪ (λ f₁ → f₁ pc) _ _ _ _ _ ⁻¹ ⟩
               ap (λ f₁ → f₁ pc) ((ap (λ h → h ∘ supc) p) ⁻¹ ▪ recf' ▪ ap (λ h → supd ∘ 𝑷 h) p)
-           ≡⟨ ap (λ p₁ → happly p₁ pc) r ⟩
+           ≡⟨ ap (λ p₁ → ap (λ f → f pc) p₁) r ▪ γ (funext ϕ) pc ⁻¹ ⟩
               happly (funext ϕ) pc
            ≡⟨ computationΠ _ _ ⟩
               ϕ pc ∎

@@ -107,7 +107,7 @@ module _ {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : A → Set ℓ₂} where
                      , (λ {((f , ishom) , eq) → refl _})
                      , (λ {(f , eq , ishom) → refl _})) ⟩
         Σ[ f ∈ (Alghom 𝑪 𝑫) ] (isequiv (pr₁ f))
-     ≃⟨ ≃→Σ≃ (λ f → isalgequiv≃isequiv ⁻¹≃) ⟩
+     ≃⟨ ≃→Σ≃ (λ f → isalgequiv≃isequiv {C = 𝑪} {D = 𝑫} {f = f} ⁻¹≃) ⟩
         AlgEquiv ∎≃
      where
      eq : ∀ {ℓ} {C D : Set ℓ} (p : C ≡ D) (supc : P C → C) (supd : P D → D) (pc : P C)
