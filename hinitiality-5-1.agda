@@ -76,7 +76,7 @@ module Phinit {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : A → Set ℓ₂} where
                      → (E : FibAlg {ℓ' = ℓ'} C)
                      → (f g : AlgSec C E) → f ≡ g
   isind→isPropAlgSec {C = 𝑪@(C , supc)} CisInd 𝑬@(E , e) 𝒇@(f , f') 𝒈@(g , g') =
-    ≃← (AlgSec≃ {C = 𝑪} {E = 𝑬}) ((λ x → happly (funext ηf) x ▪ happly (funext ηg) x ⁻¹) , p)
+    ≃← (AlgSec≃ {C = 𝑪} {E = 𝑬}) ((λ x → ηf x ▪ ηg x ⁻¹) , α)
     where
     ηf = η {C = 𝑪} {Cisind = CisInd} E e f (happly f')
     ηg = η {C = 𝑪} {Cisind = CisInd} E e g (happly g')
@@ -84,19 +84,24 @@ module Phinit {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : A → Set ℓ₂} where
     ηg' = η' {C = 𝑪} {Cisind = CisInd} E e g (happly g')
     com = comp {C = 𝑪} {Cisind = CisInd} E e
 
-
     γ : ∀ {ℓ} {A : Set ℓ} {w x y z : A} {p : x ≡ y} {q : y ≡ z} {r : x ≡ w} {s : w ≡ z}
       → p ▪ q ≡ r ▪ s → p ▪ q ▪ s ⁻¹ ≡ r
     γ {p = refl x} {refl .x} {refl .x} {s} α = ap (λ q → q ▪ s ⁻¹) α ▪ assoc▪ _ _ _ ⁻¹
                                              ▪ ap (λ q → refl x ▪ q) (p▪p⁻¹≡reflx _)
 
-    γ' : ∀ {ℓ} {A : Set ℓ} {w x y z : A} {p p' : w ≡ x} {q q' : x ≡ y} {r : y ≡ z}
-       → (α : p ≡ p') (β : q ≡ q') → p ▪ q ▪ r ≡ p' ▪ q' ▪ r
-    γ' {p = .α} {.α} {.β} {.β} {r} (refl α) (refl β) = refl _
+    γ' : ∀ {ℓ} {A : Set ℓ} {x₁ x₂ x₃ x₄ x₅ : A}
+       → {p₁ : x₁ ≡ x₂} {p₂ : x₃ ≡ x₂} {p₃ : x₂ ≡ x₄} {p₄ : x₄ ≡ x₅}
+       → p₁ ▪ p₂ ⁻¹ ▪ (p₂ ▪ p₃ ▪ p₄) ≡ p₁ ▪ p₃ ▪ p₄
+    γ' {p₁ = refl x} {refl .x} {refl .x} {refl .x} = refl (refl x)
 
-    γ'' : ∀ {ℓ} {A : Set ℓ} {w x y z : A} {p : w ≡ x} {q : x ≡ y} {r : y ≡ z}
-       → p ⁻¹ ▪ (p ▪ q ▪ r) ≡ q ▪ r
-    γ'' {p = refl x} {refl .x} {refl .x} = refl (refl x)
+    γ'' : ∀ {ℓ} {A : Set ℓ} {w x y : A} {p p' : w ≡ x} {q q' : x ≡ y}
+        → (α : p ≡ p') (β : q ≡ q') → p ▪ q ≡ p' ▪ q'
+    γ'' (refl p) (refl q) = refl _
+
+    γ''' : ∀ {ℓ} {A : Set ℓ} {x₁ x₂ x₃ x₄ x₅ : A}
+         → {p₁ : x₁ ≡ x₂} {p₂ : x₂ ≡ x₃} {p₃ : x₄ ≡ x₃} {p₄ : x₃ ≡ x₅}
+         → (p₁ ▪ p₂ ▪ p₃ ⁻¹) ▪ (p₃ ▪ p₄) ≡ p₁ ▪ p₂ ▪ p₄
+    γ''' {p₁ = refl x} {refl .x} {refl .x} {refl .x} = refl (refl x)
 
     ε : ∀ {f g h : (x : C) → E x} {ηf : f ≡ h} {ηg : g ≡ h}
       → (x : A) (u : B x → C)
@@ -105,40 +110,27 @@ module Phinit {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : A → Set ℓ₂} where
     ε {ηf = refl f} {refl .f} x u = unit-right _
                                   ▪ ap (λ p → funext (λ y → refl (f (u y))) ▪ p ⁻¹) (refΠ _)
 
-    p = λ {(x , u) → happly f' (x , u) ▪ ap (e (x , u)) (funext (λ y → happly (funext ηf) (u y) ▪ happly (funext ηg) (u y) ⁻¹))
-                  ≡⟨ ap (λ p₁ → p₁ ▪ ap (e (x , u)) (funext (λ y → happly (funext ηf) (u y) ▪ happly (funext ηg) (u y) ⁻¹)))
-                        (γ (ηf' (x , u)) ⁻¹) ⟩
-                     ηf (supc (x , u)) ▪ com (x , u) ▪ ap (e (x , u)) (funext (λ y → ηf (u y))) ⁻¹
-                   ▪ ap (e (x , u)) (funext (λ y → happly (funext ηf) (u y) ▪ happly (funext ηg) (u y) ⁻¹))
-                  ≡⟨ ap (λ p₁ → ηf (supc (x , u)) ▪ com (x , u) ▪ ap (e (x , u)) (funext (λ y → ηf (u y))) ⁻¹ ▪ p₁)
-                        (ap (ap (e (x , u))) (ε x u) ▪ ap▪ _ _ _ _ _ _)
-                    ▪ assoc▪ _ _ _ ⁻¹
-                    ▪ ap (λ p → ηf (supc (x , u)) ▪ com (x , u) ▪ p) (assoc▪ _ _ _) ⟩
-                      ηf (supc (x , u)) ▪ com (x , u)
-                    ▪ (ap (e (x , u)) (funext (λ y → ηf (u y))) ⁻¹
-                    ▪  ap (e (x , u)) (funext (λ y → happly (funext ηf) (u y)))
-                    ▪  ap (e (x , u)) (funext (λ y → happly (funext ηg) (u y)) ⁻¹))
-                  ≡⟨ ap (λ p → ηf (supc (x , u)) ▪ com (x , u) ▪ p)
-                        ( ap (λ p → p ▪ ap (e (x , u)) (funext (λ y → happly (funext ηg) (u y)) ⁻¹))
-                             (ap (λ α → ap (e (x , u)) (funext (λ y → ηf (u y))) ⁻¹
-                                     ▪  ap (e (x , u)) (funext (λ y → α (u y)))) (compΠ≡ ηf)
-                             ▪ p⁻¹▪p≡refly _)
-                        ▪ unit-left _ ⁻¹) ⟩
-                     ηf (supc (x , u)) ▪ com (x , u) ▪ ap (e (x , u)) (funext (λ y → happly (funext ηg) (u y)) ⁻¹)
-                  ≡⟨ ap (λ α → ηf (supc (x , u)) ▪ com (x , u) ▪ ap (e (x , u)) (funext (λ y → α (u y)) ⁻¹))
-                        (compΠ≡ ηg) ⟩
-                     ηf (supc (x , u)) ▪ com (x , u) ▪ ap (e (x , u)) (funext (λ y → ηg (u y)) ⁻¹)
-                  ≡⟨ assoc▪ _ _ _ ⁻¹ ▪ ap (λ p₁ → ηf (supc (x , u)) ▪ (com (x , u) ▪ p₁)) (ap⁻¹ _ _ _ _) ⟩
-                     ηf (supc (x , u)) ▪ (com (x , u) ▪ ap (e (x , u)) (funext (λ y → ηg (u y))) ⁻¹)
-                  ≡⟨ ap (λ p₁ → ηf (supc (x , u)) ▪ p₁) (γ'' ⁻¹) ▪ assoc▪ _ _ _ ⟩
-                     ηf (supc (x , u)) ▪ ηg (supc (x , u)) ⁻¹
-                   ▪ (ηg (supc (x , u)) ▪ com (x , u) ▪ ap (e (x , u)) (funext (λ y → ηg (u y))) ⁻¹)
-                  ≡⟨ γ' (computationΠ ηf (supc (x , u)) ⁻¹) (ap _⁻¹ (computationΠ ηg (supc (x , u)) ⁻¹)) ⟩
-                     happly (funext ηf) (supc (x , u)) ▪ happly (funext ηg) (supc (x , u)) ⁻¹
-                   ▪ (ηg (supc (x , u)) ▪ com (x , u) ▪ ap (e (x , u)) (funext (λ y → ηg (u y))) ⁻¹)
-                  ≡⟨ ap (λ p₁ → happly (funext ηf) (supc (x , u)) ▪ happly (funext ηg) (supc (x , u)) ⁻¹ ▪ p₁)
-                        (γ (ηg' (x , u))) ⟩
-                     happly (funext ηf) (supc (x , u)) ▪ happly (funext ηg) (supc (x , u)) ⁻¹ ▪ happly g' (x , u) ∎}
+    α : (pc : P C) → happly f' pc ▪ 𝒆~ {C = 𝑪} {E = 𝑬} (λ z → ηf z ▪ ηg z ⁻¹) pc
+                   ≡ ηf (supc pc) ▪ ηg (supc pc) ⁻¹ ▪ happly g' pc
+    α (x , u) = happly f' (x , u) ▪ ap (e (x , u)) (funext (λ y → ηf (u y) ▪ ηg (u y) ⁻¹))
+             ≡⟨ γ'' (γ (ηf' (x , u)) ⁻¹)
+                    ( ap (ap (e (x , u)))
+                         ( ap (λ α → funext (λ y → α (u y) ▪ ηg (u y) ⁻¹)) (compΠ≡ ηf ⁻¹)
+                         ▪ ap (λ α → funext (λ y → (happly (funext ηf)) (u y) ▪ α (u y) ⁻¹)) (compΠ≡ ηg ⁻¹)
+                         ▪ ε x u
+                         ▪ ap (λ α → funext (λ y → (happly (funext ηf)) (u y)) ▪ (funext (λ y → α (u y)) ⁻¹)) (compΠ≡ ηg)
+                         ▪ ap (λ α → funext (λ y → α (u y)) ▪ (funext (λ y → ηg (u y)) ⁻¹)) (compΠ≡ ηf))
+                    ▪ ap▪ _ _ _ _ _ _
+                    ▪ ap (λ p → ap (e (x , u)) (funext (λ y → ηf (u y))) ▪ p) (ap⁻¹ _ _ _ _)) ⟩
+                (ηf (supc (x , u)) ▪ com (x , u) ▪ ap (e (x , u)) (funext (λ y → ηf (u y))) ⁻¹) ▪
+                (ap (e (x , u)) (funext (λ y → ηf (u y))) ▪ ap (e (x , u)) (funext (λ y → ηg (u y))) ⁻¹)
+             ≡⟨ γ''' ⟩
+                ηf (supc (x , u)) ▪ com (x , u) ▪ ap (e (x , u)) (funext (λ y → ηg (u y))) ⁻¹
+             ≡⟨ γ' ⁻¹ ⟩
+                ηf (supc (x , u)) ▪ ηg (supc (x , u)) ⁻¹ ▪
+                (ηg (supc (x , u)) ▪ com (x , u) ▪ ap (e (x , u)) (funext (λ y → ηg (u y))) ⁻¹)
+             ≡⟨ ap (λ p → ηf (supc (x , u)) ▪ ηg (supc (x , u)) ⁻¹ ▪ p) (γ (ηg' (x , u))) ⟩
+                ηf (supc (x , u)) ▪ ηg (supc (x , u)) ⁻¹ ▪ happly g' (x , u) ∎
 
   isindisProp : ∀ {ℓ ℓ'} {C : Alg {ℓ}} → isProp (isind {ℓ' = ℓ'} C)
   isindisProp {C = C} Cisind _ = ΠisProp (isind→isPropAlgSec {C = C} Cisind) _ _

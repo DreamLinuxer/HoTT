@@ -27,7 +27,7 @@ open import Ch4-9 public
                         , ((ε b *) (≃→ (eq₂ (𝒈 b)) (≃← (eq₂ (𝒈 b)) (transport Q (ε b ⁻¹) q)))
                         ≡⟨ ap (ε b *) (≃ε (eq₂ (𝒈 b)) _) ⟩
                            (ε b *) (transport Q (ε b ⁻¹) q)
-                        ≡⟨ q*[p*[u]]≡[[p▪q]*][u] Q (ε b ⁻¹) (ε b) q ⟩
+                        ≡⟨ transport▪ Q (ε b ⁻¹) (ε b) q ⟩
                            ((ε b ⁻¹ ▪ ε b) *) q
                         ≡⟨ ap (λ p → (p *) q) (p⁻¹▪p≡refly (ε b)) ⟩
                            q ∎))
@@ -35,14 +35,14 @@ open import Ch4-9 public
      η' : g ∘ f ~ id
      η' (a , p) = pairΣ≡ ( (η a)
                          , ((η a *) (≃← (eq₂ (𝒈 (𝒇 a))) (transport Q (ε (𝒇 a) ⁻¹) (≃→ (eq₂ a) p)))
-                         ≡⟨ transport[Q,p,f[x,u]]≡f[y,transport[P,p,u]] (λ a → Q (𝒇 a)) P
+                         ≡⟨ transport∘f (λ a → Q (𝒇 a)) P
                             (λ a → (≃← (eq₂ a))) (η a) (transport Q (ε (𝒇 a) ⁻¹) (≃→ (eq₂ a) p)) ⟩
                             ≃← (eq₂ a) (transport (λ a → Q (𝒇 a)) (η a) (transport Q (ε (𝒇 a) ⁻¹) (≃→ (eq₂ a) p)))
-                         ≡⟨ ap (≃← (eq₂ a)) (transport[P∘f,p,u]≡transport[P,ap[f,p],u] 𝒇 Q (η a) (transport Q (ε (𝒇 a) ⁻¹) (≃→ (eq₂ a) p))) ⟩
+                         ≡⟨ ap (≃← (eq₂ a)) (transport[P∘f] 𝒇 Q (η a) (transport Q (ε (𝒇 a) ⁻¹) (≃→ (eq₂ a) p))) ⟩
                             ≃← (eq₂ a) (transport Q (ap 𝒇 (η a)) (transport Q (ε (𝒇 a) ⁻¹) (≃→ (eq₂ a) p)))
                          ≡⟨ ap (λ x → ≃← (eq₂ a) (transport Q x (transport Q (ε (𝒇 a) ⁻¹) (≃→ (eq₂ a) p)))) (τ a) ⟩
                             ≃← (eq₂ a) (transport Q (ε (𝒇 a)) (transport Q (ε (𝒇 a) ⁻¹) (≃→ (eq₂ a) p)))
-                         ≡⟨ ap (≃← (eq₂ a)) (q*[p*[u]]≡[[p▪q]*][u] Q (ε (𝒇 a) ⁻¹) (ε (𝒇 a)) _) ⟩
+                         ≡⟨ ap (≃← (eq₂ a)) (transport▪ Q (ε (𝒇 a) ⁻¹) (ε (𝒇 a)) _) ⟩
                             ≃← (eq₂ a) (transport Q (ε (𝒇 a) ⁻¹ ▪ ε (𝒇 a)) (≃→ (eq₂ a) p))
                          ≡⟨ ap (λ x → ≃← (eq₂ a) (transport Q x (≃→ (eq₂ a) p))) (p⁻¹▪p≡refly (ε (𝒇 a))) ⟩
                             ≃← (eq₂ a) (≃→ (eq₂ a) p)

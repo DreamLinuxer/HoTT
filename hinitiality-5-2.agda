@@ -98,7 +98,7 @@ module isind↔ishinit {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : A → Set ℓ₂} w
               ≡⟨ ap (λ p → transport E p (f₂ (supc (x , u)))) (claim₁ x u) ⟩
                  transport E (φ₁ (x , u) ▪ 𝒆~ {C = 𝑪} {E = (λ _ → C) , (λ pc h → supc ((pr₁ pc) , h))} α (x , u))
                              (f₂ (supc (x , u)))
-              ≡⟨ q*[p*[u]]≡[[p▪q]*][u] E (φ₁ (x , u)) _ (f₂ (supc (x , u))) ⁻¹ ⟩
+              ≡⟨ transport▪ E (φ₁ (x , u)) _ (f₂ (supc (x , u))) ⁻¹ ⟩
                  transport E (𝒆~ {C = 𝑪} {E = (λ _ → C) , (λ pc h → supc ((pr₁ pc) , h))} α (x , u))
                              (transport E (φ₁ (x , u)) (f₂ (supc (x , u))))
               ≡⟨ ap (λ z → transport E (𝒆~ {C = 𝑪} {E = (λ _ → C) , (λ pc h → supc ((pr₁ pc) , h))} α (x , u)) z)

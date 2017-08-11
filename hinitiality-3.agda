@@ -190,7 +190,7 @@ rec {A = A} Aishinit B a b₀ b₁ = pr₁ f a
     transport (λ x → x ≡ b₀) (ap (λ h → h a₀) (pr₁ q) ⁻¹) β'
  ≡⟨ ap (λ p₁ → transport (λ x → x ≡ b₀) p₁ β') (ap⁻¹ (λ h → h a₀) _ _ (pr₁ q) ⁻¹) ⟩
     transport (λ x → x ≡ b₀) (ap (λ h → h a₀) ((pr₁ q) ⁻¹)) β'
- ≡⟨ transport[P∘f,p,u]≡transport[P,ap[f,p],u] (λ h → h a₀) (λ x → x ≡ b₀) (pr₁ q ⁻¹) β' ⁻¹ ⟩
+ ≡⟨ transport[P∘f] (λ h → h a₀) (λ x → x ≡ b₀) (pr₁ q ⁻¹) β' ⁻¹ ⟩
     transport (λ h → h a₀ ≡ b₀) (pr₁ q ⁻¹) β'
  ≡⟨ (≃→ (idtoeqv ([p*q≡r]≡[q≡p⁻¹*r] {p = pr₁ q} {q = f₀} {r = β'})) r) ⁻¹ ⟩
     f₀ ∎
@@ -220,7 +220,7 @@ rec {A = A} Aishinit B a b₀ b₁ = pr₁ f a
     transport (λ x → x ≡ b₁) (ap (λ h → h a₁) (pr₁ q) ⁻¹) β'
  ≡⟨ ap (λ p₁ → transport (λ x → x ≡ b₁) p₁ β') (ap⁻¹ (λ h → h a₁) _ _ (pr₁ q) ⁻¹) ⟩
     transport (λ x → x ≡ b₁) (ap (λ h → h a₁) ((pr₁ q) ⁻¹)) β'
- ≡⟨ transport[P∘f,p,u]≡transport[P,ap[f,p],u] (λ h → h a₁) (λ x → x ≡ b₁) (pr₁ q ⁻¹) β' ⁻¹ ⟩
+ ≡⟨ transport[P∘f] (λ h → h a₁) (λ x → x ≡ b₁) (pr₁ q ⁻¹) β' ⁻¹ ⟩
     transport (λ h → h a₁ ≡ b₁) (pr₁ q ⁻¹) β'
  ≡⟨ (≃→ (idtoeqv ([p*q≡r]≡[q≡p⁻¹*r] {p = pr₁ q} {q = f₁} {r = β'})) r) ⁻¹ ⟩
     f₁ ∎

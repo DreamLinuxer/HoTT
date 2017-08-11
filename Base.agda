@@ -213,22 +213,22 @@ apd≡transportconst▪ap : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A �
 apd≡transportconst▪ap {ℓ} {ℓ'} {A} {B} f {x} {.x} (refl .x) = refl (refl (f x))
 
 --Lemma 2.3.9
-q*[p*[u]]≡[[p▪q]*][u] : ∀ {ℓ ℓ'} {A : Set ℓ} (P : A → Set ℓ') {x y z : A} (p : x ≡ y) (q : y ≡ z) →
-                        (u : P x) → (q *) (_* {P = P} p u) ≡ ((p ▪ q) *) u
-q*[p*[u]]≡[[p▪q]*][u] {ℓ} {ℓ'} {A} P {x} {.x} {.x} (refl .x) (refl .x) u = refl u
+transport▪ : ∀ {ℓ ℓ'} {A : Set ℓ} (P : A → Set ℓ') {x y z : A} (p : x ≡ y) (q : y ≡ z) →
+             (u : P x) → (q *) (_* {P = P} p u) ≡ ((p ▪ q) *) u
+transport▪ {ℓ} {ℓ'} {A} P {x} {.x} {.x} (refl .x) (refl .x) u = refl u
 
 --Lemma 2.3.10
-transport[P∘f,p,u]≡transport[P,ap[f,p],u] : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (P : B → Set ℓ'')
-                                            {x y : A} (p : x ≡ y) (u : P (f x)) →
-                                            transport (P ∘ f) p u ≡ transport P (ap f p) u
-transport[P∘f,p,u]≡transport[P,ap[f,p],u] {ℓ} {ℓ'} {A} {B} f P {x} {.x} (refl .x) u = refl u
+transport[P∘f] : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : Set ℓ'} (f : A → B) (P : B → Set ℓ'')
+                 {x y : A} (p : x ≡ y) (u : P (f x)) →
+                 transport (P ∘ f) p u ≡ transport P (ap f p) u
+transport[P∘f] {ℓ} {ℓ'} {A} {B} f P {x} {.x} (refl .x) u = refl u
 
 --Lemma 2.3.11
-transport[Q,p,f[x,u]]≡f[y,transport[P,p,u]] : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} (P : A → Set ℓ') (Q : A → Set ℓ'') →
-                                              (f : (x : A) → P x → Q x) →
-                                              {x y : A} (p : x ≡ y) (u : P x) →
-                                              transport Q p (f x u) ≡ f y (transport P p u)
-transport[Q,p,f[x,u]]≡f[y,transport[P,p,u]] {ℓ} {ℓ'} {ℓ''} {A} P Q f {x} {.x} (refl .x) u = refl (f x u)
+transport∘f : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} (P : A → Set ℓ') (Q : A → Set ℓ'') →
+              (f : (x : A) → P x → Q x) →
+              {x y : A} (p : x ≡ y) (u : P x) →
+              transport Q p (f x u) ≡ f y (transport P p u)
+transport∘f {ℓ} {ℓ'} {ℓ''} {A} P Q f {x} {.x} (refl .x) u = refl (f x u)
 
 [p*q≡r]≡[q≡p⁻¹*r] : ∀ {ℓ ℓ'} {A : Set ℓ} {P : A → Set ℓ'} {x y : A}
                    → {p : x ≡ y} {q : P x} {r : P y}
@@ -658,7 +658,7 @@ transport≡ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : A → Set ℓ'} {x y : A} →
              (p : x ≡ y) (u : B x) → transport B p u ≡ (pr₁ (idtoeqv (ap B p))) u
 transport≡ {ℓ} {ℓ'} {A} {B} {x} {y} p u =
            transport ((λ x → x) ∘ B) p u
-        ≡⟨ transport[P∘f,p,u]≡transport[P,ap[f,p],u] B (λ x₁ → x₁) p u ⟩
+        ≡⟨ transport[P∘f] B (λ x₁ → x₁) p u ⟩
            transport (λ x → x) (ap B p) u
         ≡⟨ ap (λ f → (f (ap B p)) u) elim≡ ⟩
            (pr₁ (idtoeqv (ap B p))) u ∎
@@ -901,7 +901,7 @@ transport[x↦x≡x]≃ {ℓ} {A} {a} {.a} (refl .a) q r =
 ℕencode∘ℕdecode~id {succ m} {0} ()
 ℕencode∘ℕdecode~id {succ m} {succ n} c =
                    transport (ℕcode (succ m)) (ap succ (ℕdecode c)) (ℕr m)
-                ≡⟨ transport[P∘f,p,u]≡transport[P,ap[f,p],u] succ (ℕcode (succ m)) (ℕdecode c) (ℕr m) ⁻¹ ⟩
+                ≡⟨ transport[P∘f] succ (ℕcode (succ m)) (ℕdecode c) (ℕr m) ⁻¹ ⟩
                    transport (ℕcode (succ m) ∘ succ) (ℕdecode c) (ℕr m)
                 ≡⟨ ℕencode∘ℕdecode~id {m = m} c ⟩
                    c ∎
