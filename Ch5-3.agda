@@ -24,10 +24,16 @@ indW : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : A → Set ℓ'}
      → (w : W A B) → E w
 indW E e (sup a f) = e a f (λ b → indW E e (f b))
 
+recW : ∀ {ℓ ℓ' ℓ''} {A : Set ℓ} {B : A → Set ℓ'}
+     → (E : Set ℓ'')
+     → (e : (a : A) (f : B a → W A B) (g : (b : B a) → E) → E)
+     → (w : W A B) → E
+recW E e (sup a f) = e a f (λ b → recW E e (f b))
+
 doubleᵂ : ℕᵂ → ℕᵂ
-doubleᵂ = indW (λ _ → ℕᵂ) (λ a → ind𝟚 (λ a → (f g : (B a) → ℕᵂ) → ℕᵂ)
-                                      (λ f g → 0ᵂ)
-                                      (λ f g → succᵂ (succᵂ (g ⋆))) a)
+doubleᵂ = recW ℕᵂ (ind𝟚 (λ a → (f g : (B a) → ℕᵂ) → ℕᵂ)
+                        (λ f g → 0ᵂ)
+                        (λ f g → succᵂ (succᵂ (g ⋆))))
   where
   B = rec𝟚 (Set _) 𝟘 𝟙
 

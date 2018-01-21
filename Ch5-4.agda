@@ -260,6 +260,9 @@ isindℕ→ishinitℕ {A = 𝑨@(A , a₀ , aₛ)} Aisind 𝑩@(B , b₀ , bₛ)
   ℕAisindℕ (E , e₀ , e₁) = indℕ E e₀ e₁ , refl e₀ , (λ a → refl (e₁ a (indℕ E e₀ e₁ a)))
 
 module _ {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : A → Set ℓ₂} where
+  P : ∀ {ℓ} (X : Set ℓ) → Set _
+  P X = Σ[ x ∈ A ] (B x → X)
+  
   WAlg : ∀ {ℓ} → Set _
   WAlg {ℓ} = Σ[ C ∈ Set ℓ ] ((a : A) → (B a → C) → C)
 
