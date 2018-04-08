@@ -15,9 +15,9 @@ module _ where
 
 Wd : ∀ {ℓ₁ ℓ₂ ℓ₃ ℓ₄} (A : Set ℓ₁) (B : A → Set ℓ₂) → Set _
 Wd {ℓ₁} {ℓ₂} {ℓ₃} {ℓ₄} A B =
-   Σ[ W ∈ Set ℓ₃ ] Σ[ sup ∈ ((a : A) → ((B a → W) → W)) ] Σ[ E ∈ (W → Set ℓ₄) ]
-   ((e : (a : A) (f : B a → W) → ((b : B a) → E (f b)) → E (sup a f)) →
-    Σ[ ind ∈ ((w : W) → E w) ] ((a : A) (f : B a → W) → (ind (sup a f)) ≡ e a f (λ b → ind (f b))))
+   Σ[ W ∈ Set ℓ₃ ] Σ[ sup ∈ ((a : A) → ((B a → W) → W)) ]
+   ((E : W → Set ℓ₄) → ((e : (a : A) (f : B a → W) → ((b : B a) → E (f b)) → E (sup a f)) →
+                        Σ[ ind ∈ ((w : W) → E w) ] ((a : A) (f : B a → W) → (ind (sup a f)) ≡ e a f (λ b → ind (f b)))))
 
 -- Theorem 5.5.1
 postulate
@@ -26,12 +26,13 @@ postulate
 Wₛ : ∀ {ℓ₁ ℓ₂ ℓ₃ ℓ₄} (A : Set ℓ₁) (B : A → Set ℓ₂) → Set _
 Wₛ {ℓ₁} {ℓ₂} {ℓ₃} {ℓ₄} A B =
    Σ[ W ∈ Set ℓ₃ ] Σ[ sup ∈ ((a : A) → ((B a → W) → W)) ]
-   Σ[ C ∈ Set ℓ₄ ] Σ[ c ∈ ((a : A) → (B a → C) → C) ]
-   Σ[ rec ∈ (W → C) ] Σ[ β ∈ ((a : A) (f : B a → W) → rec (sup a f) ≡ c a (λ b → rec (f b))) ]
-   ((g : W → C) (h : W → C) (βg : ((a : A) (f : B a → W) → g (sup a f) ≡ c a (λ b → g (f b))))
-    (βh : ((a : A) (f : B a → W) → h (sup a f) ≡ c a (λ b → h (f b)))) →
-    Σ[ α ∈ ((w : W) → g w ≡ h w) ] ( (a : A) (f : B a → W)
-                                   → α (sup a f) ▪ βh a f ≡ βg a f ▪ ap (c a) (funext λ b → α (f b))))
+   ((C : Set ℓ₄) (c : ((a : A) → (B a → C) → C)) →
+    Σ[ rec ∈ (W → C) ] Σ[ β ∈ ((a : A) (f : B a → W) → rec (sup a f) ≡ c a (λ b → rec (f b))) ]
+    ((g : W → C) (h : W → C)
+     (βg : ((a : A) (f : B a → W) → g (sup a f) ≡ c a (λ b → g (f b))))
+     (βh : ((a : A) (f : B a → W) → h (sup a f) ≡ c a (λ b → h (f b)))) →
+     Σ[ α ∈ ((w : W) → g w ≡ h w) ] ( (a : A) (f : B a → W)
+                                    → α (sup a f) ▪ βh a f ≡ βg a f ▪ ap (c a) (funext λ b → α (f b)))))
 
 -- Theorem 5.5.1
 postulate
