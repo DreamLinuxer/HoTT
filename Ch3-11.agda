@@ -80,7 +80,7 @@ isContrA→ΣPx≃Pa A P (a , p) = f , qinv→isequiv (g , α , β)
     AisSet = PropisSet (pr₁ (isContra→isProp (a , p)))
 
   β : g ∘ f ~ id
-  β (a' , pa') = pairΣ≡ (p a' , transport▪ P (p a' ⁻¹) (p a') pa' ▪ (ap (λ r → (r *) pa') (p⁻¹▪p≡refly (p a'))))
+  β (a' , pa') = pairΣ≡ (p a' , transport▪ P (p a' ⁻¹) (p a') pa' ▪ (ap (λ r → (_* {P = P} r) pa') (p⁻¹▪p≡refly (p a'))))
 
 -- Lemma 3.11.10
 AisProp→isContr[a≡a] : ∀ {ℓ} {A : Set ℓ} → isProp A → (x y : A) → isContr (x ≡ y)

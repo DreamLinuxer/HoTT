@@ -29,7 +29,7 @@ open import Ch4-9 public
                            (ε b *) (transport Q (ε b ⁻¹) q)
                         ≡⟨ transport▪ Q (ε b ⁻¹) (ε b) q ⟩
                            ((ε b ⁻¹ ▪ ε b) *) q
-                        ≡⟨ ap (λ p → (p *) q) (p⁻¹▪p≡refly (ε b)) ⟩
+                        ≡⟨ ap (λ p → (_* {P = Q} p) q) (p⁻¹▪p≡refly (ε b)) ⟩
                            q ∎))
 
      η' : g ∘ f ~ id

@@ -96,7 +96,7 @@ module Ex2-4 where
                        (λ n np → Σ[ pr ∈ (np × np) ] (pr₁ pr ≡ pr₂ pr))
 
   boundary : ∀ {ℓ} {A : Set ℓ} → (n : ℕ) → Set ℓ
-  boundary {ℓ} {A} = recℕ (Set ℓ) (Lift 𝟘)
+  boundary {ℓ} {A} = recℕ (Set ℓ) (Lift _ 𝟘)
                           (λ n b → npath {ℓ} {A} n × npath {ℓ} {A} n)
 
 --Ex 2.10

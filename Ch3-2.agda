@@ -29,7 +29,7 @@ open import Base
                       transport (λ A → A) p (f 𝟚 u)
                    ≡⟨ ap (λ x → transport (λ A → A) p (f 𝟚 x)) uniq¬¬𝟚 ⟩
                       transport (λ A → A) p (f 𝟚 (transport (λ A → ¬ ¬ A) (p ⁻¹) u))
-                   ≡⟨ ap (λ g → g u) (transport→ p (f 𝟚) ⁻¹) ⟩
+                   ≡⟨ ap (λ g → g u) (transport→ {A = λ A → ¬ ¬ A} {B = λ A → A} p (f 𝟚) ⁻¹) ⟩
                       transport (λ A → ¬ ¬ A → A) p (f 𝟚) u
                    ≡⟨ happly (apd f p) u ⟩
                       f 𝟚 u ∎

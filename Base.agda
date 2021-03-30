@@ -832,9 +832,9 @@ transport[x↦x≡x]≃ {ℓ} {A} {a} {.a} (refl .a) q r =
                              𝒑 ∎)
 
 --2.12
-+code : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a₀ : A} → A + B → Set _
++code : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a₀ : A} → A + B → Set ℓ
 +code {a₀ = a₀} (inl a) = a₀ ≡ a
-+code {a₀ = a₀} (inr b) = Lift 𝟘
++code {a₀ = a₀} (inr b) = Lift _ 𝟘
 
 --Theorem 2.12.5
 +encode : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a₀ : A} (x : A + B) (p : inl a₀ ≡ x)
@@ -855,7 +855,7 @@ transport[x↦x≡x]≃ {ℓ} {A} {a} {.a} (refl .a) q r =
 +encode∘+decode~id : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a₀ : A} (x : A + B) (c : +code {a₀ = a₀} x)
                  → +encode x (+decode x c) ≡ c
 +encode∘+decode~id (inl a₀) (refl .a₀) = refl (refl a₀)
-+encode∘+decode~id (inr b) (Lift.lift ())
++encode∘+decode~id (inr b)  ()
 
 ≃+ : ∀ {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} {a₀ : A} (x : A + B) → (inl a₀) ≡ x ≃ +code x
 ≃+ {a₀ = a₀} x = (+encode x) , qinv→isequiv ((+decode x) , (+encode∘+decode~id x) , (+decode∘+encode~id x))
